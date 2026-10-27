@@ -38,8 +38,7 @@ struct MusicView: View {
                         IslandBrandMark(size: 76)
                         Text("Включи любимую музыку").font(.system(size: 20, weight: .semibold, design: .rounded))
                         if let provider = store.state.settings.musicProvider {
-                            Text("Войди на сайте сервиса и выбери трек.
-Музыка играет прямо внутри Solo Island.")
+                            Text("Войди на сайте сервиса и выбери трек.\nМузыка играет прямо внутри Solo Island.")
                                 .font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Button { web.configure(provider); store.musicWebsiteVisible = true } label: {
                                 Label("Открыть веб-плеер", systemImage: "play.fill")
