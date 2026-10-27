@@ -3,31 +3,31 @@ TAP version 13
 # Subtest: empty and login pages do not become tracks or expose form data
 ok 1 - empty and login pages do not become tracks or expose form data
   ---
-  duration_ms: 2.076375
+  duration_ms: 1.915125
   type: 'test'
   ...
 # Subtest: active HTML5 media wins and non-finite stream duration is omitted
 ok 2 - active HTML5 media wins and non-finite stream duration is omitted
   ---
-  duration_ms: 0.455041
+  duration_ms: 0.542583
   type: 'test'
   ...
 # Subtest: media session next and seek handlers receive structured action details
 ok 3 - media session next and seek handlers receive structured action details
   ---
-  duration_ms: 0.335417
+  duration_ms: 0.359709
   type: 'test'
   ...
 # Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
 ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
   ---
-  duration_ms: 0.367125
+  duration_ms: 0.373166
   type: 'test'
   ...
 # Subtest: site-specific next button is used only when enabled
 ok 5 - site-specific next button is used only when enabled
   ---
-  duration_ms: 0.302709
+  duration_ms: 0.315334
   type: 'test'
   ...
 1..5
@@ -38,43 +38,43 @@ ok 5 - site-specific next button is used only when enabled
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 81.143167
+# duration_ms 85.862041
 test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
 test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
 test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
 test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 1.195s
+Ran 4 tests in 1.269s
 
 OK
 Building for debugging...
+[0/14] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
 [0/14] Write sources
-[1/14] Write SoloIsland-entitlement.plist
-[1/14] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
-[3/14] Write sources
+[6/14] Write SoloIsland-entitlement.plist
+[6/14] Write sources
 [8/14] Write swift-version--79AA4F9932D1E87A.txt
 [10/19] Compiling IslandCore ProcessRunner.swift
 [11/19] Compiling IslandCore MusicProvider.swift
-[12/19] Emitting module IslandCore
-[13/19] Compiling IslandCore NowPlaying.swift
-[14/19] Compiling IslandCore Models.swift
+[12/20] Compiling IslandCore NowPlaying.swift
+[13/20] Emitting module IslandCore
+[14/20] Compiling IslandCore Models.swift
 [15/20] Compiling IslandCore TaskReminders.swift
 [16/25] Emitting module IslandPlatform
 [17/25] Compiling IslandPlatform ClipboardService.swift
 [18/43] Compiling IslandPlatformTests ClipboardServiceTests.swift
 [19/43] Emitting module IslandPlatformTests
-[20/43] Compiling IslandCoreTests PlanningTests.swift
-[21/43] Emitting module IslandCoreTests
+[20/43] Emitting module IslandCoreTests
+[21/43] Compiling IslandCoreTests PlanningTests.swift
 [22/43] Compiling IslandCoreTests IslandCoreTests.swift
 [23/45] Emitting module IslandApp
 [24/48] Compiling SoloIslandPackageTests runner.swift
 [25/48] Emitting module SoloIslandPackageTests
 [25/48] Write Objects.LinkFileList
-[26/48] Linking SoloIslandPackageTests
-[28/48] Compiling IslandApp NotificationService.swift
-[29/48] Compiling IslandApp PreviewRecorder.swift
-[30/48] Compiling IslandApp SettingsView.swift
+[27/48] Compiling IslandApp NotificationService.swift
+[28/48] Compiling IslandApp PreviewRecorder.swift
+[29/48] Compiling IslandApp SettingsView.swift
+[29/48] Linking SoloIslandPackageTests
 [31/48] Compiling IslandApp TasksView.swift
 [32/48] Compiling IslandApp WebMusicService.swift
 [33/48] Compiling IslandApp WebPlayerScript.swift
@@ -87,245 +87,245 @@ Building for debugging...
 [40/48] Compiling IslandApp AudioService.swift
 [41/48] Compiling IslandApp BrandViews.swift
 [42/48] Compiling IslandApp Controls.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:137:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-135 |     private func attributes(_ object: NSObject) -> String {
-136 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
-137 |             object.accessibilityAttributeValue($0) as? String
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:166:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+164 |     private func attributes(_ object: NSObject) -> String {
+165 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+166 |             object.accessibilityAttributeValue($0) as? String
     |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-138 |         }.joined(separator: " | ")
-139 |     }
+167 |         }.joined(separator: " | ")
+168 |     }
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:145:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-143 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-144 |             result.append(object)
-145 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:174:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+172 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+173 |             result.append(object)
+174 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-146 |         }
-147 |         visit(window, depth: 0)
+175 |         }
+176 |         visit(window, depth: 0)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:151:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-149 |     }
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:180:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+178 |     }
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
     |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-153 |         let p = pos.pointValue, s = size.sizeValue
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+182 |         let p = pos.pointValue, s = size.sizeValue
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:152:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-153 |         let p = pos.pointValue, s = size.sizeValue
-154 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+182 |         let p = pos.pointValue, s = size.sizeValue
+183 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:159:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-157 |         objects().first { object in
-158 |             let match = attributes(object).contains(query)
-159 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:188:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+186 |         objects().first { object in
+187 |             let match = attributes(object).contains(query)
+188 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
     |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-160 |             guard match, validRole, let r = rectangle(object) else { return false }
-161 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+189 |             guard match, validRole, let r = rectangle(object) else { return false }
+190 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-179 |         fputs("Interaction recording: \(reason)\n", stderr)
-180 |         for object in objects() {
-181 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:215:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+214 |         for object in objects() {
+215 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
     |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-182 |         }
-183 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+216 |         }
+217 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
 [43/48] Compiling IslandApp FilesView.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:137:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-135 |     private func attributes(_ object: NSObject) -> String {
-136 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
-137 |             object.accessibilityAttributeValue($0) as? String
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:166:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+164 |     private func attributes(_ object: NSObject) -> String {
+165 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+166 |             object.accessibilityAttributeValue($0) as? String
     |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-138 |         }.joined(separator: " | ")
-139 |     }
+167 |         }.joined(separator: " | ")
+168 |     }
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:145:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-143 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-144 |             result.append(object)
-145 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:174:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+172 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+173 |             result.append(object)
+174 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-146 |         }
-147 |         visit(window, depth: 0)
+175 |         }
+176 |         visit(window, depth: 0)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:151:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-149 |     }
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:180:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+178 |     }
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
     |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-153 |         let p = pos.pointValue, s = size.sizeValue
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+182 |         let p = pos.pointValue, s = size.sizeValue
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:152:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-153 |         let p = pos.pointValue, s = size.sizeValue
-154 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+182 |         let p = pos.pointValue, s = size.sizeValue
+183 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:159:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-157 |         objects().first { object in
-158 |             let match = attributes(object).contains(query)
-159 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:188:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+186 |         objects().first { object in
+187 |             let match = attributes(object).contains(query)
+188 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
     |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-160 |             guard match, validRole, let r = rectangle(object) else { return false }
-161 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+189 |             guard match, validRole, let r = rectangle(object) else { return false }
+190 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-179 |         fputs("Interaction recording: \(reason)\n", stderr)
-180 |         for object in objects() {
-181 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:215:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+214 |         for object in objects() {
+215 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
     |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-182 |         }
-183 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+216 |         }
+217 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
 [44/48] Compiling IslandApp FocusView.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:137:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-135 |     private func attributes(_ object: NSObject) -> String {
-136 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
-137 |             object.accessibilityAttributeValue($0) as? String
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:166:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+164 |     private func attributes(_ object: NSObject) -> String {
+165 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+166 |             object.accessibilityAttributeValue($0) as? String
     |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-138 |         }.joined(separator: " | ")
-139 |     }
+167 |         }.joined(separator: " | ")
+168 |     }
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:145:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-143 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-144 |             result.append(object)
-145 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:174:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+172 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+173 |             result.append(object)
+174 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-146 |         }
-147 |         visit(window, depth: 0)
+175 |         }
+176 |         visit(window, depth: 0)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:151:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-149 |     }
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:180:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+178 |     }
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
     |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-153 |         let p = pos.pointValue, s = size.sizeValue
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+182 |         let p = pos.pointValue, s = size.sizeValue
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:152:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-153 |         let p = pos.pointValue, s = size.sizeValue
-154 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+182 |         let p = pos.pointValue, s = size.sizeValue
+183 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:159:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-157 |         objects().first { object in
-158 |             let match = attributes(object).contains(query)
-159 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:188:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+186 |         objects().first { object in
+187 |             let match = attributes(object).contains(query)
+188 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
     |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-160 |             guard match, validRole, let r = rectangle(object) else { return false }
-161 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+189 |             guard match, validRole, let r = rectangle(object) else { return false }
+190 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-179 |         fputs("Interaction recording: \(reason)\n", stderr)
-180 |         for object in objects() {
-181 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:215:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+214 |         for object in objects() {
+215 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
     |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-182 |         }
-183 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+216 |         }
+217 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
 [45/48] Compiling IslandApp InteractionRecorder.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:137:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-135 |     private func attributes(_ object: NSObject) -> String {
-136 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
-137 |             object.accessibilityAttributeValue($0) as? String
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:166:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+164 |     private func attributes(_ object: NSObject) -> String {
+165 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+166 |             object.accessibilityAttributeValue($0) as? String
     |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-138 |         }.joined(separator: " | ")
-139 |     }
+167 |         }.joined(separator: " | ")
+168 |     }
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:145:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-143 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-144 |             result.append(object)
-145 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:174:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+172 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+173 |             result.append(object)
+174 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-146 |         }
-147 |         visit(window, depth: 0)
+175 |         }
+176 |         visit(window, depth: 0)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:151:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-149 |     }
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:180:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+178 |     }
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
     |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-153 |         let p = pos.pointValue, s = size.sizeValue
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+182 |         let p = pos.pointValue, s = size.sizeValue
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:152:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-153 |         let p = pos.pointValue, s = size.sizeValue
-154 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+182 |         let p = pos.pointValue, s = size.sizeValue
+183 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:159:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-157 |         objects().first { object in
-158 |             let match = attributes(object).contains(query)
-159 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:188:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+186 |         objects().first { object in
+187 |             let match = attributes(object).contains(query)
+188 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
     |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-160 |             guard match, validRole, let r = rectangle(object) else { return false }
-161 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+189 |             guard match, validRole, let r = rectangle(object) else { return false }
+190 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-179 |         fputs("Interaction recording: \(reason)\n", stderr)
-180 |         for object in objects() {
-181 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:215:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+214 |         for object in objects() {
+215 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
     |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-182 |         }
-183 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+216 |         }
+217 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
 [45/48] Write Objects.LinkFileList
 [46/48] Linking SoloIsland
 [47/48] Applying SoloIsland
-Build complete! (14.25s)
-Test Suite 'All tests' started at 2026-10-27 21:22:54.386.
-Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 21:22:54.387.
-Test Suite 'ClipboardServiceTests' started at 2026-10-27 21:22:54.387.
+Build complete! (15.38s)
+Test Suite 'All tests' started at 2026-10-27 21:40:19.814.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 21:40:19.815.
+Test Suite 'ClipboardServiceTests' started at 2026-10-27 21:40:19.815.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.009 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
-2026-10-27 21:22:54.401 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.401 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.401 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.401 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.401 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.401 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.401 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.401 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.401 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.401 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.401 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.401 xctest[2653:12133] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.012 seconds).
+2026-10-27 21:40:19.852 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.852 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.852 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.852 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.852 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.852 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.852 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.852 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.852 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.852 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.852 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.852 xctest[1722:8882] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.037 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.001 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
-2026-10-27 21:22:54.408 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.408 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.408 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.408 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.408 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.408 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.408 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.408 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.408 xctest[2653:12133] Unknown number of components for colorspace model -1
-2026-10-27 21:22:54.408 xctest[2653:12133] Bad colorspace name NSNamedColorSpace
-2026-10-27 21:22:54.408 xctest[2653:12133] Unrecognized colorspace number -2
-2026-10-27 21:22:54.408 xctest[2653:12133] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.005 seconds).
+2026-10-27 21:40:19.862 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.862 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.862 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.862 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.862 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.862 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.862 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.862 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.862 xctest[1722:8882] Unknown number of components for colorspace model -1
+2026-10-27 21:40:19.862 xctest[1722:8882] Bad colorspace name NSNamedColorSpace
+2026-10-27 21:40:19.862 xctest[1722:8882] Unrecognized colorspace number -2
+2026-10-27 21:40:19.862 xctest[1722:8882] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.004 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.001 seconds).
-Test Suite 'ClipboardServiceTests' passed at 2026-10-27 21:22:54.414.
-	 Executed 5 tests, with 0 failures (0 unexpected) in 0.027 (0.028) seconds
-Test Suite 'IslandCoreTests' started at 2026-10-27 21:22:54.414.
+Test Suite 'ClipboardServiceTests' passed at 2026-10-27 21:40:19.867.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.052 (0.052) seconds
+Test Suite 'IslandCoreTests' started at 2026-10-27 21:40:19.867.
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.019 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.017 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.135 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.137 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
@@ -356,9 +356,9 @@ Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndat
 Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
-Test Suite 'IslandCoreTests' passed at 2026-10-27 21:22:54.575.
+Test Suite 'IslandCoreTests' passed at 2026-10-27 21:40:20.028.
 	 Executed 17 tests, with 0 failures (0 unexpected) in 0.160 (0.161) seconds
-Test Suite 'PlanningTests' started at 2026-10-27 21:22:54.575.
+Test Suite 'PlanningTests' started at 2026-10-27 21:40:20.028.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
@@ -371,12 +371,12 @@ Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWitho
 Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
-Test Suite 'PlanningTests' passed at 2026-10-27 21:22:54.577.
+Test Suite 'PlanningTests' passed at 2026-10-27 21:40:20.029.
 	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
-Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 21:22:54.577.
-	 Executed 28 tests, with 0 failures (0 unexpected) in 0.189 (0.190) seconds
-Test Suite 'All tests' passed at 2026-10-27 21:22:54.577.
-	 Executed 28 tests, with 0 failures (0 unexpected) in 0.189 (0.191) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 21:40:20.029.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.213 (0.214) seconds
+Test Suite 'All tests' passed at 2026-10-27 21:40:20.029.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.213 (0.215) seconds
 ◇ Test run started.
 ↳ Testing Library Version: 124.4
 ↳ Target Platform: arm64e-apple-macos14.0
@@ -387,61 +387,61 @@ Building for production...
 [5/7] Compiling IslandCore Models.swift
 [6/8] Compiling IslandPlatform ClipboardService.swift
 [7/9] Compiling IslandApp ActionsView.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:137:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-135 |     private func attributes(_ object: NSObject) -> String {
-136 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
-137 |             object.accessibilityAttributeValue($0) as? String
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:166:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+164 |     private func attributes(_ object: NSObject) -> String {
+165 |         [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+166 |             object.accessibilityAttributeValue($0) as? String
     |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-138 |         }.joined(separator: " | ")
-139 |     }
+167 |         }.joined(separator: " | ")
+168 |     }
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:145:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-143 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-144 |             result.append(object)
-145 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:174:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+172 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+173 |             result.append(object)
+174 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-146 |         }
-147 |         visit(window, depth: 0)
+175 |         }
+176 |         visit(window, depth: 0)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:151:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-149 |     }
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:180:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+178 |     }
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
     |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-153 |         let p = pos.pointValue, s = size.sizeValue
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+182 |         let p = pos.pointValue, s = size.sizeValue
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:152:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-150 |     private func rectangle(_ object: NSObject) -> NSRect? {
-151 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-152 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     private func rectangle(_ object: NSObject) -> NSRect? {
+180 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+181 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
     |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-153 |         let p = pos.pointValue, s = size.sizeValue
-154 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+182 |         let p = pos.pointValue, s = size.sizeValue
+183 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:159:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-157 |         objects().first { object in
-158 |             let match = attributes(object).contains(query)
-159 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:188:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+186 |         objects().first { object in
+187 |             let match = attributes(object).contains(query)
+188 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
     |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-160 |             guard match, validRole, let r = rectangle(object) else { return false }
-161 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+189 |             guard match, validRole, let r = rectangle(object) else { return false }
+190 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
 
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-179 |         fputs("Interaction recording: \(reason)\n", stderr)
-180 |         for object in objects() {
-181 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:215:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+214 |         for object in objects() {
+215 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
     |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
-182 |         }
-183 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+216 |         }
+217 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
 [7/9] Write Objects.LinkFileList
 [8/9] Linking SoloIsland
-Build of product 'SoloIsland' complete! (17.21s)
+Build of product 'SoloIsland' complete! (20.73s)
 From https://github.com/ungive/media-control
  * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
 HEAD is now at 3cfd5dc Bump version to 0.7.7
 Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
-Cloning into '/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.rkgtmv/source/mediaremote-adapter'...
+Cloning into '/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.0vy3Dy/source/mediaremote-adapter'...
 From https://github.com/ungive/mediaremote-adapter
  * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
 Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
@@ -451,9 +451,9 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 -- Check for working OBJC compiler: /usr/bin/clang - skipped
 -- Configuring done (1.4s)
 -- Generating done (0.4s)
--- Build files have been written to: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.rkgtmv/build
-[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
+-- Build files have been written to: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.0vy3Dy/build
 [ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
+[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
 [ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
 [ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
 [ 26%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/globals.m.o
@@ -473,7 +473,7 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 [ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
 [100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
 Ad-hoc signing MediaRemoteAdapter.framework
-/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.rkgtmv/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.0vy3Dy/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
 [100%] Built target MediaRemoteAdapter
 -- Install configuration: "Release"
 -- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
@@ -623,13 +623,312 @@ motion step=1 frame=254.0
 motion step=10 frame=652.0
 layout expanded=true transition=false active=false frame=720.0
 motion system=true effective=false duration=0.32
-Interaction recording: Reminder form did not save its future date
-AX AXWindow  (0.0, 0.0, 720.0, 548.0)
-AX AXUnknown  (0.0, 0.0, 720.0, 548.0)
-AX AXTextField Подготовить новый проект (181.0, 136.0, 403.0, 18.0)
-AX AXScrollArea  (171.0, 224.0, 529.0, 304.0)
-AX AXDateTimeArea  (234.0, 449.0, 60.0, 26.0)
-AX AXIncrementor  (277.0, 450.0, 19.0, 24.0)
-AX AXButton  (277.0, 450.0, 19.0, 12.0)
-AX AXButton  (277.0, 462.0, 19.0, 12.0)
-Preview: Reminder form did not save its future date
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=722.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=725.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=731.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=738.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=746.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=756.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=765.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=774.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=784.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=792.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=799.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=805.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=808.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=809.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=808.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=803.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=795.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=785.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=774.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=761.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=748.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=735.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=723.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=712.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=702.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=694.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=689.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=687.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=688.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=689.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=691.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=694.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=697.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=700.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=704.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=707.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=711.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=714.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=717.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=719.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3240816326530612
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3355102040816327
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.35306122448979593
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3755102040816326
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.4016326530612245
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.430204081632653
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.4599999999999999
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.48979591836734687
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5183673469387755
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5444897959183673
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.566938775510204
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5844897959183672
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5959183673469387
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.6
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.593002915451895
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5734110787172011
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5433236151603498
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.5048396501457726
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.4600583090379009
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.4110787172011662
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.36
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3089212827988338
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.25994169096209907
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2151603498542274
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.17667638483965015
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.14658892128279882
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.126997084548105
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.12
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.12293877551020407
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.13116734693877552
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.14380408163265304
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.15996734693877548
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.17877551020408164
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.1993469387755102
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2208
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2422530612244898
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2628244897959184
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2816326530612245
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.2977959183673469
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3104326530612245
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3186612244897959
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3216
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3216
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3216
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.3216
+layout expanded=true transition=false active=false frame=720.0
+motion system=true effective=false duration=0.32
+Interactive native footage: 10 clips, 1452 frames; music, all five sliders, calendars, lists, focus and buttons recorded
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=720.0
+motion system=true effective=true duration=0.0
+created: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
+Checksumming Protective Master Boot Record (MBR : 0)…
+Protective Master Boot Record (MBR :: verified   CRC32 $039073A9
+Checksumming GPT Header (Primary GPT Header : 1)…
+ GPT Header (Primary GPT Header : 1): verified   CRC32 $8B9136EA
+Checksumming GPT Partition Data (Primary GPT Table : 2)…
+GPT Partition Data (Primary GPT Tabl: verified   CRC32 $AA237088
+Checksumming  (Apple_Free : 3)…
+                    (Apple_Free : 3): verified   CRC32 $00000000
+Checksumming disk image (Apple_HFS : 4)…
+          disk image (Apple_HFS : 4): verified   CRC32 $56C617D5
+Checksumming  (Apple_Free : 5)…
+                    (Apple_Free : 5): verified   CRC32 $00000000
+Checksumming GPT Partition Data (Backup GPT Table : 6)…
+GPT Partition Data (Backup GPT Table: verified   CRC32 $AA237088
+Checksumming GPT Header (Backup GPT Header : 7)…
+  GPT Header (Backup GPT Header : 7): verified   CRC32 $D8833FA5
+verified   CRC32 $6B57A25C
+hdiutil: verify: checksum of "/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg" is VALID
+expected   CRC32 $6B57A25C
+/dev/disk5          	GUID_partition_scheme          	
+/dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-dmg.D3Gvpp/mount
+media-control 0.7.7
+Copyright (c) 2025 Jonas van den Berg
+Licensed under the BSD 3-Clause License.
+null
+"disk5" ejected.
+Installer: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
+Built: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app
+Archive: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland-macOS.zip
