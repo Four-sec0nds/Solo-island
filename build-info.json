@@ -1,6 +1,6 @@
 {
-  "source_commit": "70aeaed54e23156200172605104411d8dbe50bd6",
-  "result": "success",
-  "run_url": "https://github.com/Four-sec0nds/Exploit-CVE/actions/runs/40546427341",
-  "installer": "SoloIsland.dmg"
+  "source_commit": "198db1a4988f985dcd4677a74856070de03c38c9",
+  "result": "failure",
+  "run_url": "https://github.com/Four-sec0nds/Exploit-CVE/actions/runs/40557863937",
+  "installer": null
 }
