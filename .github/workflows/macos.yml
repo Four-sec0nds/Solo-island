@@ -1,21 +1,43 @@
-name: macOS app
+name: macOS installer
 on:
   push:
+    branches: [solo-island]
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: solo-island-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 25
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Test and build app bundle
-        run: bash scripts/build.sh
-      - name: Upload macOS app
+      - name: Test, bundle media helper and create DMG
+        id: build
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            command -v cmake || brew install cmake
+            python3 -m unittest discover -s Tests/PackagingTests -v
+            bash scripts/build.sh
+          } 2>&1 | tee "$RUNNER_TEMP/solo-build.log"
+      - name: Upload installer
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: SoloIsland-macOS
-          path: dist/SoloIsland-macOS.zip
+          name: SoloIsland-DMG
+          path: |
+            dist/SoloIsland.dmg
+            dist/SoloIsland.dmg.sha256
           if-no-files-found: error
+      - name: Save installer and build result in the repository
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+        run: bash scripts/publish-build.sh

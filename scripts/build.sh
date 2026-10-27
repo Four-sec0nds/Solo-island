@@ -25,9 +25,11 @@ iconset_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-island-icons.XXXXXX")/AppIcon.ico
 trap 'rm -rf "${iconset_dir%/AppIcon.iconset}"' EXIT
 swift scripts/make-icon.swift "$iconset_dir"
 iconutil -c icns "$iconset_dir" -o "$app_dir/Contents/Resources/AppIcon.icns"
+bash scripts/bundle-media.sh
 # Local ad-hoc signing; no Apple credentials are needed. Not a notarized distribution.
 codesign --force --sign - "$app_dir"
-codesign --verify --strict --verbose=2 "$app_dir"
+codesign --verify --deep --strict --verbose=2 "$app_dir"
 ditto -c -k --keepParent "$app_dir" "$PWD/dist/SoloIsland-macOS.zip"
+bash scripts/package-dmg.sh
 echo "Built: $app_dir"
 echo "Archive: $PWD/dist/SoloIsland-macOS.zip"

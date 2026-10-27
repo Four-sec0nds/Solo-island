@@ -17,7 +17,8 @@ final class MediaService: ObservableObject {
     private var generation = UUID()
 
     var executable: String? {
-        ["/opt/homebrew/bin/media-control", "/usr/local/bin/media-control"].first {
+        let bundled = Bundle.main.resourceURL?.appendingPathComponent("MediaControl/bin/media-control").path
+        return [bundled, "/opt/homebrew/bin/media-control", "/usr/local/bin/media-control"].compactMap { $0 }.first {
             FileManager.default.isExecutableFile(atPath: $0)
         }
     }
@@ -31,7 +32,7 @@ final class MediaService: ObservableObject {
     func start() {
         stop()
         guard let executable else {
-            error = "Установите медиамодуль: brew install media-control"; return
+            error = "Медиамодуль отсутствует. Переустановите Solo Island из полного DMG."; return
         }
         error = nil
         let process = Process(), output = Pipe(), errors = Pipe()

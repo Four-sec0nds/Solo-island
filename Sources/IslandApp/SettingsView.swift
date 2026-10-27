@@ -15,7 +15,7 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("0.1.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text("0.2.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
                 settingSlider("Ширина", value: binding(\.expandedWidth), range: 460...640, suffix: "pt")
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 16...36, suffix: "pt")

@@ -18,8 +18,6 @@ if ! xcrun --find swift >/dev/null 2>&1; then
     echo "After installation, run this script again." >&2
     exit 1
 fi
-brew list --formula media-control >/dev/null 2>&1 || brew install media-control
-media_control="$(brew --prefix)/bin/media-control"
-"$media_control" version
+command -v cmake >/dev/null 2>&1 || brew install cmake
 bash scripts/build.sh
 open "$PWD/dist/SoloIsland.app"
