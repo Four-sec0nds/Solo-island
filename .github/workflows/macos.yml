@@ -1,0 +1,21 @@
+name: macOS app
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test and build app bundle
+        run: bash scripts/build.sh
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: SoloIsland-macOS
+          path: dist/SoloIsland-macOS.zip
+          if-no-files-found: error
