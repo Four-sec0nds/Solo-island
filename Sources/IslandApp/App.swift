@@ -121,15 +121,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             do {
                 let directory = output.deletingLastPathComponent()
                 try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-opening.gif"))
-                store.pinned = true; store.reveal(.music)
-                try? await Task.sleep(nanoseconds: 650_000_000)
-                try PreviewRecorder.png(window, to: output)
-                store.tab = .tasks
-                try? await Task.sleep(nanoseconds: 350_000_000)
-                try PreviewRecorder.png(window, to: directory.appendingPathComponent("SoloIsland-tasks.png"))
-                store.tab = .actions
-                try? await Task.sleep(nanoseconds: 400_000_000)
-                try PreviewRecorder.png(window, to: directory.appendingPathComponent("SoloIsland-actions.png"))
+                // Each still gets a fresh, motion-free host. Reusing a host while changing
+                // tabs can cache a SwiftUI crossfade rather than its final content.
+                let imageURL = folder.appendingPathComponent("Дизайн проекта.png")
+                let briefURL = folder.appendingPathComponent("План проекта.txt")
+                try "Идея → дизайн → готовый проект".write(to: briefURL, atomically: true, encoding: .utf8)
+                let stills: [(IslandTab, URL)] = [
+                    (.music, output),
+                    (.tasks, directory.appendingPathComponent("SoloIsland-tasks.png")),
+                    (.focus, directory.appendingPathComponent("SoloIsland-focus.png")),
+                    (.files, directory.appendingPathComponent("SoloIsland-files.png")),
+                    (.actions, directory.appendingPathComponent("SoloIsland-actions.png"))
+                ]
+                for (tab, destination) in stills {
+                    let stillFolder = folder.appendingPathComponent("still-" + tab.id)
+                    var stillFixture = fixture
+                    if tab == .focus {
+                        stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 25,
+                                                          now: Date().addingTimeInterval(-360))
+                    }
+                    if tab == .files {
+                        stillFixture.shelf.append(ShelfEntry(path: imageURL.path, kind: .image, isPinned: true))
+                        stillFixture.shelf.append(ShelfEntry(path: briefURL.path))
+                    }
+                    try StateRepository(url: stillFolder.appendingPathComponent("state.json")).save(stillFixture)
+                    let stillStore = IslandStore(dataFolder: stillFolder)
+                    stillStore.media.setPreview(previewTrack)
+                    stillStore.tab = tab; stillStore.pinned = true
+                    let stillController = IslandWindowController(store: stillStore, trackPointer: false, reducedMotionOverride: true)
+                    stillStore.reveal(tab)
+                    try? await Task.sleep(nanoseconds: 850_000_000)
+                    guard let stillWindow = stillController.window else { throw CocoaError(.fileWriteUnknown) }
+                    try PreviewRecorder.png(stillWindow, to: destination)
+                    if tab == .music { try FileManager.default.copyItem(at: destination, to: imageURL) }
+                    stillWindow.orderOut(nil)
+                }
                 let reducedStore = IslandStore(dataFolder: folder.appendingPathComponent("reduced-motion"))
                 let reducedController = IslandWindowController(store: reducedStore, trackPointer: false, reducedMotionOverride: true)
                 reducedStore.reveal()
