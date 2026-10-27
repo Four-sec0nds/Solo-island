@@ -18,7 +18,7 @@ app_dir="$PWD/dist/SoloIsland.app"
 # Only replace our generated bundle, never a user-selected path.
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/SoloIsland" "$app_dir/Contents/MacOS/SoloIsland"
-lipo -verify_arch "$app_arch" "$app_dir/Contents/MacOS/SoloIsland"
+lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "$app_arch"
 cp Resources/Info.plist "$app_dir/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app_dir/Contents/Info.plist" >/dev/null
 iconset_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-island-icons.XXXXXX")/AppIcon.iconset"

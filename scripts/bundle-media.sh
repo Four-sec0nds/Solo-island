@@ -32,8 +32,8 @@ printf '%s\n' 'media-control v0.7.7 — BSD 3-Clause' \
 printf '%s\n' "$media_revision" > "$helper_dir/source-revision.txt"
 framework="$helper_dir/Frameworks/MediaRemoteAdapter.framework"
 client="$helper_dir/lib/media-control/MediaRemoteAdapterTestClient"
-lipo -verify_arch "$app_arch" "$framework/MediaRemoteAdapter"
-lipo -verify_arch "$app_arch" "$client"
+lipo "$framework/MediaRemoteAdapter" -verify_arch "$app_arch"
+lipo "$client" -verify_arch "$app_arch"
 # No dependency may accidentally point at the builder's Homebrew installation.
 linkage="$(otool -L "$framework/MediaRemoteAdapter" "$client")"
 if printf '%s\n' "$linkage" | grep -E '^[[:space:]]+/(opt/homebrew|usr/local|Users)/'; then
