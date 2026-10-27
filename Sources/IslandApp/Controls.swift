@@ -79,6 +79,7 @@ struct IslandSegments<Selection: Hashable>: View {
                             }
                         }
                 }.buttonStyle(IslandButtonStyle(.bare)).accessibilityAddTraits(selection == option ? .isSelected : [])
+                    .recordingTarget(title(option))
             }
         }.padding(4).background(Color.purple.opacity(0.055), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).strokeBorder(.purple.opacity(0.12), lineWidth: 1))

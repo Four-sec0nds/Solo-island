@@ -76,7 +76,7 @@ struct MusicProviderGrid: View {
                         Spacer(minLength: 0)
                         if selected == provider { Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.mint) }
                     }.padding(10).frame(maxWidth: .infinity).islandCard(tint: selected == provider ? .mint : .purple)
-                }.buttonStyle(IslandButtonStyle(.bare))
+                }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(provider.title)
             }
         }
     }

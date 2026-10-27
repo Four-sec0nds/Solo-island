@@ -37,6 +37,7 @@ print(json.dumps({
 PY
 add_file "$work_dir/build-info.json" build-info.json
 if [[ -f "${RUNNER_TEMP}/solo-build.log" ]]; then add_file "${RUNNER_TEMP}/solo-build.log" build.log; fi
+if [[ -f dist/SoloIsland-interaction-debug.png ]]; then add_file dist/SoloIsland-interaction-debug.png SoloIsland-interaction-debug.png; fi
 if [[ "${BUILD_RESULT:-}" == success ]]; then
     [[ -f dist/SoloIsland.dmg ]] || { echo 'Successful build has no DMG.' >&2; exit 1; }
     add_file dist/SoloIsland.dmg SoloIsland.dmg

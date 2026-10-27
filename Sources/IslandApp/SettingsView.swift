@@ -41,9 +41,9 @@ struct IslandSettingsView: View {
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Скорость анимации").font(.caption)
-                    IslandSlider(value: binding(\.animationDuration), in: 0.12...0.6).accessibilityLabel("Скорость анимации")
+                    IslandSlider(value: binding(\.animationDuration), in: 0.12...0.6).accessibilityLabel("Скорость анимации").recordingTarget("Скорость анимации")
                 }
-                Toggle("Акцент из обложки", isOn: binding(\.coverAccent)).font(.caption)
+                Toggle("Акцент из обложки", isOn: binding(\.coverAccent)).font(.caption).recordingTarget("Алерт:акцент")
                 if !store.state.settings.coverAccent {
                     IslandSegments(options: ["mint", "blue", "purple", "orange"], selection: binding(\.accent), title: { value in
                         switch value { case "mint": return "Мятный"; case "blue": return "Синий"; case "purple": return "Фиолетовый"; default: return "Оранжевый" }
@@ -84,7 +84,7 @@ struct IslandSettingsView: View {
     private func settingSlider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>, suffix: String) -> some View {
         VStack(spacing: 5) {
             HStack { Text(title); Spacer(); Text("\(Int(value.wrappedValue)) \(suffix)").foregroundStyle(.secondary) }.font(.caption)
-            IslandSlider(value: value, in: range).accessibilityLabel(title)
+            IslandSlider(value: value, in: range).accessibilityLabel(title).recordingTarget(title)
         }
     }
 }

@@ -1,6 +1,34 @@
 import AppKit
 import IslandCore
 import CryptoKit
+import SwiftUI
+
+@MainActor
+enum RecordingTargets { static var frames: [String: CGRect] = [:] }
+
+@MainActor
+private struct RecordingTargetModifier: ViewModifier {
+    let key: String
+    func body(content: Content) -> some View {
+        if CommandLine.arguments.contains("--render-preview") {
+            content.background {
+                GeometryReader { geometry in
+                    Color.clear
+                        .onAppear { RecordingTargets.frames[key] = geometry.frame(in: .global) }
+                        .onChange(of: geometry.frame(in: .global)) { _, rect in RecordingTargets.frames[key] = rect }
+                        .onChange(of: key) { old, next in
+                            RecordingTargets.frames.removeValue(forKey: old)
+                            RecordingTargets.frames[next] = geometry.frame(in: .global)
+                        }
+                        .onDisappear { RecordingTargets.frames.removeValue(forKey: key) }
+                }.allowsHitTesting(false)
+            }
+        } else { content }
+    }
+}
+extension View {
+    @MainActor func recordingTarget(_ key: String) -> some View { modifier(RecordingTargetModifier(key: key)) }
+}
 
 /// Offline native footage. Local events go to our own window; no accessibility,
 /// screen-recording permission, personal session or external music site is used.
@@ -163,8 +191,8 @@ final class InteractionRecorder {
     }
     private func press(_ query: String, fallback: NSPoint, after: () -> Void = {}) async throws {
         let object = control(query, role: "AXButton")
-        let rect = object.flatMap(rectangle)
-        let point = rect.map { NSPoint(x: $0.midX, y: $0.midY) } ?? fallback
+        let rect = RecordingTargets.frames[query] ?? object.flatMap(rectangle)
+        let point = rect.map { NSPoint(x: query.hasPrefix("Алерт:") ? $0.maxX - 18 : $0.midX, y: $0.midY) } ?? fallback
         try await move(to: point)
         events.append(Event(frame: frames.count, kind: "click", label: query))
         pressed = true; mouse(.leftMouseDown, at: point); try await capture(2)
@@ -172,11 +200,13 @@ final class InteractionRecorder {
     }
     private func tab(_ target: IslandTab) async throws {
         let index = IslandTab.allCases.firstIndex(of: target)!
-        try await press(target.rawValue, fallback: NSPoint(x: 75, y: 170 + index * 48))
+        try await press("Вкладка:" + target.rawValue, fallback: NSPoint(x: 75, y: 170 + index * 48))
         guard store.tab == target else { throw failure("Tab did not change to \(target.rawValue)") }
     }
     private func failure(_ reason: String) -> NSError {
         fputs("Interaction recording: \(reason)\n", stderr)
+        try? PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
+        for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
         for object in objects() {
             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
         }
@@ -211,13 +241,13 @@ final class InteractionRecorder {
             }
         }
         let object = slider()
-        let initial = object.flatMap(rectangle) ?? fallback
+        let initial = RecordingTargets.frames[label] ?? object.flatMap(rectangle) ?? fallback
         try await move(to: NSPoint(x: initial.minX + 6 + (initial.width - 12) * fractions[0], y: initial.midY))
         events.append(Event(frame: frames.count, kind: "drag", label: label))
         pressed = true; mouse(.leftMouseDown, at: pointer)
         for (start, end) in zip(fractions, fractions.dropFirst()) {
             for step in 1...14 {
-                let rect = slider().flatMap(rectangle) ?? initial
+                let rect = RecordingTargets.frames[label] ?? slider().flatMap(rectangle) ?? initial
                 let t = Double(step) / 14, p = t * t * (3 - 2 * t)
                 pointer = NSPoint(x: rect.minX + 6 + (rect.width - 12) * (start + (end - start) * p), y: rect.midY)
                 mouse(.leftMouseDragged, at: pointer); try await capture()
@@ -233,12 +263,14 @@ final class InteractionRecorder {
         }
         pressed = false; mouse(.leftMouseUp, at: pointer); try await capture(5)
     }
-    private func type(_ value: String, at point: NSPoint) async throws {
-        try await press("Поле ввода", fallback: point)
+    private func type(_ value: String, field: String, at point: NSPoint) async throws {
+        try await press(field, fallback: point)
         window.firstResponder?.selectAll(nil)
         events.append(Event(frame: frames.count, kind: "type", label: value))
         window.firstResponder?.insertText(value)
-        try await capture(6)
+        try await capture(4)
+        window.makeFirstResponder(nil)
+        try await capture(2)
     }
 
     private func run() async throws {
@@ -268,24 +300,30 @@ final class InteractionRecorder {
 
         try begin("tasks"); try await tab(.tasks); try await capture(8)
         try await scroll(to: 1); try await scroll(to: 0)
-        try await press("Завершить задачу", fallback: NSPoint(x: 200,y: 240))
+        try await press("Завершить:Собрать идеи для проекта", fallback: NSPoint(x: 200,y: 250))
+        guard store.state.tasks.first?.isCompleted == true else { throw failure("Task completion button did not complete the task") }
         try await press("Выполненные", fallback: NSPoint(x: 610,y: 143)); try await capture(8)
         try await press("Предстоящие", fallback: NSPoint(x: 435,y: 143)); try await capture(8)
         try await press("Сегодня", fallback: NSPoint(x: 260,y: 143)); try await capture(5)
 
         try begin("deadline")
-        store.taskDraft = IslandTask(title: "Подготовить новый проект", dueAt: Date().addingTimeInterval(3 * 86400), reminderAt: Date().addingTimeInterval(86400))
-        try await capture(10)
-        try await drag("Через сколько дней выполнить задачу", fractions: [3.0/14,0.85,0.36], fallback: NSRect(x: 186,y: 293,width: 496,height: 22))
-        try await press("Включено", fallback: NSPoint(x: 665,y: 407))
-        try await press("Выключено", fallback: NSPoint(x: 665,y: 407))
+        try await press("Добавить срок и напоминание", fallback: NSPoint(x: 660,y: 198))
+        try await type("Подготовить новый проект", field: "Название задачи", at: NSPoint(x: 330,y:145))
+        try await press("Алерт:срок", fallback: NSPoint(x: 680,y: 235))
+        try await capture(8)
+        try await drag("Через сколько дней выполнить задачу", fractions: [1.0/14,0.85,0.36], fallback: NSRect(x: 186,y: 293,width: 496,height: 22))
+        for _ in 0..<2 {
+            try await press("Алерт:день", fallback: NSPoint(x: 665,y: 436))
+            try await press("Алерт:час", fallback: NSPoint(x: 665,y: 465))
+        }
         try await press("Своя дата", fallback: NSPoint(x: 645,y: 348))
         try await scroll(to: 1); try await scroll(to: 0); try await capture(5)
 
         try begin("reminder")
         try await press("Напоминание", fallback: NSPoint(x: 565,y: 194))
-        try await press("chevron.right", fallback: NSPoint(x: 675,y: 273)); try await capture(7)
-        try await press("chevron.left", fallback: NSPoint(x: 196,y: 273)); try await capture(7)
+        try await press("Алерт:напоминание", fallback: NSPoint(x: 680,y: 235))
+        try await press("Календарь:вперёд", fallback: NSPoint(x: 685,y: 273)); try await capture(7)
+        try await press("Календарь:назад", fallback: NSPoint(x: 185,y: 273)); try await capture(7)
         // The last row always contains valid future dates in the chosen month.
         let futureDay = Calendar.current.date(byAdding: .day, value: 2, to: Date())!
         try await press(futureDay.formatted(date: .complete, time: .omitted), fallback: NSPoint(x: 575,y: 400)); try await capture(8)
@@ -296,8 +334,9 @@ final class InteractionRecorder {
         try await scroll(to: 1); try await scroll(to: 0)
         try await press("45 мин", fallback: NSPoint(x: 390,y: 175))
         try await press("Своё", fallback: NSPoint(x: 655,y: 175))
-        try await type("1", at: NSPoint(x: 270,y: 258))
-        try await type("30", at: NSPoint(x: 570,y: 258))
+        try await type("1", field: "Часы", at: NSPoint(x: 270,y: 258))
+        try await type("30", field: "Минуты", at: NSPoint(x: 570,y: 258))
+        guard store.state.settings.focusDuration == 5400 else { throw failure("Hour/minute fields did not commit the custom duration") }
         try await press("Продумать главную страницу", fallback: NSPoint(x: 420,y: 398)); try await capture(8)
         guard store.state.focus != nil else { throw failure("Focus session did not start from the task list") }
 
@@ -322,14 +361,14 @@ final class InteractionRecorder {
         for (label,x) in [("Файлы",370.0),("Текст",500.0),("Скрины",630.0),("Всё",240.0)] {
             try await press(label, fallback: NSPoint(x:x,y:196)); try await capture(6)
         }
-        try await press("Хранить до удаления", fallback: NSPoint(x:675,y:357))
-        try await press("Скопировать", fallback: NSPoint(x:675,y:245)); try await capture(8)
+        try await press("Закрепить:" + store.state.shelf[1].id.uuidString, fallback: NSPoint(x:675,y:357))
+        try await press("Копировать:" + store.state.shelf[0].id.uuidString, fallback: NSPoint(x:675,y:245)); try await capture(8)
 
         try begin("actions"); try await tab(.actions)
         try await scroll(to: 1); try await scroll(to: 0)
         try await press("Finder", fallback: NSPoint(x:250,y:228)); try await capture(8)
         window.makeKeyAndOrderFront(nil)
-        try await press("plus", fallback: NSPoint(x:675,y:135)); try await capture(8)
+        try await press("Добавить действие", fallback: NSPoint(x:675,y:135)); try await capture(8)
         try await press("Папка", fallback: NSPoint(x:435,y:230)); try await capture(6)
         try await press("Быстрая команда", fallback: NSPoint(x:610,y:230)); try await capture(6)
         try await press("Отмена", fallback: NSPoint(x:215,y:499)); try await capture(6)
@@ -345,7 +384,7 @@ final class InteractionRecorder {
         guard let radii = sliderValues["Скругление"], radii.max()! - radii.min()! > 10,
               let speeds = sliderValues["Скорость анимации"], speeds.max()! - speeds.min()! > 0.3 else { throw failure("Native appearance sliders did not change settings") }
         try await scroll(to: 0.56)
-        if store.state.settings.coverAccent { try await press("Включено", fallback: NSPoint(x:680,y:230)) }
+        if store.state.settings.coverAccent { try await press("Алерт:акцент", fallback: NSPoint(x:680,y:230)) }
         try await press("Фиолетовый", fallback: NSPoint(x:510,y:270)); try await capture(6)
         try await press("Мятный", fallback: NSPoint(x:230,y:270)); try await capture(6)
         try await scroll(to: 1); try await scroll(to: 0)

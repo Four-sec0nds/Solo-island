@@ -24,7 +24,7 @@ struct FocusView: View {
                     }
                 }.frame(width: 148, height: 148)
                 HStack {
-                    Button(focus.isPaused ? "Продолжить" : "Пауза") { store.toggleFocusPause() }
+                    Button(focus.isPaused ? "Продолжить" : "Пауза") { store.toggleFocusPause() }.recordingTarget(focus.isPaused ? "Продолжить" : "Пауза")
                     Button("Закончить сессию") { store.endFocus() }
                     Button { store.endFocus(completeTask: true) } label: { Image(systemName: "checkmark") }.help("Завершить задачу")
                 }.buttonStyle(IslandButtonStyle(.soft))
@@ -61,7 +61,7 @@ struct FocusView: View {
                                 Button { store.startFocus(taskID: task.id) } label: {
                                     HStack { Text(task.title).lineLimit(2); Spacer(); Image(systemName: "play.fill").foregroundStyle(accent) }
                                         .padding(13).background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
-                                }.buttonStyle(IslandButtonStyle(.bare))
+                                }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(task.title)
                             }
                         }
                     }
@@ -82,6 +82,7 @@ struct FocusView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 10)).foregroundStyle(.secondary)
             TextField(title, value: value, format: .number).textFieldStyle(IslandTextFieldStyle()).monospacedDigit()
+                .recordingTarget(title)
                 .onChange(of: value.wrappedValue) { _, next in
                     value.wrappedValue = min(range.upperBound, max(range.lowerBound, next))
                     if custom { saveCustomTime() }

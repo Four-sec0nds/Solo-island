@@ -102,7 +102,7 @@ struct MusicView: View {
                     IslandSlider(value: Binding(get: { seeking ?? media.track.position(at: now, receivedAt: media.receivedAt) }, set: { seeking = $0 }),
                            in: 0...max(1, media.track.duration ?? 1), onEditingChanged: { editing in
                         if !editing, let value = seeking { media.seek(value); seeking = nil }
-                    }).accessibilityLabel("Позиция воспроизведения")
+                    }).accessibilityLabel("Позиция воспроизведения").recordingTarget("Позиция воспроизведения")
                     HStack {
                         Text(IslandStore.clock(Int(seeking ?? media.track.position(at: now, receivedAt: media.receivedAt))))
                         Spacer()
@@ -112,12 +112,12 @@ struct MusicView: View {
             }
             HStack(spacing: 16) {
                 Button { media.command(["previous-track"]) } label: { Image(systemName: "backward.fill").font(.system(size: 18)).frame(width: 27, height: 30) }
-                    .buttonStyle(IslandButtonStyle(.soft)).disabled(media.track.prohibitsSkip == true).accessibilityLabel("Предыдущий трек")
+                    .buttonStyle(IslandButtonStyle(.soft)).disabled(media.track.prohibitsSkip == true).accessibilityLabel("Предыдущий трек").recordingTarget("Предыдущий трек")
                 Button { media.command(["toggle-play-pause"]) } label: {
                     Image(systemName: media.track.isPlaying ? "pause.fill" : "play.fill").font(.system(size: 24)).frame(width: 38, height: 34)
-                }.buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel(media.track.isPlaying ? "Пауза" : "Воспроизвести")
+                }.buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel(media.track.isPlaying ? "Пауза" : "Воспроизвести").recordingTarget(media.track.isPlaying ? "Пауза" : "Воспроизвести")
                 Button { media.command(["next-track"]) } label: { Image(systemName: "forward.fill").font(.system(size: 18)).frame(width: 27, height: 30) }
-                    .buttonStyle(IslandButtonStyle(.soft)).disabled(media.track.prohibitsSkip == true).accessibilityLabel("Следующий трек")
+                    .buttonStyle(IslandButtonStyle(.soft)).disabled(media.track.prohibitsSkip == true).accessibilityLabel("Следующий трек").recordingTarget("Следующий трек")
             }.frame(maxWidth: .infinity)
         }.frame(maxWidth: .infinity)
     }

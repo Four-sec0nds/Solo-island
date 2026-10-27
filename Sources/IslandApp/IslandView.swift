@@ -105,6 +105,7 @@ struct IslandRootView: View {
                 Label(store.pinned ? "Закреплено" : "Закрепить", systemImage: store.pinned ? "pin.fill" : "pin")
                     .font(.system(size: 11, weight: .medium)).frame(height: 22)
             }.buttonStyle(IslandButtonStyle(store.pinned ? .filled : .soft))
+                .recordingTarget(store.pinned ? "Закреплено" : "Закрепить")
                 .help("Удерживать островок открытым поверх остальных окон")
 
         }
@@ -129,7 +130,7 @@ struct IslandRootView: View {
                             }
                         }
                         .contentShape(RoundedRectangle(cornerRadius: 13))
-                }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65))
+                }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65)).recordingTarget("Вкладка:" + tab.rawValue)
             }
             Spacer()
             HStack(spacing: 6) {

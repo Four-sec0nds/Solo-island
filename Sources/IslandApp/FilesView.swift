@@ -58,10 +58,10 @@ struct FilesView: View {
                 }.font(.system(size: 10)).foregroundStyle(exists ? Color.secondary : Color.orange)
             }.frame(maxWidth: .infinity, alignment: .leading)
             VStack(spacing: 10) {
-                Button { store.copyEntry(entry) } label: { Image(systemName: "doc.on.doc").frame(width: 23) }.disabled(!exists).help("Скопировать")
+                Button { store.copyEntry(entry) } label: { Image(systemName: "doc.on.doc").frame(width: 23) }.disabled(!exists).help("Скопировать").recordingTarget("Копировать:" + entry.id.uuidString)
                 Button { store.toggleShelfPin(entry.id) } label: {
                     Image(systemName: entry.isPinned ? "pin.fill" : "pin").frame(width: 23).foregroundStyle(entry.isPinned ? accent : Color.secondary)
-                }.help(entry.isPinned ? "Открепить" : "Хранить до удаления")
+                }.help(entry.isPinned ? "Открепить" : "Хранить до удаления").recordingTarget("Закрепить:" + entry.id.uuidString)
             }
         }
         .buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard(tint: entry.kind == .text ? .cyan : entry.kind == .image ? .pink : .purple)

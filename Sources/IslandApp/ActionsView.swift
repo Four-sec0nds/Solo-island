@@ -16,7 +16,7 @@ struct ActionsView: View {
             HStack {
                 Text(adding ? "Новое действие" : "Быстрые действия").font(.headline)
                 Spacer()
-                if !adding { Button { adding = true } label: { Image(systemName: "plus") } }
+                if !adding { Button { adding = true } label: { Image(systemName: "plus") }.recordingTarget("Добавить действие") }
             }
             if adding {
                 TextField("Название кнопки", text: $title).textFieldStyle(IslandTextFieldStyle())
@@ -32,7 +32,7 @@ struct ActionsView: View {
                 }
                 Spacer()
                 HStack {
-                    Button("Отмена") { reset() }
+                    Button("Отмена") { reset() }.recordingTarget("Отмена")
                     Spacer()
                     Button("Добавить") {
                         store.addAction(QuickAction(title: title.trimmingCharacters(in: .whitespacesAndNewlines), kind: kind, target: target))
@@ -52,7 +52,7 @@ struct ActionsView: View {
                                     Text(action.title).font(.system(size: 12, weight: .medium, design: .rounded)).lineLimit(2).multilineTextAlignment(.center)
                                 }.frame(maxWidth: .infinity, minHeight: 96).padding(16)
                                     .islandCard()
-                            }.buttonStyle(IslandButtonStyle(.bare)).contextMenu { Button("Удалить действие", role: .destructive) { store.removeAction(action.id) } }
+                            }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(action.title).contextMenu { Button("Удалить действие", role: .destructive) { store.removeAction(action.id) } }
                         }
                     }
                 }
