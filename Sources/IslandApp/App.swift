@@ -154,6 +154,7 @@ final class IslandWindowController: NSWindowController {
     private var hotspot = NSRect.zero
     private var pointerInside = false
     private var motion: Task<Void, Never>?
+    private var animationTarget: NSRect?
     init(store: IslandStore, trackPointer: Bool = true) {
         self.store = store
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -215,12 +216,16 @@ final class IslandWindowController: NSWindowController {
         let neck = NSRect(x: screen.frame.midX - (cameraWidth + 16) / 2, y: screen.frame.maxY - top, width: cameraWidth + 16, height: top)
         store.cameraWidth = cameraWidth; store.compactHeight = top
         store.presentationWidth = width; store.presentationHeight = top + bodyHeight
+        if CommandLine.arguments.contains("--render-preview") {
+            fputs("layout expanded=\(expanded) transition=\(transitioning) active=\(animationTarget != nil) frame=\(window.frame.width)\n", stderr)
+        }
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let duration = reduceMotion ? 0 : preferences.animationDuration
         if !expanded {
+            if !transitioning && animationTarget == neck { return }
             store.contentVisible = false; window.ignoresMouseEvents = true
             guard window.isVisible, duration > 0 else {
-                motion?.cancel(); window.orderOut(nil); window.setFrame(neck, display: false); return
+                motion?.cancel(); animationTarget = nil; window.orderOut(nil); window.setFrame(neck, display: false); return
             }
             animate(to: neck, expanding: false, duration: duration)
             return
@@ -232,15 +237,19 @@ final class IslandWindowController: NSWindowController {
             window.alphaValue = 1; window.orderFront(nil)
             animate(to: target, expanding: true, duration: duration)
         } else {
-            // Theme and setting updates cannot raise the window.
-            motion?.cancel(); window.setFrame(target, display: true); store.contentVisible = true
+            // A screen notification or identical settings emission must not jump an active animation to its end.
+            if let active = animationTarget {
+                if active != target { animate(to: target, expanding: true, duration: duration) }
+                return
+            }
+            window.setFrame(target, display: true); store.contentVisible = true
         }
     }
     private func animate(to target: NSRect, expanding: Bool, duration: Double) {
-        motion?.cancel()
+        motion?.cancel(); animationTarget = target
         guard let window else { return }
         guard duration > 0 else {
-            window.setFrame(target, display: true); store.contentVisible = expanding
+            animationTarget = nil; window.setFrame(target, display: true); store.contentVisible = expanding
             if !expanding { window.orderOut(nil) }; return
         }
         let origin = window.frame
@@ -255,8 +264,12 @@ final class IslandWindowController: NSWindowController {
                                    width: origin.width + (target.width - origin.width) * fraction,
                                    height: origin.height + (target.height - origin.height) * fraction)
                 window.setFrame(frame, display: true)
+                if CommandLine.arguments.contains("--render-preview"), step == 1 || step == steps / 2 {
+                    fputs("motion step=\(step) frame=\(window.frame.width)\n", stderr)
+                }
                 if expanding && progress >= 0.55 && !self.store.contentVisible { self.store.contentVisible = true }
                 if progress >= 1 {
+                    self.animationTarget = nil
                     if !expanding { window.orderOut(nil) }
                     return
                 }
