@@ -191,6 +191,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 try await recordFocusMotion(folder: folder.appendingPathComponent("focus-motion"), directory: directory, fixture: fixture)
                 try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
+                try await InteractionRecorder.record(in: directory.appendingPathComponent("interactions"))
                 let reducedStore = IslandStore(dataFolder: folder.appendingPathComponent("reduced-motion"))
                 let reducedController = IslandWindowController(store: reducedStore, trackPointer: false, reducedMotionOverride: true)
                 reducedStore.reveal()
@@ -347,7 +348,11 @@ final class IslandWindowController: NSWindowController {
         if let left = screen.auxiliaryTopLeftArea, let right = screen.auxiliaryTopRightArea { cameraWidth = max(0, right.minX - left.maxX) }
         else { cameraWidth = 160 }
         let preferences = settings ?? store.state.settings
-        let top = max(28, screen.safeAreaInsets.top)
+        // The auxiliary menu-bar areas retain the physical camera clearance
+        // when macOS hides its menu bar in a full-screen Space.
+        let top = [CGFloat(28), screen.safeAreaInsets.top,
+                   screen.auxiliaryTopLeftArea?.height ?? 0,
+                   screen.auxiliaryTopRightArea?.height ?? 0].max() ?? 28
         hotspot = NSRect(x: screen.frame.midX - max(110, cameraWidth / 2 + 22), y: screen.frame.maxY - top - 12,
                          width: max(220, cameraWidth + 44), height: top + 12)
         let width = min(max(640, CGFloat(preferences.expandedWidth)), screen.frame.width - 40)

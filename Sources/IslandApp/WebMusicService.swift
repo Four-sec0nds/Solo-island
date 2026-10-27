@@ -35,6 +35,7 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
     }()
     func configure(_ value: MusicProvider) {
         guard provider != value || !loaded else { return }
+        if CommandLine.arguments.contains("--render-preview") { loadPreviewFixture(provider: value, duration: 228); return }
         expiry?.cancel(); artworkTask?.cancel(); artworkRevision = UUID()
         previewFixture = false; provider = value; track = NowPlaying(); continuity = NowPlayingContinuity()
         artwork = nil; artworkURL = nil; frame = nil; commandView = nil; error = nil; popup = nil
@@ -159,14 +160,14 @@ struct EmbeddedMusicWebsite: NSViewRepresentable {
 
 extension WebMusicService {
     /// Offline test audio and metadata. It never visits a provider or reads a user session.
-    func loadPreviewFixture() {
+    func loadPreviewFixture(provider selected: MusicProvider = .yandex, duration: Int = 8) {
         guard CommandLine.arguments.contains("--render-preview") else { return }
-        previewFixture = true; provider = .yandex; loaded = true
+        previewFixture = true; provider = selected; loaded = true
         var data = Data()
         func string(_ text: String) { data.append(contentsOf: text.utf8) }
         func uint32(_ value: UInt32) { var v = value.littleEndian; withUnsafeBytes(of: &v) { data.append(contentsOf: $0) } }
         func uint16(_ value: UInt16) { var v = value.littleEndian; withUnsafeBytes(of: &v) { data.append(contentsOf: $0) } }
-        let size: UInt32 = 8 * 8000 * 2
+        let size = UInt32(min(240, max(8, duration)) * 8000 * 2)
         string("RIFF"); uint32(36 + size); string("WAVEfmt "); uint32(16); uint16(1); uint16(1)
         uint32(8000); uint32(16000); uint16(2); uint16(16); string("data"); uint32(size)
         data.append(Data(repeating: 0, count: Int(size)))
@@ -183,9 +184,14 @@ extension WebMusicService {
             document.querySelector('[data-testid="context-item-info-title"]').textContent='Следующий веб-трек';
             window.__soloIsland.send();
           });
+          navigator.mediaSession.setActionHandler('previoustrack', () => {
+            navigator.mediaSession.metadata = new MediaMetadata({title:'Веб-трек',artist:'Демонстрационный веб-плеер'});
+            document.querySelector('[data-testid="context-item-info-title"]').textContent='Веб-трек';
+            window.__soloIsland.send();
+          });
         }
         </script></body></html>
         """
-        webView.loadHTMLString(html, baseURL: MusicProvider.yandex.url)
+        webView.loadHTMLString(html, baseURL: selected.url)
     }
 }

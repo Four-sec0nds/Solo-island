@@ -21,13 +21,14 @@ struct IslandRootView: View {
                 expandedBody
                     .frame(width: store.presentationWidth, height: store.presentationHeight - store.compactHeight)
                     .opacity(store.contentVisible ? 1 : 0)
-                    .position(x: geometry.size.width / 2, y: store.compactHeight + (store.presentationHeight - store.compactHeight) / 2 + (store.contentVisible ? 0 : -6))
+                    .position(x: geometry.size.width / 2, y: store.compactHeight + (store.presentationHeight - store.compactHeight) / 2)
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: store.contentVisible)
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .clipShape(shape)
             .overlay(shape.stroke(dropTargeted ? accent.opacity(0.8) : .white.opacity(0.09), lineWidth: dropTargeted ? 2 : 1))
         }
+        .ignoresSafeArea()
         .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
         .tint(accent).environment(\.islandAccent, accent)
         .environment(\.locale, Locale(identifier: "ru_RU"))
@@ -44,7 +45,7 @@ struct IslandRootView: View {
     }
     private var expandedBody: some View {
         VStack(spacing: 0) {
-            header.padding(.horizontal, 22).padding(.top, 15).padding(.bottom, 14)
+            header.padding(.horizontal, 22).padding(.top, 21).padding(.bottom, 14)
             Rectangle().fill(.white.opacity(0.06)).frame(height: 1)
             HStack(spacing: 0) {
                 sidebar.frame(width: 150)

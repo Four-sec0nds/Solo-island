@@ -15,7 +15,7 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("0.5.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.5.3").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 10) {
                     IslandBrandMark(size: 36)
@@ -41,7 +41,7 @@ struct IslandSettingsView: View {
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Скорость анимации").font(.caption)
-                    IslandSlider(value: binding(\.animationDuration), in: 0.12...0.6)
+                    IslandSlider(value: binding(\.animationDuration), in: 0.12...0.6).accessibilityLabel("Скорость анимации")
                 }
                 Toggle("Акцент из обложки", isOn: binding(\.coverAccent)).font(.caption)
                 if !store.state.settings.coverAccent {
@@ -84,7 +84,7 @@ struct IslandSettingsView: View {
     private func settingSlider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>, suffix: String) -> some View {
         VStack(spacing: 5) {
             HStack { Text(title); Spacer(); Text("\(Int(value.wrappedValue)) \(suffix)").foregroundStyle(.secondary) }.font(.caption)
-            IslandSlider(value: value, in: range)
+            IslandSlider(value: value, in: range).accessibilityLabel(title)
         }
     }
 }

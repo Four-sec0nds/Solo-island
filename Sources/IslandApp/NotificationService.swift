@@ -19,10 +19,12 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         center.setNotificationCategories([category])
     }
     func requestPermission() async -> Bool {
+        if CommandLine.arguments.contains("--render-preview") { return true }
         do { return try await center.requestAuthorization(options: [.alert, .sound, .badge]) }
         catch { onError?(error.localizedDescription); return false }
     }
     func sync(tasks: [IslandTask]) {
+        guard !CommandLine.arguments.contains("--render-preview") else { return }
         let titles = Dictionary(uniqueKeysWithValues: tasks.map { ($0.id, $0.title) })
         let requests: [UNNotificationRequest] = TaskReminderPlan.requests(for: tasks).map { reminder in
             let content = UNMutableNotificationContent()
@@ -35,6 +37,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         replace(prefix: "task.", requests: requests)
     }
     func scheduleFocus(_ focus: FocusSession?, taskTitle: String) {
+        guard !CommandLine.arguments.contains("--render-preview") else { return }
         var requests: [UNNotificationRequest] = []
         if let focus, let deadline = focus.deadline, deadline > Date() {
             let content = UNMutableNotificationContent()
