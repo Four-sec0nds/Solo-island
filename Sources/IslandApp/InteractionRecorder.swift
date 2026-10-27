@@ -151,13 +151,14 @@ final class InteractionRecorder {
             try await capture()
         }
     }
-    private func mouse(_ type: NSEvent.EventType, at point: NSPoint) {
+    private func mouse(_ type: NSEvent.EventType, at point: NSPoint, queued: Bool = false) {
         eventNumber += 1
         if let event = NSEvent.mouseEvent(with: type, location: NSPoint(x: point.x, y: window.frame.height - point.y),
                                          modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
                                          windowNumber: window.windowNumber, context: nil, eventNumber: eventNumber,
                                          clickCount: 1, pressure: type == .leftMouseUp ? 0 : 1) {
-            window.sendEvent(event)
+            if queued { NSApp.postEvent(event, atStart: false) }
+            else { window.sendEvent(event) }
         }
     }
     private func attributes(_ object: NSObject) -> String {
@@ -195,6 +196,9 @@ final class InteractionRecorder {
         let point = rect.map { NSPoint(x: query.hasPrefix("Алерт:") ? $0.maxX - 18 : $0.midX, y: $0.midY) } ?? fallback
         try await move(to: point)
         events.append(Event(frame: frames.count, kind: "click", label: query))
+        // AppKit text fields track the mouse synchronously. Supply their release
+        // in the event queue before entering that loop, so the recorder can resume.
+        if ["Название задачи", "Часы", "Минуты"].contains(query) { mouse(.leftMouseUp, at: point, queued: true) }
         pressed = true; mouse(.leftMouseDown, at: point); try await capture(2)
         pressed = false; mouse(.leftMouseUp, at: point); after(); try await capture(5)
     }
