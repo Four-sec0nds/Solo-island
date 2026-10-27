@@ -24,6 +24,7 @@ cp Resources/Info.plist "$app_dir/Contents/Info.plist"
 iconset_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-island-icons.XXXXXX")/AppIcon.iconset"
 trap 'rm -rf "${iconset_dir%/AppIcon.iconset}"' EXIT
 swift scripts/make-icon.swift "$iconset_dir"
+cp "$iconset_dir/icon_256x256.png" "$PWD/dist/SoloIsland-icon.png"
 iconutil -c icns "$iconset_dir" -o "$app_dir/Contents/Resources/AppIcon.icns"
 bash scripts/bundle-media.sh
 # Local ad-hoc signing; no Apple credentials are needed. Not a notarized distribution.
