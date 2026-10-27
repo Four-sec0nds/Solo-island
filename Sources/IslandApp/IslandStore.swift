@@ -86,8 +86,9 @@ final class IslandStore: ObservableObject {
     }
     var focusTask: IslandTask? { state.tasks.first { $0.id == state.focus?.taskID } }
     var focusedTime: String {
-        let remaining = Int(ceil(state.focus?.remaining(at: now) ?? 0))
-        return Self.clock(remaining)
+        // Keep the last active minute visible until the session actually ends.
+        let minutes = Int(ceil((state.focus?.remaining(at: now) ?? 0) / 60))
+        return String(format: "%02d:%02d", minutes / 60, minutes % 60)
     }
     static func clock(_ seconds: Int) -> String {
         let value = max(0, seconds)

@@ -162,10 +162,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     let stillFolder = folder.appendingPathComponent("still-" + name)
                     var stillFixture = fixture
                     if name == "focus" {
-                        stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 25,
-                                                          now: Date().addingTimeInterval(-360))
+                        stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 90,
+                                                          now: Date().addingTimeInterval(-60))
                     }
-                    if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 12 }
+                    if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 37 * 60 }
                     if name == "onboarding" { stillFixture.settings.musicOnboardingComplete = false }
                     if tab == .files {
                         stillFixture.shelf.append(ShelfEntry(path: imageURL.path, kind: .image, isPinned: true))

@@ -8,7 +8,6 @@ struct FocusView: View {
     @State private var custom = false
     @State private var hours = 0
     @State private var minutes = 25
-    @State private var seconds = 0
     var body: some View {
         VStack(spacing: 14) {
             if let focus = store.state.focus {
@@ -19,6 +18,8 @@ struct FocusView: View {
                         .stroke(accent, style: StrokeStyle(lineWidth: 5, lineCap: .round)).rotationEffect(.degrees(-90))
                     VStack(spacing: 4) {
                         Text(store.focusedTime).font(.system(size: 38, weight: .light, design: .rounded)).monospacedDigit()
+                            .lineLimit(1).minimumScaleFactor(0.65).frame(width: 124)
+                        Text("ЧАСЫ · МИНУТЫ").font(.system(size: 7, weight: .medium)).tracking(1).foregroundStyle(.secondary)
                         Text(focus.isPaused ? "ПАУЗА" : "ФОКУС").font(.system(size: 9, weight: .bold)).tracking(2).foregroundStyle(.secondary)
                     }
                 }.frame(width: 148, height: 148)
@@ -44,10 +45,8 @@ struct FocusView: View {
                             timeField("Часы", value: $hours, range: 0...99)
                             Text(":").foregroundStyle(accent)
                             timeField("Минуты", value: $minutes, range: 0...59)
-                            Text(":").foregroundStyle(accent)
-                            timeField("Секунды", value: $seconds, range: 0...59)
                         }.padding(12).islandCard(tint: accent)
-                        Text("От 1 секунды до 99:59:59. Длительность сохраняется.").font(.system(size: 10)).foregroundStyle(.secondary)
+                        Text("От 1 минуты до 99 часов 59 минут. Длительность сохраняется.").font(.system(size: 10)).foregroundStyle(.secondary)
                     }
                 }
                 let tasks = store.state.tasks.filter { !$0.isCompleted }
@@ -74,8 +73,8 @@ struct FocusView: View {
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity)
             .onAppear {
-                let value = Int(store.state.settings.focusDuration)
-                hours = value / 3600; minutes = value % 3600 / 60; seconds = value % 60
+                let value = min(5999, max(1, Int(ceil(store.state.settings.focusDuration / 60))))
+                hours = value / 60; minutes = value % 60
                 custom = store.state.settings.customFocusSeconds != nil
             }
     }
@@ -90,6 +89,7 @@ struct FocusView: View {
         }
     }
     private func saveCustomTime() {
-        store.setSettings { $0.customFocusSeconds = max(1, min(359999, hours * 3600 + minutes * 60 + seconds)) }
+        if hours == 0 && minutes == 0 { minutes = 1 }
+        store.setSettings { $0.customFocusSeconds = max(60, min(359940, hours * 3600 + minutes * 60)) }
     }
 }
