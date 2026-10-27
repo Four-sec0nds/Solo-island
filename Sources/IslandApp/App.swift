@@ -81,7 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         previewTrack.artist = "Твоя музыка · предпросмотр"; previewTrack.duration = 228
         previewTrack.elapsedTime = 78; previewTrack.playing = true
         store.media.setPreview(previewTrack)
-        island = IslandWindowController(store: store, trackPointer: false)
+        island = IslandWindowController(store: store, trackPointer: false, reducedMotionOverride: false)
         Task { @MainActor [self] in
             guard let window = island.window, !window.isVisible, window.level == .normal,
                   (window as? NSPanel)?.isFloatingPanel == false, let screen = NSScreen.screens.first else {
@@ -129,6 +129,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 store.tab = .actions
                 try? await Task.sleep(nanoseconds: 400_000_000)
                 try PreviewRecorder.png(window, to: directory.appendingPathComponent("SoloIsland-actions.png"))
+                let reducedStore = IslandStore(dataFolder: folder.appendingPathComponent("reduced-motion"))
+                let reducedController = IslandWindowController(store: reducedStore, trackPointer: false, reducedMotionOverride: true)
+                reducedStore.reveal()
+                guard let reducedWindow = reducedController.window, reducedWindow.isVisible,
+                      abs(reducedWindow.frame.width - reducedStore.presentationWidth) < 1 else {
+                    fputs("Reduce Motion did not open immediately\n", stderr); exit(1)
+                }
+                reducedStore.dismiss()
+                guard !reducedWindow.isVisible else { fputs("Reduce Motion did not hide immediately\n", stderr); exit(1) }
                 NSApp.terminate(nil)
             } catch { fputs("Preview: \(error.localizedDescription)\n", stderr); exit(1) }
         }
@@ -155,8 +164,9 @@ final class IslandWindowController: NSWindowController {
     private var pointerInside = false
     private var motion: Task<Void, Never>?
     private var animationTarget: NSRect?
-    init(store: IslandStore, trackPointer: Bool = true) {
-        self.store = store
+    private let reducedMotionOverride: Bool?
+    init(store: IslandStore, trackPointer: Bool = true, reducedMotionOverride: Bool? = nil) {
+        self.store = store; self.reducedMotionOverride = reducedMotionOverride
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
         panel.level = .normal; panel.isFloatingPanel = false
@@ -164,7 +174,11 @@ final class IslandWindowController: NSWindowController {
         panel.hidesOnDeactivate = false; panel.isMovable = false
         panel.isReleasedWhenClosed = false; panel.animationBehavior = .none
         super.init(window: panel)
-        let hosting = NSHostingView(rootView: IslandRootView(store: store))
+        let root = IslandRootView(store: store)
+        let view: AnyView
+        if let reducedMotionOverride { view = AnyView(root.environment(\.accessibilityReduceMotion, reducedMotionOverride)) }
+        else { view = AnyView(root) }
+        let hosting = NSHostingView(rootView: view)
         hosting.sizingOptions = []
         panel.contentView = hosting
         panel.minSize = .zero; panel.contentMinSize = .zero
@@ -219,8 +233,11 @@ final class IslandWindowController: NSWindowController {
         if CommandLine.arguments.contains("--render-preview") {
             fputs("layout expanded=\(expanded) transition=\(transitioning) active=\(animationTarget != nil) frame=\(window.frame.width)\n", stderr)
         }
-        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        let reduceMotion = reducedMotionOverride ?? NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let duration = reduceMotion ? 0 : preferences.animationDuration
+        if CommandLine.arguments.contains("--render-preview") {
+            fputs("motion system=\(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion) effective=\(reduceMotion) duration=\(duration)\n", stderr)
+        }
         if !expanded {
             if !transitioning && animationTarget == neck { return }
             store.contentVisible = false; window.ignoresMouseEvents = true
