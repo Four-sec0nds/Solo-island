@@ -3,31 +3,31 @@ TAP version 13
 # Subtest: empty and login pages do not become tracks or expose form data
 ok 1 - empty and login pages do not become tracks or expose form data
   ---
-  duration_ms: 2.252166
+  duration_ms: 2.326167
   type: 'test'
   ...
 # Subtest: active HTML5 media wins and non-finite stream duration is omitted
 ok 2 - active HTML5 media wins and non-finite stream duration is omitted
   ---
-  duration_ms: 0.545334
+  duration_ms: 0.570292
   type: 'test'
   ...
 # Subtest: media session next and seek handlers receive structured action details
 ok 3 - media session next and seek handlers receive structured action details
   ---
-  duration_ms: 0.41125
+  duration_ms: 0.489416
   type: 'test'
   ...
 # Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
 ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
   ---
-  duration_ms: 0.476292
+  duration_ms: 0.51
   type: 'test'
   ...
 # Subtest: site-specific next button is used only when enabled
 ok 5 - site-specific next button is used only when enabled
   ---
-  duration_ms: 0.429667
+  duration_ms: 0.441375
   type: 'test'
   ...
 1..5
@@ -38,169 +38,370 @@ ok 5 - site-specific next button is used only when enabled
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 94.787875
+# duration_ms 111.999166
 test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
 test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
 test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
 test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 2.009s
+Ran 4 tests in 1.420s
 
 OK
 Building for debugging...
-[0/14] Write sources
-[1/14] /Users/runner/work/Exploit-CVE/Exploit-CVE/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
+[0/14] /Users/runner/work/Exploit-CVE/Exploit-CVE/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
+[1/14] Write sources
 [1/14] Write SoloIsland-entitlement.plist
 [1/14] Write sources
 [8/14] Write swift-version--79AA4F9932D1E87A.txt
-[10/19] Compiling IslandCore ProcessRunner.swift
-[11/20] Compiling IslandCore MusicProvider.swift
-[12/20] Compiling IslandCore NowPlaying.swift
+[10/19] Compiling IslandCore MusicProvider.swift
+[11/19] Compiling IslandCore ProcessRunner.swift
+[12/19] Compiling IslandCore NowPlaying.swift
 [13/20] Emitting module IslandCore
 [14/20] Compiling IslandCore Models.swift
 [15/20] Compiling IslandCore TaskReminders.swift
-[16/25] Emitting module IslandPlatform
-[17/25] Compiling IslandPlatform ClipboardService.swift
+[16/25] Compiling IslandPlatform ClipboardService.swift
+[17/25] Emitting module IslandPlatform
 [18/42] Emitting module IslandPlatformTests
 [19/42] Compiling IslandPlatformTests ClipboardServiceTests.swift
 [20/42] Compiling IslandCoreTests IslandCoreTests.swift
-[21/42] Compiling IslandCoreTests PlanningTests.swift
-[22/42] Emitting module IslandCoreTests
-error: emit-module command failed with exit code 1 (use -v to see invocation)
-[23/42] Emitting module IslandApp
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:153:30: error: cannot find type 'Context' in scope
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-    |                              `- error: cannot find type 'Context' in scope
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-155 | }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:154:53: error: cannot find type 'Context' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-    |                                                     `- error: cannot find type 'Context' in scope
-155 | }
-156 | 
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:151:30: error: cannot find type 'NSViewRepresentable' in scope
-149 | }
-150 | 
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-    |                              `- error: cannot find type 'NSViewRepresentable' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
+[21/42] Emitting module IslandCoreTests
+[22/42] Compiling IslandCoreTests PlanningTests.swift
+[23/44] Emitting module IslandApp
 [24/47] Compiling SoloIslandPackageTests runner.swift
 [25/47] Emitting module SoloIslandPackageTests
 [25/47] Write Objects.LinkFileList
-[27/47] Compiling IslandApp NotificationService.swift
-[28/47] Compiling IslandApp PreviewRecorder.swift
-[29/47] Compiling IslandApp SettingsView.swift
-[30/47] Compiling IslandApp IslandView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/MusicView.swift:78:18: error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 76 |             }
- 77 |             EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
- 78 |                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    |                  `- error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 79 |             Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
- 80 |                 .font(.system(size: 9)).foregroundStyle(.secondary)
-[31/47] Compiling IslandApp MediaService.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/MusicView.swift:78:18: error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 76 |             }
- 77 |             EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
- 78 |                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    |                  `- error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 79 |             Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
- 80 |                 .font(.system(size: 9)).foregroundStyle(.secondary)
-[32/47] Compiling IslandApp MusicView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/MusicView.swift:78:18: error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 76 |             }
- 77 |             EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
- 78 |                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    |                  `- error: value of type 'EmbeddedMusicWebsite' has no member 'clipShape'
- 79 |             Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
- 80 |                 .font(.system(size: 9)).foregroundStyle(.secondary)
-[33/47] Compiling IslandApp TasksView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:153:30: error: cannot find type 'Context' in scope
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-    |                              `- error: cannot find type 'Context' in scope
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-155 | }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:154:53: error: cannot find type 'Context' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-    |                                                     `- error: cannot find type 'Context' in scope
-155 | }
-156 | 
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:151:30: error: cannot find type 'NSViewRepresentable' in scope
-149 | }
-150 | 
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-    |                              `- error: cannot find type 'NSViewRepresentable' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-[34/47] Compiling IslandApp WebMusicService.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:153:30: error: cannot find type 'Context' in scope
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-    |                              `- error: cannot find type 'Context' in scope
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-155 | }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:154:53: error: cannot find type 'Context' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-    |                                                     `- error: cannot find type 'Context' in scope
-155 | }
-156 | 
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:151:30: error: cannot find type 'NSViewRepresentable' in scope
-149 | }
-150 | 
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-    |                              `- error: cannot find type 'NSViewRepresentable' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-[35/47] Compiling IslandApp WebPlayerScript.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:153:30: error: cannot find type 'Context' in scope
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-    |                              `- error: cannot find type 'Context' in scope
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-155 | }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:154:53: error: cannot find type 'Context' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-154 |     func updateNSView(_ nsView: WKWebView, context: Context) {}
-    |                                                     `- error: cannot find type 'Context' in scope
-155 | }
-156 | 
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/WebMusicService.swift:151:30: error: cannot find type 'NSViewRepresentable' in scope
-149 | }
-150 | 
-151 | struct EmbeddedMusicWebsite: NSViewRepresentable {
-    |                              `- error: cannot find type 'NSViewRepresentable' in scope
-152 |     let webView: WKWebView
-153 |     func makeNSView(context: Context) -> WKWebView { webView }
-[35/47] Linking SoloIslandPackageTests
-[37/47] Compiling IslandApp ActionsView.swift
-[38/47] Compiling IslandApp App.swift
-[39/47] Compiling IslandApp AudioService.swift
-[40/47] Compiling IslandApp BrandViews.swift
-[41/47] Compiling IslandApp Controls.swift
-[42/47] Compiling IslandApp FilesView.swift
-[43/47] Compiling IslandApp FocusView.swift
-[44/47] Compiling IslandApp IslandStore.swift
-error: fatalError
+[26/47] Linking SoloIslandPackageTests
+[28/47] Compiling IslandApp NotificationService.swift
+[29/47] Compiling IslandApp PreviewRecorder.swift
+[30/47] Compiling IslandApp SettingsView.swift
+[31/47] Compiling IslandApp IslandView.swift
+[32/47] Compiling IslandApp MediaService.swift
+[33/47] Compiling IslandApp MusicView.swift
+[34/47] Compiling IslandApp TasksView.swift
+[35/47] Compiling IslandApp WebMusicService.swift
+[36/47] Compiling IslandApp WebPlayerScript.swift
+[37/47] Compiling IslandApp Controls.swift
+[38/47] Compiling IslandApp FilesView.swift
+[39/47] Compiling IslandApp FocusView.swift
+[40/47] Compiling IslandApp IslandStore.swift
+[41/47] Compiling IslandApp ActionsView.swift
+[42/47] Compiling IslandApp App.swift
+[43/47] Compiling IslandApp AudioService.swift
+[44/47] Compiling IslandApp BrandViews.swift
+[44/47] Write Objects.LinkFileList
+[45/47] Linking SoloIsland
+[46/47] Applying SoloIsland
+Build complete! (13.93s)
+Test Suite 'All tests' started at 2026-10-27 18:14:49.792.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 18:14:49.793.
+Test Suite 'ClipboardServiceTests' started at 2026-10-27 18:14:49.793.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.013 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
+2026-10-27 18:14:49.814 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.814 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.814 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.814 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.814 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.814 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.814 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.814 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.814 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.814 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.814 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.814 xctest[1443:7755] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.014 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.002 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
+2026-10-27 18:14:49.822 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.822 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.822 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.822 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.822 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.822 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.822 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.822 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.822 xctest[1443:7755] Unknown number of components for colorspace model -1
+2026-10-27 18:14:49.822 xctest[1443:7755] Bad colorspace name NSNamedColorSpace
+2026-10-27 18:14:49.822 xctest[1443:7755] Unrecognized colorspace number -2
+2026-10-27 18:14:49.822 xctest[1443:7755] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.004 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.001 seconds).
+Test Suite 'ClipboardServiceTests' passed at 2026-10-27 18:14:49.827.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.034 (0.034) seconds
+Test Suite 'IslandCoreTests' started at 2026-10-27 18:14:49.827.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.018 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.113 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
+Test Suite 'IslandCoreTests' passed at 2026-10-27 18:14:49.967.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.140 (0.140) seconds
+Test Suite 'PlanningTests' started at 2026-10-27 18:14:49.967.
+Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
+Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
+Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testDeadlineAlertsAreSeparateAndSkipPastTimesAndCompletedTasks]' started.
+Test Case '-[IslandCoreTests.PlanningTests testDeadlineAlertsAreSeparateAndSkipPastTimesAndCompletedTasks]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testEditedDeadlinesOptOutAndDuplicateTimesDoNotDoubleNotify]' started.
+Test Case '-[IslandCoreTests.PlanningTests testEditedDeadlinesOptOutAndDuplicateTimesDoNotDoubleNotify]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' started.
+Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
+Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
+Test Suite 'PlanningTests' passed at 2026-10-27 18:14:49.970.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 18:14:49.970.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.175 (0.176) seconds
+Test Suite 'All tests' passed at 2026-10-27 18:14:49.970.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.175 (0.177) seconds
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests passed after 0.001 seconds.
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version--79AA4F9932D1E87A.txt
+[5/7] Compiling IslandCore Models.swift
+[6/8] Compiling IslandPlatform ClipboardService.swift
+[7/9] Compiling IslandApp ActionsView.swift
+[7/9] Write Objects.LinkFileList
+[8/9] Linking SoloIsland
+Build of product 'SoloIsland' complete! (16.40s)
+From https://github.com/ungive/media-control
+ * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
+HEAD is now at 3cfd5dc Bump version to 0.7.7
+Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
+Cloning into '/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.gCzmSm/source/mediaremote-adapter'...
+From https://github.com/ungive/mediaremote-adapter
+ * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
+Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
+-- The OBJC compiler identification is AppleClang 17.0.0.17000013
+-- Detecting OBJC compiler ABI info
+-- Detecting OBJC compiler ABI info - done
+-- Check for working OBJC compiler: /usr/bin/clang - skipped
+-- Configuring done (1.6s)
+-- Generating done (0.4s)
+-- Build files have been written to: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.gCzmSm/build
+[  5%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
+[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
+[ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
+[ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
+[ 26%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/globals.m.o
+[ 31%] Linking OBJC executable ../MediaRemoteAdapterTestClient
+[ 36%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/keys.m.o
+[ 36%] Built target MediaRemoteAdapterTestClient
+[ 42%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/now_playing.m.o
+[ 47%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/repeat.m.o
+[ 52%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/seek.m.o
+[ 57%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/send.m.o
+[ 63%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/shuffle.m.o
+[ 68%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/speed.m.o
+[ 73%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/stream.m.o
+[ 78%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/test.m.o
+[ 84%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/private/MediaRemote.m.o
+[ 89%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/Debounce.m.o
+[ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
+[100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
+Ad-hoc signing MediaRemoteAdapter.framework
+/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.gCzmSm/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+[100%] Built target MediaRemoteAdapter
+-- Install configuration: "Release"
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/mediaremote-adapter.pl
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Resources
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/_CodeSignature
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/Resources
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/Resources/Info.plist
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/Current
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/MediaRemoteAdapter
+-- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/MediaRemoteAdapterTestClient
+/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework: replacing existing signature
+/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/MediaRemoteAdapterTestClient: replacing existing signature
+media-control 0.7.7
+Copyright (c) 2025 Jonas van den Berg
+Licensed under the BSD 3-Clause License.
+/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app: replacing existing signature
+/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app: valid on disk
+/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app: satisfies its Designated Requirement
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=254.0
+motion step=10 frame=652.0
+layout expanded=false transition=true active=false frame=720.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=717.0
+motion step=10 frame=448.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+Embedded WKWebView smoke: metadata, play, seek, next and pause passed
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=176.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=720.0
+motion system=true effective=true duration=0.0
+created: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.dmg
+Checksumming Protective Master Boot Record (MBR : 0)…
+Protective Master Boot Record (MBR :: verified   CRC32 $C98009AF
+Checksumming GPT Header (Primary GPT Header : 1)…
+ GPT Header (Primary GPT Header : 1): verified   CRC32 $17CDF11B
+Checksumming GPT Partition Data (Primary GPT Table : 2)…
+GPT Partition Data (Primary GPT Tabl: verified   CRC32 $939C91D0
+Checksumming  (Apple_Free : 3)…
+                    (Apple_Free : 3): verified   CRC32 $00000000
+Checksumming disk image (Apple_HFS : 4)…
+          disk image (Apple_HFS : 4): verified   CRC32 $B9C95785
+Checksumming  (Apple_Free : 5)…
+                    (Apple_Free : 5): verified   CRC32 $00000000
+Checksumming GPT Partition Data (Backup GPT Table : 6)…
+GPT Partition Data (Backup GPT Table: verified   CRC32 $939C91D0
+Checksumming GPT Header (Backup GPT Header : 7)…
+  GPT Header (Backup GPT Header : 7): verified   CRC32 $ACDEE564
+verified   CRC32 $4C000AEE
+hdiutil: verify: checksum of "/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.dmg" is VALID
+expected   CRC32 $4C000AEE
+/dev/disk5          	GUID_partition_scheme          	
+/dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-dmg.4BHbLj/mount
+media-control 0.7.7
+Copyright (c) 2025 Jonas van den Berg
+Licensed under the BSD 3-Clause License.
+null
+"disk5" ejected.
+Installer: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.dmg
+Built: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app
+Archive: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland-macOS.zip
