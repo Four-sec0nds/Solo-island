@@ -41,5 +41,5 @@ codesign --verify --deep --strict "$work_dir/mount/SoloIsland.app"
 "$work_dir/mount/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control" get --no-artwork
 hdiutil detach "$work_dir/mount"
 mounted=false
-shasum -a 256 "$dmg_path" > "$PWD/dist/SoloIsland.dmg.sha256"
+(cd dist && shasum -a 256 SoloIsland.dmg) > "$PWD/dist/SoloIsland.dmg.sha256"
 echo "Installer: $dmg_path"

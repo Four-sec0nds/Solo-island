@@ -15,10 +15,13 @@ enum AudioService {
             mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
         guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &device) == noErr,
               device != kAudioObjectUnknown else { return nil }
-        var name: CFString = "Аудиоустройство" as CFString
-        size = UInt32(MemoryLayout<CFString>.size)
+        var nameRef: Unmanaged<CFString>?
+        size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
         address = .init(mSelector: kAudioObjectPropertyName, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
-        _ = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &name)
+        let nameStatus = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &nameRef)
+        let name: String
+        if nameStatus == noErr, let nameRef { name = nameRef.takeRetainedValue() as String }
+        else { name = "Аудиоустройство" }
         var volume: Float32 = 0
         var hasVolume = false
         // Some output devices expose only per-channel volume.
@@ -31,6 +34,6 @@ enum AudioService {
         size = UInt32(MemoryLayout<UInt32>.size)
         address = .init(mSelector: kAudioDevicePropertyMute, mScope: kAudioDevicePropertyScopeOutput, mElement: kAudioObjectPropertyElementMain)
         _ = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &muted)
-        return AudioSnapshot(volume: hasVolume ? volume : -1, muted: muted != 0, name: name as String, device: device)
+        return AudioSnapshot(volume: hasVolume ? volume : -1, muted: muted != 0, name: name, device: device)
     }
 }

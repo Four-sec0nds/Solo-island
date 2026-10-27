@@ -5,7 +5,7 @@ import Darwin
 import Glibc
 #endif
 
-public struct CommandResult {
+public struct CommandResult: Sendable {
     public var status: Int32
     public var output: Data
     public var error: String
@@ -15,6 +15,10 @@ public enum ProcessRunner {
     /// Drain both pipes while the process runs; neither output can deadlock the other.
     public static func run(_ executable: String, _ arguments: [String], timeout seconds: TimeInterval = 20) async throws -> CommandResult {
         try await Task.detached(priority: .utility) {
+            try runSynchronously(executable, arguments, timeout: seconds)
+        }.value
+    }
+    private static func runSynchronously(_ executable: String, _ arguments: [String], timeout seconds: TimeInterval) throws -> CommandResult {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: executable)
             process.arguments = arguments
@@ -44,7 +48,6 @@ public enum ProcessRunner {
             process.waitUntilExit(); group.wait(); timeout.cancel()
             return CommandResult(status: process.terminationStatus, output: stdout.value,
                                  error: String(data: stderr.value, encoding: .utf8) ?? "")
-        }.value
     }
     private final class DataBox: @unchecked Sendable { var value = Data() }
 }

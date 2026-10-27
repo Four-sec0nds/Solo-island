@@ -37,7 +37,7 @@ struct FilesView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-                    .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
+                    .font(.system(size: 10)).foregroundStyle(exists ? Color.secondary : Color.orange).lineLimit(1)
             }.frame(maxWidth: .infinity, alignment: .leading)
             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
             Button { store.removeFile(entry.id) } label: { Image(systemName: "xmark") }.help("Убрать с полки")
