@@ -5,133 +5,101 @@ test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stal
 test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 1.246s
+Ran 4 tests in 1.286s
 
 OK
 Building for debugging...
 [0/12] /Users/runner/work/Exploit-CVE/Exploit-CVE/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
 [1/12] Write sources
 [1/12] Write SoloIsland-entitlement.plist
-[5/12] Write sources
+[4/12] Write sources
 [6/12] Write swift-version--79AA4F9932D1E87A.txt
-[8/16] Compiling IslandCore NowPlaying.swift
-[9/16] Compiling IslandCore ProcessRunner.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandCore/ProcessRunner.swift:44:44: warning: instance method 'wait' is unavailable from asynchronous contexts; Use a TaskGroup instead; this is an error in the Swift 6 language mode
-42 |             }
-43 |             DispatchQueue.global().asyncAfter(deadline: .now() + max(0.05, seconds), execute: timeout)
-44 |             process.waitUntilExit(); group.wait(); timeout.cancel()
-   |                                            `- warning: instance method 'wait' is unavailable from asynchronous contexts; Use a TaskGroup instead; this is an error in the Swift 6 language mode
-45 |             return CommandResult(status: process.terminationStatus, output: stdout.value,
-46 |                                  error: String(data: stderr.value, encoding: .utf8) ?? "")
-
-Dispatch.DispatchGroup.wait:2:13: note: 'wait()' declared here
-1 | class DispatchGroup {
-2 | public func wait()}
-  |             `- note: 'wait()' declared here
-3 | 
-[10/16] Emitting module IslandCore
-[11/16] Compiling IslandCore Models.swift
+[8/16] Compiling IslandCore ProcessRunner.swift
+[9/16] Compiling IslandCore NowPlaying.swift
+[10/16] Compiling IslandCore Models.swift
+[11/16] Emitting module IslandCore
 [12/29] Emitting module IslandApp
-[13/31] Emitting module IslandCoreTests
-[14/31] Compiling IslandCoreTests IslandCoreTests.swift
+[13/31] Compiling IslandCoreTests IslandCoreTests.swift
+[14/31] Emitting module IslandCoreTests
 [15/33] Compiling IslandApp MusicView.swift
 [16/33] Compiling IslandApp NotificationService.swift
-[17/33] Compiling IslandApp SettingsView.swift
-[18/33] Compiling IslandApp TasksView.swift
-[19/33] Compiling IslandApp IslandView.swift
-[20/33] Compiling IslandApp MediaService.swift
-[21/33] Compiling IslandApp ActionsView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/AudioService.swift:21:73: warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-19 |         size = UInt32(MemoryLayout<CFString>.size)
-20 |         address = .init(mSelector: kAudioObjectPropertyName, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
-21 |         _ = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &name)
-   |                                                                         `- warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-22 |         var volume: Float32 = 0
-23 |         var hasVolume = false
-[22/33] Compiling IslandApp App.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/AudioService.swift:21:73: warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-19 |         size = UInt32(MemoryLayout<CFString>.size)
-20 |         address = .init(mSelector: kAudioObjectPropertyName, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
-21 |         _ = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &name)
-   |                                                                         `- warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-22 |         var volume: Float32 = 0
-23 |         var hasVolume = false
-[23/33] Compiling IslandApp AudioService.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/AudioService.swift:21:73: warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-19 |         size = UInt32(MemoryLayout<CFString>.size)
-20 |         address = .init(mSelector: kAudioObjectPropertyName, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
-21 |         _ = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &name)
-   |                                                                         `- warning: forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference.
-22 |         var volume: Float32 = 0
-23 |         var hasVolume = false
-[24/33] Compiling IslandApp FilesView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-
-SwiftUICore.ShapeStyle:2:11: note: where 'Self' = 'HierarchicalShapeStyle'
- 1 | @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
- 2 | extension ShapeStyle where Self == Color {
-   |           `- note: where 'Self' = 'HierarchicalShapeStyle'
- 3 |     public static var red: Color { get }
- 4 |     public static var orange: Color { get }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-[25/33] Compiling IslandApp FocusView.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-
-SwiftUICore.ShapeStyle:2:11: note: where 'Self' = 'HierarchicalShapeStyle'
- 1 | @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
- 2 | extension ShapeStyle where Self == Color {
-   |           `- note: where 'Self' = 'HierarchicalShapeStyle'
- 3 |     public static var red: Color { get }
- 4 |     public static var orange: Color { get }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-[26/33] Compiling IslandApp IslandStore.swift
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: static property 'orange' requires the types 'HierarchicalShapeStyle' and 'Color' be equivalent
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-
-SwiftUICore.ShapeStyle:2:11: note: where 'Self' = 'HierarchicalShapeStyle'
- 1 | @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
- 2 | extension ShapeStyle where Self == Color {
-   |           `- note: where 'Self' = 'HierarchicalShapeStyle'
- 3 |     public static var red: Color { get }
- 4 |     public static var orange: Color { get }
-
-/Users/runner/work/Exploit-CVE/Exploit-CVE/Sources/IslandApp/FilesView.swift:40:85: error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-38 |                 Text(entry.url.lastPathComponent).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
-39 |                 Text(exists ? entry.url.deletingLastPathComponent().lastPathComponent : "Файл перемещён или удалён")
-40 |                     .font(.system(size: 10)).foregroundStyle(exists ? .secondary : .orange).lineLimit(1)
-   |                                                                                     `- error: member 'orange' in 'HierarchicalShapeStyle' produces result of type 'Color', but context expects 'HierarchicalShapeStyle'
-41 |             }.frame(maxWidth: .infinity, alignment: .leading)
-42 |             Button { store.openFile(entry) } label: { Image(systemName: "arrow.up.right.square") }.disabled(!exists).help("Открыть файл")
-[27/33] Emitting module SoloIslandPackageTests
-error: fatalError
+[17/33] Compiling IslandApp IslandView.swift
+[18/33] Compiling IslandApp MediaService.swift
+[19/33] Compiling IslandApp SettingsView.swift
+[20/33] Compiling IslandApp TasksView.swift
+[21/33] Compiling IslandApp FilesView.swift
+[22/33] Compiling IslandApp FocusView.swift
+[23/33] Compiling IslandApp IslandStore.swift
+[24/33] Compiling IslandApp ActionsView.swift
+[25/33] Compiling IslandApp App.swift
+[26/33] Compiling IslandApp AudioService.swift
+[26/33] Write Objects.LinkFileList
+[27/33] Linking SoloIsland
+[28/33] Applying SoloIsland
+[30/33] Compiling SoloIslandPackageTests runner.swift
+[31/33] Emitting module SoloIslandPackageTests
+[31/33] Write Objects.LinkFileList
+[32/33] Linking SoloIslandPackageTests
+Build complete! (12.03s)
+Test Suite 'All tests' started at 2026-10-27 15:10:55.752.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 15:10:55.753.
+Test Suite 'IslandCoreTests' started at 2026-10-27 15:10:55.753.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.023 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.134 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.003 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' passed (0.003 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
+Test Suite 'IslandCoreTests' passed at 2026-10-27 15:10:55.918.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.165 (0.165) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 15:10:55.918.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.165 (0.165) seconds
+Test Suite 'All tests' passed at 2026-10-27 15:10:55.918.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.165 (0.166) seconds
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests passed after 0.001 seconds.
+Building for production...
+[0/5] Write sources
+[2/5] Write swift-version--79AA4F9932D1E87A.txt
+[4/6] Compiling IslandCore Models.swift
+[5/7] Compiling IslandApp ActionsView.swift
+[5/7] Write Objects.LinkFileList
+[6/7] Linking SoloIsland
+Build of product 'SoloIsland' complete! (10.39s)
+error: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo: unknown architecture specification flag: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/MacOS/SoloIsland in specifying -verify_arch operation
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo: known architecture flags are: any little big ppc64 x86_64 x86_64h arm64 ppc970-64 arm64_32 arm64e ppc i386 m68k hppa sparc m88k i860 veo arm ppc601 ppc603 ppc603e ppc603ev ppc604 ppc604e ppc750 ppc7400 ppc7450 ppc970 i486 i486SX pentium i586 pentpro i686 pentIIm3 pentIIm5 pentium4 m68030 m68040 hppa7100LC veo1 veo2 veo3 veo4 armv4t armv5 xscale armv6 armv6m armv7 armv7f armv7s armv7k armv7m armv7em arm64v8
+usage: lipo <input_file> <command> [<options> ...]
+  command is one of:
+    -archs
+    -create
+    -detailed_info
+    -extract <arch_type> [-extract <arch_type> ...]
+    -extract_family <arch_type> [-extract_family <arch_type> ...]
+    -info
+    -remove <arch_type> [-remove <arch_type> ...]
+    -replace <arch_type> <file_name> [-replace <arch_type> <file_name> ...]
+    -thin <arch_type>
+    -verify_arch <arch_type> ...
+  options are one or more of:
+    -arch <arch_type> <input_file>
+    -hideARM64
+    -output <output_file>
+    -segalign <arch_type> <alignment>
