@@ -102,7 +102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if window.isVisible { openingWidths.insert(Int(window.frame.width)) }
                 record(0.03)
             }
-            guard openingWidths.count >= 3 else { fputs("Notch motion skipped intermediate widths\n", stderr); exit(1) }
+            guard openingWidths.count >= 3 else { fputs("Notch motion skipped intermediate widths: \(openingWidths.sorted()), min=\(window.minSize), frame=\(window.frame)\n", stderr); exit(1) }
             guard store.expanded, window.isVisible, abs(window.frame.maxY - screen.frame.maxY) < 1 else {
                 fputs("Notch reveal/attachment failed\n", stderr); exit(1)
             }
@@ -245,10 +245,10 @@ final class IslandWindowController: NSWindowController {
         }
         let origin = window.frame
         motion = Task { @MainActor [weak self] in
-            let started = ProcessInfo.processInfo.systemUptime
-            while !Task.isCancelled {
-                guard let self, self.store.expanded == expanding, let window = self.window else { return }
-                let progress = min(1, (ProcessInfo.processInfo.systemUptime - started) / duration)
+            let steps = max(10, Int(ceil(duration * 60)))
+            for step in 0...steps {
+                guard !Task.isCancelled, let self, self.store.expanded == expanding, let window = self.window else { return }
+                let progress = Double(step) / Double(steps)
                 let fraction = expanding ? 1 - pow(1 - progress, 3) : progress * progress * (3 - 2 * progress)
                 let frame = NSRect(x: origin.minX + (target.minX - origin.minX) * fraction,
                                    y: origin.minY + (target.minY - origin.minY) * fraction,
@@ -260,7 +260,7 @@ final class IslandWindowController: NSWindowController {
                     if !expanding { window.orderOut(nil) }
                     return
                 }
-                try? await Task.sleep(nanoseconds: 16_666_667)
+                try? await Task.sleep(nanoseconds: UInt64(duration / Double(steps) * 1_000_000_000))
             }
         }
     }

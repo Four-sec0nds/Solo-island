@@ -112,7 +112,7 @@ struct IslandRootView: View {
             ForEach(IslandTab.allCases) { tab in
                 Button { store.tab = tab } label: {
                     HStack(spacing: 11) {
-                        Image(systemName: tab.icon).symbolRenderingMode(.monochrome).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
+                        Image(systemName: tab.icon).renderingMode(.template).symbolRenderingMode(.monochrome).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
                         Text(tab.rawValue).font(.system(size: 12, weight: store.tab == tab ? .semibold : .regular))
                         Spacer(minLength: 0)
                         if tab == .files && !store.state.shelf.isEmpty {
@@ -220,8 +220,8 @@ private extension IslandTab {
     var color: Color {
         switch self {
         case .music: return .purple
-        case .tasks: return .cyan
-        case .focus: return .orange
+        case .tasks: return Color(red: 0.25, green: 0.84, blue: 0.97)
+        case .focus: return Color(red: 1, green: 0.66, blue: 0.25)
         case .files: return .pink
         case .actions: return .yellow
         case .settings: return .indigo
