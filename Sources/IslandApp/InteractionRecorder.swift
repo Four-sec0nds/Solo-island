@@ -1,5 +1,6 @@
 import AppKit
 import IslandCore
+import CryptoKit
 
 /// Offline native footage. Local events go to our own window; no accessibility,
 /// screen-recording permission, personal session or external music site is used.
@@ -32,6 +33,7 @@ final class InteractionRecorder {
     private var pressed = false
     private var eventNumber = 0
     private var sliderValues: [String: [Double]] = [:]
+    private var cachedFrames: [String: String] = [:]
 
     static func record(in output: URL) async throws {
         guard CommandLine.arguments.contains("--render-preview") else { return }
@@ -102,8 +104,13 @@ final class InteractionRecorder {
             context.interpolationQuality = .high
             context.draw(source, in: CGRect(x: 0, y: 0, width: w, height: h))
             guard let cg = context.makeImage(), let data = NSBitmapImageRep(cgImage: cg).representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-            let path = String(format: "%@/%04d.png", name, frames.count)
-            try data.write(to: folder.appendingPathComponent(path))
+            let digest = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+            let path: String
+            if let previous = cachedFrames[digest] { path = previous }
+            else {
+                path = String(format: "%@/%04d.png", name, frames.count)
+                try data.write(to: folder.appendingPathComponent(path)); cachedFrames[digest] = path
+            }
             frames.append(Sample(file: path, x: pointer.x, y: pointer.y, pressed: pressed,
                                  width: window.frame.width, height: window.frame.height))
         }
@@ -243,6 +250,7 @@ final class InteractionRecorder {
             try await Task.sleep(nanoseconds: 100_000_000)
         }
         guard store.media.usingWeb else { throw failure("Offline music fixture did not load") }
+        store.notificationsEnabled = true
 
         try begin("onboarding"); try await capture(10)
         try await press("Яндекс Музыка", fallback: NSPoint(x: 290, y: 213))
@@ -279,8 +287,10 @@ final class InteractionRecorder {
         try await press("chevron.right", fallback: NSPoint(x: 675,y: 273)); try await capture(7)
         try await press("chevron.left", fallback: NSPoint(x: 196,y: 273)); try await capture(7)
         // The last row always contains valid future dates in the chosen month.
-        try await press("Дата календаря", fallback: NSPoint(x: 575,y: 400)); try await capture(8)
+        let futureDay = Calendar.current.date(byAdding: .day, value: 2, to: Date())!
+        try await press(futureDay.formatted(date: .complete, time: .omitted), fallback: NSPoint(x: 575,y: 400)); try await capture(8)
         try await press("Сохранить задачу", fallback: NSPoint(x: 675,y: 145)); try await capture(8)
+        guard store.taskDraft == nil else { throw failure("Reminder form did not save its future date") }
 
         try begin("custom-focus"); try await tab(.focus)
         try await scroll(to: 1); try await scroll(to: 0)
@@ -327,7 +337,7 @@ final class InteractionRecorder {
         try begin("settings"); try await tab(.settings)
         try await scroll(to: 0.40)
         let before = store.state.settings
-        try await drag("Ширина", fractions: [(720.0-640)/260,0.88,0.18,(720.0-640)/260], fallback: NSRect(x:180,y:240,width:510,height:22))
+        try await drag("Ширина", fractions: [(720.0-640)/260,0.65,0.18,(720.0-640)/260], fallback: NSRect(x:180,y:240,width:510,height:22))
         guard let widths = sliderValues["Ширина"], (widths.max()! - widths.min()!) > 100,
               abs(store.state.settings.expandedWidth - before.expandedWidth) < 12 else { throw failure("Native width slider did not move and return to its initial value") }
         try await drag("Скругление", fractions: [(before.cornerRadius-22)/18,1,0,0.44], fallback: NSRect(x:180,y:295,width:510,height:22))
@@ -341,6 +351,7 @@ final class InteractionRecorder {
         try await scroll(to: 1); try await scroll(to: 0)
         store.setSettings { $0.expandedWidth = 720; $0.cornerRadius = 30; $0.animationDuration = 0.32; $0.accent = "mint" }
         try await capture(8)
+        try await press("Закреплено", fallback: NSPoint(x: 640,y: 70))
 
         clips.append(Clip(name: name, fps: 20, frames: frames, events: events))
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
