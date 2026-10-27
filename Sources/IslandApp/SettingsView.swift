@@ -21,7 +21,7 @@ struct IslandSettingsView: View {
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Скорость анимации").font(.caption)
-                    Slider(value: binding(\.animationDuration), in: 0.12...0.6)
+                    IslandSlider(value: binding(\.animationDuration), in: 0.12...0.6)
                 }
                 Toggle("Акцент из обложки", isOn: binding(\.coverAccent)).font(.caption)
                 if !store.state.settings.coverAccent {
@@ -64,7 +64,7 @@ struct IslandSettingsView: View {
     private func settingSlider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>, suffix: String) -> some View {
         VStack(spacing: 5) {
             HStack { Text(title); Spacer(); Text("\(Int(value.wrappedValue)) \(suffix)").foregroundStyle(.secondary) }.font(.caption)
-            Slider(value: value, in: range)
+            IslandSlider(value: value, in: range)
         }
     }
 }

@@ -58,7 +58,7 @@ struct MusicView: View {
             }.frame(maxWidth: .infinity)
             if media.track.canSeek {
                 VStack(spacing: 2) {
-                    Slider(value: Binding(get: { seeking ?? media.track.position(at: now, receivedAt: media.receivedAt) }, set: { seeking = $0 }),
+                    IslandSlider(value: Binding(get: { seeking ?? media.track.position(at: now, receivedAt: media.receivedAt) }, set: { seeking = $0 }),
                            in: 0...max(1, media.track.duration ?? 1), onEditingChanged: { editing in
                         if !editing, let value = seeking { media.seek(value); seeking = nil }
                     }).accessibilityLabel("Позиция воспроизведения")

@@ -112,7 +112,7 @@ struct IslandRootView: View {
             ForEach(IslandTab.allCases) { tab in
                 Button { store.tab = tab } label: {
                     HStack(spacing: 11) {
-                        Image(systemName: tab.icon).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
+                        Image(systemName: tab.icon).symbolRenderingMode(.monochrome).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
                         Text(tab.rawValue).font(.system(size: 12, weight: store.tab == tab ? .semibold : .regular))
                         Spacer(minLength: 0)
                         if tab == .files && !store.state.shelf.isEmpty {

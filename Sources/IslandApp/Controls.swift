@@ -18,11 +18,10 @@ private struct IslandButtonSurface: View {
     private var color: Color { configuration.role == .destructive ? .pink : accent }
     private var radius: CGFloat { kind == .icon ? 12 : 14 }
     var body: some View {
-        configuration.label
+        label
             .font(.system(size: 12, weight: .medium, design: .rounded))
             .padding(.horizontal, kind == .bare ? 0 : kind == .icon ? 8 : 14)
             .padding(.vertical, kind == .bare ? 0 : kind == .icon ? 7 : 10)
-            .foregroundStyle(kind == .filled ? .white : color.opacity(enabled ? 1 : 0.5))
             .background {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
                     .fill(LinearGradient(colors: background, startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -40,6 +39,10 @@ private struct IslandButtonSurface: View {
             .animation(reduceMotion ? nil : .easeOut(duration: 0.13), value: configuration.isPressed)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: hovered)
             .onHover { hovered = $0 }
+    }
+    @ViewBuilder private var label: some View {
+        if kind == .bare { configuration.label }
+        else { configuration.label.foregroundStyle(kind == .filled ? Color.white : color) }
     }
     private var background: [Color] {
         if kind == .filled { return [color.opacity(configuration.isPressed ? 1 : 0.85), Color.purple.opacity(0.8)] }
@@ -83,4 +86,58 @@ struct IslandTextFieldStyle: TextFieldStyle {
             .background(Color.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).strokeBorder(.purple.opacity(0.18), lineWidth: 1))
     }
+}
+
+struct IslandSlider: View {
+    @Binding var value: Double
+    var range: ClosedRange<Double>
+    var onEditingChanged: (Bool) -> Void
+    @Environment(\.islandAccent) private var accent
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dragging = false
+    @State private var hovered = false
+    init(value: Binding<Double>, in range: ClosedRange<Double>, onEditingChanged: @escaping (Bool) -> Void = { _ in }) {
+        _value = value; self.range = range; self.onEditingChanged = onEditingChanged
+    }
+    private var fraction: Double { min(1, max(0, (value - range.lowerBound) / max(0.001, range.upperBound - range.lowerBound))) }
+    var body: some View {
+        GeometryReader { geometry in
+            let width = max(1, geometry.size.width - 12)
+            ZStack(alignment: .leading) {
+                Capsule().fill(accent.opacity(0.12)).frame(height: 4)
+                Capsule().fill(LinearGradient(colors: [accent, .purple], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: 6 + width * fraction, height: 4)
+                Circle().fill(accent).frame(width: 10, height: 10)
+                    .shadow(color: accent.opacity(0.4), radius: dragging || hovered ? 7 : 3)
+                    .scaleEffect(!reduceMotion && dragging ? 1.35 : 1)
+                    .offset(x: 1 + width * fraction)
+            }.frame(height: geometry.size.height)
+                .contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 0).onChanged { event in
+                    if !dragging { dragging = true; onEditingChanged(true) }
+                    setFraction((event.location.x - 6) / width)
+                }.onEnded { event in
+                    setFraction((event.location.x - 6) / width)
+                    dragging = false; onEditingChanged(false)
+                })
+        }.frame(height: 22)
+            .onHover { hovered = $0 }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: dragging)
+            .accessibilityElement().accessibilityValue("\(Int(fraction * 100))%")
+            .accessibilityAdjustableAction { direction in
+                let delta = (range.upperBound - range.lowerBound) / 50
+                onEditingChanged(true)
+                if direction == .increment { value = min(range.upperBound, value + delta) }
+                else if direction == .decrement { value = max(range.lowerBound, value - delta) }
+                onEditingChanged(false)
+            }
+            .focusable()
+            .onMoveCommand { direction in
+                guard direction == .left || direction == .right else { return }
+                onEditingChanged(true)
+                value = min(range.upperBound, max(range.lowerBound, value + (direction == .right ? 1 : -1) * (range.upperBound - range.lowerBound) / 50))
+                onEditingChanged(false)
+            }
+    }
+    private func setFraction(_ fraction: Double) { value = range.lowerBound + min(1, max(0, fraction)) * (range.upperBound - range.lowerBound) }
 }
