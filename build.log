@@ -3,31 +3,31 @@ TAP version 13
 # Subtest: empty and login pages do not become tracks or expose form data
 ok 1 - empty and login pages do not become tracks or expose form data
   ---
-  duration_ms: 1.963125
+  duration_ms: 1.87175
   type: 'test'
   ...
 # Subtest: active HTML5 media wins and non-finite stream duration is omitted
 ok 2 - active HTML5 media wins and non-finite stream duration is omitted
   ---
-  duration_ms: 0.466209
+  duration_ms: 0.412583
   type: 'test'
   ...
 # Subtest: media session next and seek handlers receive structured action details
 ok 3 - media session next and seek handlers receive structured action details
   ---
-  duration_ms: 0.371958
+  duration_ms: 0.327625
   type: 'test'
   ...
 # Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
 ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
   ---
-  duration_ms: 0.382042
+  duration_ms: 0.356959
   type: 'test'
   ...
 # Subtest: site-specific next button is used only when enabled
 ok 5 - site-specific next button is used only when enabled
   ---
-  duration_ms: 0.322833
+  duration_ms: 0.318958
   type: 'test'
   ...
 1..5
@@ -38,53 +38,53 @@ ok 5 - site-specific next button is used only when enabled
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 110.686917
+# duration_ms 94.767417
 test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
 test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
 test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
 test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 1.512s
+Ran 4 tests in 1.376s
 
 OK
 Building for debugging...
 [0/14] /Users/runner/work/Exploit-CVE/Exploit-CVE/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
 [0/14] Write sources
-[6/14] Write SoloIsland-entitlement.plist
+[4/14] Write SoloIsland-entitlement.plist
 [7/14] Write sources
 [8/14] Write swift-version--79AA4F9932D1E87A.txt
 [10/19] Compiling IslandCore ProcessRunner.swift
-[11/19] Compiling IslandCore NowPlaying.swift
-[12/19] Emitting module IslandCore
-[13/19] Compiling IslandCore MusicProvider.swift
-[14/19] Compiling IslandCore Models.swift
+[11/20] Compiling IslandCore NowPlaying.swift
+[12/20] Emitting module IslandCore
+[13/20] Compiling IslandCore MusicProvider.swift
+[14/20] Compiling IslandCore Models.swift
 [15/20] Compiling IslandCore TaskReminders.swift
-[16/25] Compiling IslandPlatform ClipboardService.swift
-[17/25] Emitting module IslandPlatform
+[16/25] Emitting module IslandPlatform
+[17/25] Compiling IslandPlatform ClipboardService.swift
 [18/42] Emitting module IslandPlatformTests
 [19/42] Compiling IslandPlatformTests ClipboardServiceTests.swift
-[20/42] Compiling IslandCoreTests IslandCoreTests.swift
+[20/42] Compiling IslandCoreTests PlanningTests.swift
 [21/42] Emitting module IslandCoreTests
-[22/42] Compiling IslandCoreTests PlanningTests.swift
+[22/42] Compiling IslandCoreTests IslandCoreTests.swift
 [23/44] Emitting module IslandApp
-[24/47] Emitting module SoloIslandPackageTests
-[25/47] Compiling SoloIslandPackageTests runner.swift
+[24/47] Compiling SoloIslandPackageTests runner.swift
+[25/47] Emitting module SoloIslandPackageTests
 [25/47] Write Objects.LinkFileList
 [26/47] Linking SoloIslandPackageTests
-[28/47] Compiling IslandApp IslandView.swift
-[29/47] Compiling IslandApp MediaService.swift
-[30/47] Compiling IslandApp MusicView.swift
-[31/47] Compiling IslandApp TasksView.swift
-[32/47] Compiling IslandApp WebMusicService.swift
-[33/47] Compiling IslandApp WebPlayerScript.swift
-[34/47] Compiling IslandApp Controls.swift
-[35/47] Compiling IslandApp FilesView.swift
-[36/47] Compiling IslandApp FocusView.swift
-[37/47] Compiling IslandApp IslandStore.swift
-[38/47] Compiling IslandApp NotificationService.swift
-[39/47] Compiling IslandApp PreviewRecorder.swift
-[40/47] Compiling IslandApp SettingsView.swift
+[28/47] Compiling IslandApp NotificationService.swift
+[29/47] Compiling IslandApp PreviewRecorder.swift
+[30/47] Compiling IslandApp SettingsView.swift
+[31/47] Compiling IslandApp IslandView.swift
+[32/47] Compiling IslandApp MediaService.swift
+[33/47] Compiling IslandApp MusicView.swift
+[34/47] Compiling IslandApp TasksView.swift
+[35/47] Compiling IslandApp WebMusicService.swift
+[36/47] Compiling IslandApp WebPlayerScript.swift
+[37/47] Compiling IslandApp Controls.swift
+[38/47] Compiling IslandApp FilesView.swift
+[39/47] Compiling IslandApp FocusView.swift
+[40/47] Compiling IslandApp IslandStore.swift
 [41/47] Compiling IslandApp ActionsView.swift
 [42/47] Compiling IslandApp App.swift
 [43/47] Compiling IslandApp AudioService.swift
@@ -92,51 +92,51 @@ Building for debugging...
 [44/47] Write Objects.LinkFileList
 [45/47] Linking SoloIsland
 [46/47] Applying SoloIsland
-Build complete! (14.26s)
-Test Suite 'All tests' started at 2026-10-27 19:20:07.481.
-Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 19:20:07.482.
-Test Suite 'ClipboardServiceTests' started at 2026-10-27 19:20:07.482.
+Build complete! (13.65s)
+Test Suite 'All tests' started at 2026-10-27 20:42:26.388.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-10-27 20:42:26.389.
+Test Suite 'ClipboardServiceTests' started at 2026-10-27 20:42:26.389.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.010 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.008 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
-2026-10-27 19:20:07.503 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.503 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.503 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.503 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.503 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.503 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.503 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.503 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.503 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.503 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.503 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.503 xctest[2876:12838] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.017 seconds).
+2026-10-27 20:42:26.403 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.403 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.403 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.403 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.403 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.403 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.403 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.403 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.403 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.403 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.403 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.403 xctest[1558:8186] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.011 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.002 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.001 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
-2026-10-27 19:20:07.511 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.511 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.511 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.511 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.511 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.511 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.511 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.511 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.511 xctest[2876:12838] Unknown number of components for colorspace model -1
-2026-10-27 19:20:07.511 xctest[2876:12838] Bad colorspace name NSNamedColorSpace
-2026-10-27 19:20:07.511 xctest[2876:12838] Unrecognized colorspace number -2
-2026-10-27 19:20:07.511 xctest[2876:12838] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.005 seconds).
+2026-10-27 20:42:26.409 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.409 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.409 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.409 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.409 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.409 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.409 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.409 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.409 xctest[1558:8186] Unknown number of components for colorspace model -1
+2026-10-27 20:42:26.409 xctest[1558:8186] Bad colorspace name NSNamedColorSpace
+2026-10-27 20:42:26.409 xctest[1558:8186] Unrecognized colorspace number -2
+2026-10-27 20:42:26.409 xctest[1558:8186] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.004 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.001 seconds).
-Test Suite 'ClipboardServiceTests' passed at 2026-10-27 19:20:07.517.
-	 Executed 5 tests, with 0 failures (0 unexpected) in 0.035 (0.036) seconds
-Test Suite 'IslandCoreTests' started at 2026-10-27 19:20:07.517.
+Test Suite 'ClipboardServiceTests' passed at 2026-10-27 20:42:26.415.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.026 (0.026) seconds
+Test Suite 'IslandCoreTests' started at 2026-10-27 20:42:26.415.
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.023 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.018 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.139 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.132 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
@@ -167,9 +167,9 @@ Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndat
 Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
-Test Suite 'IslandCoreTests' passed at 2026-10-27 19:20:07.686.
-	 Executed 17 tests, with 0 failures (0 unexpected) in 0.168 (0.169) seconds
-Test Suite 'PlanningTests' started at 2026-10-27 19:20:07.686.
+Test Suite 'IslandCoreTests' passed at 2026-10-27 20:42:26.572.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.156 (0.157) seconds
+Test Suite 'PlanningTests' started at 2026-10-27 20:42:26.572.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
@@ -182,12 +182,12 @@ Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWitho
 Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
-Test Suite 'PlanningTests' passed at 2026-10-27 19:20:07.688.
+Test Suite 'PlanningTests' passed at 2026-10-27 20:42:26.574.
 	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
-Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 19:20:07.688.
-	 Executed 28 tests, with 0 failures (0 unexpected) in 0.205 (0.207) seconds
-Test Suite 'All tests' passed at 2026-10-27 19:20:07.688.
-	 Executed 28 tests, with 0 failures (0 unexpected) in 0.205 (0.208) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-10-27 20:42:26.574.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.184 (0.185) seconds
+Test Suite 'All tests' passed at 2026-10-27 20:42:26.574.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.184 (0.186) seconds
 ◇ Test run started.
 ↳ Testing Library Version: 124.4
 ↳ Target Platform: arm64e-apple-macos14.0
@@ -200,12 +200,12 @@ Building for production...
 [7/9] Compiling IslandApp ActionsView.swift
 [7/9] Write Objects.LinkFileList
 [8/9] Linking SoloIsland
-Build of product 'SoloIsland' complete! (15.44s)
+Build of product 'SoloIsland' complete! (16.62s)
 From https://github.com/ungive/media-control
  * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
 HEAD is now at 3cfd5dc Bump version to 0.7.7
 Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
-Cloning into '/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.jqMEkG/source/mediaremote-adapter'...
+Cloning into '/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.JsuWyI/source/mediaremote-adapter'...
 From https://github.com/ungive/mediaremote-adapter
  * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
 Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
@@ -213,10 +213,10 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 -- Detecting OBJC compiler ABI info
 -- Detecting OBJC compiler ABI info - done
 -- Check for working OBJC compiler: /usr/bin/clang - skipped
--- Configuring done (1.5s)
+-- Configuring done (1.6s)
 -- Generating done (0.4s)
--- Build files have been written to: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.jqMEkG/build
-[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
+-- Build files have been written to: /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.JsuWyI/build
+[  5%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
 [ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
 [ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
 [ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
@@ -237,7 +237,7 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 [ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
 [100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
 Ad-hoc signing MediaRemoteAdapter.framework
-/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.jqMEkG/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-media.JsuWyI/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
 [100%] Built target MediaRemoteAdapter
 -- Install configuration: "Release"
 -- Installing: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
@@ -272,6 +272,7 @@ layout expanded=true transition=true active=false frame=176.0
 motion system=true effective=false duration=0.32
 motion step=1 frame=254.0
 motion step=10 frame=652.0
+Window overlay: reveal, competing window, pin and unpin passed
 layout expanded=false transition=true active=false frame=720.0
 motion system=true effective=false duration=0.32
 motion step=1 frame=717.0
@@ -386,26 +387,26 @@ layout expanded=false transition=true active=false frame=720.0
 motion system=true effective=true duration=0.0
 created: /Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.dmg
 Checksumming Protective Master Boot Record (MBR : 0)…
-Protective Master Boot Record (MBR :: verified   CRC32 $1BBE662A
+Protective Master Boot Record (MBR :: verified   CRC32 $1736822C
 Checksumming GPT Header (Primary GPT Header : 1)…
- GPT Header (Primary GPT Header : 1): verified   CRC32 $916B817A
+ GPT Header (Primary GPT Header : 1): verified   CRC32 $ED4A8FD2
 Checksumming GPT Partition Data (Primary GPT Table : 2)…
-GPT Partition Data (Primary GPT Tabl: verified   CRC32 $5DE47ABC
+GPT Partition Data (Primary GPT Tabl: verified   CRC32 $545B0127
 Checksumming  (Apple_Free : 3)…
                     (Apple_Free : 3): verified   CRC32 $00000000
 Checksumming disk image (Apple_HFS : 4)…
-          disk image (Apple_HFS : 4): verified   CRC32 $F0025B86
+          disk image (Apple_HFS : 4): verified   CRC32 $59C81BD5
 Checksumming  (Apple_Free : 5)…
                     (Apple_Free : 5): verified   CRC32 $00000000
 Checksumming GPT Partition Data (Backup GPT Table : 6)…
-GPT Partition Data (Backup GPT Table: verified   CRC32 $5DE47ABC
+GPT Partition Data (Backup GPT Table: verified   CRC32 $545B0127
 Checksumming GPT Header (Backup GPT Header : 7)…
-  GPT Header (Backup GPT Header : 7): verified   CRC32 $F30CD4E5
-verified   CRC32 $D4B59A4E
+  GPT Header (Backup GPT Header : 7): verified   CRC32 $824EFCB7
+verified   CRC32 $D27C863F
 hdiutil: verify: checksum of "/Users/runner/work/Exploit-CVE/Exploit-CVE/dist/SoloIsland.dmg" is VALID
-expected   CRC32 $D4B59A4E
+expected   CRC32 $D27C863F
 /dev/disk5          	GUID_partition_scheme          	
-/dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-dmg.9HbGYt/mount
+/dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/solo-dmg.WYEWNb/mount
 media-control 0.7.7
 Copyright (c) 2025 Jonas van den Berg
 Licensed under the BSD 3-Clause License.
