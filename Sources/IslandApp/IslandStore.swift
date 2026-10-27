@@ -18,7 +18,6 @@ final class IslandStore: ObservableObject {
     @Published var pinned = false
     @Published var editingForm = false
     @Published var draggingFiles = false
-    @Published var fullScreen = false
     @Published var error: String?
     @Published var toast: IslandToast?
     @Published var notificationsEnabled = false
@@ -103,11 +102,6 @@ final class IslandStore: ObservableObject {
     private func tick() {
         now = Date(); tickCount += 1
         if tickCount % 240 == 0 { notifications.sync(tasks: state.tasks) }
-        let isFullScreen = NSApp.currentSystemPresentationOptions.contains(.fullScreen)
-        if isFullScreen != fullScreen {
-            fullScreen = isFullScreen
-            if isFullScreen && !pinned { collapseTask?.cancel(); expanded = false }
-        }
         if now >= toastUntil { toast = nil }
         if let focus = state.focus, !focus.isPaused, focus.remaining(at: now) <= 0 {
             creditFocus(); state.focus = nil; save()

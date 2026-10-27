@@ -86,9 +86,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         store.media.setPreview(previewTrack)
         island = IslandWindowController(store: store, trackPointer: false, reducedMotionOverride: false)
         Task { @MainActor [self] in
-            guard let window = island.window, !window.isVisible, window.level == .normal,
-                  (window as? NSPanel)?.isFloatingPanel == false, let screen = NSScreen.screens.first else {
-                fputs("Hidden/normal window precondition failed\n", stderr); exit(1)
+            guard let window = island.window, !window.isVisible,
+                  window.level.rawValue > NSWindow.Level.mainMenu.rawValue,
+                  (window as? NSPanel)?.isFloatingPanel == true, let screen = NSScreen.screens.first else {
+                fputs("Hidden overlay window precondition failed\n", stderr); exit(1)
             }
             let canvas = NSSize(width: store.presentationWidth, height: store.presentationHeight)
             var frames: [PreviewRecorder.Frame] = []
@@ -110,12 +111,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 fputs("Notch reveal/attachment failed\n", stderr); exit(1)
             }
             if !frames.isEmpty { frames[frames.count - 1].delay = 0.9 }
-            store.pinned = true
-            guard window.level.rawValue > NSWindow.Level.mainMenu.rawValue, (window as? NSPanel)?.isFloatingPanel == true else {
-                fputs("Pin did not enable always-on-top\n", stderr); exit(1)
+            // Raise another window after the island. Ordering must remain above it
+            // without requiring a pin, including after pinning and unpinning.
+            let other = NSWindow(contentRect: window.frame.insetBy(dx: 40, dy: 40),
+                                 styleMask: [.titled], backing: .buffered, defer: false)
+            other.isReleasedWhenClosed = false; other.level = .floating
+            @MainActor func verifyOverlay(_ phase: String) async {
+                other.makeKeyAndOrderFront(nil)
+                try? await Task.sleep(nanoseconds: 80_000_000)
+                let order = NSWindow.windowNumbers(options: []) ?? []
+                guard window.isVisible, window.level.rawValue > NSWindow.Level.mainMenu.rawValue,
+                      (window as? NSPanel)?.isFloatingPanel == true,
+                      let islandIndex = order.firstIndex(of: NSNumber(value: window.windowNumber)),
+                      let otherIndex = order.firstIndex(of: NSNumber(value: other.windowNumber)),
+                      islandIndex < otherIndex else {
+                    fputs("Island lost overlay ordering (\(phase))\n", stderr); exit(1)
+                }
             }
+            await verifyOverlay("unpinned reveal")
+            store.pinned = true
+            await verifyOverlay("pinned")
+            island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            guard store.expanded, window.isVisible else {
+                fputs("Pin did not keep the island open after pointer exit\n", stderr); exit(1)
+            }
+            island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
             store.pinned = false
-            guard window.level == .normal else { fputs("Unpin did not restore normal ordering\n", stderr); exit(1) }
+            await verifyOverlay("unpinned again")
+            other.close()
+            fputs("Window overlay: reveal, competing window, pin and unpin passed\n", stderr)
             island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
             for _ in 0..<15 { try? await Task.sleep(nanoseconds: 70_000_000); record(0.07) }
             guard !store.expanded, !window.isVisible else { fputs("Pointer exit did not hide the window\n", stderr); exit(1) }
@@ -274,7 +299,9 @@ final class IslandWindowController: NSWindowController {
         self.store = store; self.reducedMotionOverride = reducedMotionOverride
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
-        panel.level = .normal; panel.isFloatingPanel = false
+        // The island always reveals above other apps. Pinning only keeps it open.
+        panel.isFloatingPanel = true
+        panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         panel.hidesOnDeactivate = false; panel.isMovable = false
         panel.isReleasedWhenClosed = false; panel.animationBehavior = .none
@@ -288,12 +315,6 @@ final class IslandWindowController: NSWindowController {
         panel.contentView = hosting
         panel.minSize = .zero; panel.contentMinSize = .zero
         store.$expanded.removeDuplicates().sink { [weak self] value in self?.layout(expanded: value, transitioning: true) }.store(in: &subscriptions)
-        store.$pinned.removeDuplicates().sink { [weak self] pinned in
-            guard let self, let window = self.window else { return }
-            (window as? NSPanel)?.isFloatingPanel = pinned
-            window.level = pinned ? NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3) : .normal
-            if pinned && window.isVisible { window.orderFront(nil) }
-        }.store(in: &subscriptions)
         store.$state.map(\.settings).removeDuplicates().sink { [weak self] settings in
             guard let self else { return }; self.layout(expanded: self.store.expanded, settings: settings)
         }.store(in: &subscriptions)
