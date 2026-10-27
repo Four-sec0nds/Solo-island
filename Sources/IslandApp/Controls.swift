@@ -86,7 +86,7 @@ struct IslandSegments<Selection: Hashable>: View {
 }
 struct IslandTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
-        configuration.padding(11)
+        configuration.textFieldStyle(.plain).padding(11)
             .background(Color.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).strokeBorder(.purple.opacity(0.18), lineWidth: 1))
     }
@@ -153,5 +153,22 @@ extension EnvironmentValues {
     var islandReducedMotionOverride: Bool? {
         get { self[IslandReducedMotionOverrideKey.self] }
         set { self[IslandReducedMotionOverrideKey.self] = newValue }
+    }
+}
+
+struct IslandToggleStyle: ToggleStyle {
+    @Environment(\.islandAccent) private var accent
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 12) {
+            configuration.label
+            Spacer(minLength: 8)
+            Button { configuration.isOn.toggle() } label: {
+                ZStack(alignment: configuration.isOn ? .trailing : .leading) {
+                    Capsule().fill(configuration.isOn ? accent.opacity(0.55) : Color.purple.opacity(0.18))
+                    Circle().fill(configuration.isOn ? accent : Color.white.opacity(0.5)).padding(3)
+                        .frame(width: 20, height: 20)
+                }.frame(width: 35, height: 20)
+            }.buttonStyle(IslandButtonStyle(.bare)).accessibilityLabel(configuration.isOn ? "Включено" : "Выключено")
+        }.contentShape(Rectangle())
     }
 }

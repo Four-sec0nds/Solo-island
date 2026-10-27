@@ -75,6 +75,7 @@ struct MusicView: View {
                 Text(error).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
             }
             EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
+                .id(ObjectIdentifier(web.popup ?? web.webView))
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
                 .font(.system(size: 9)).foregroundStyle(.secondary)

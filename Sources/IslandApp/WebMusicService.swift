@@ -13,6 +13,7 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
     @Published var popup: WKWebView?
     @Published private(set) var artwork: NSImage?
     private var frame: WKFrameInfo?
+    private weak var commandView: WKWebView?
     private var continuity = NowPlayingContinuity()
     private var expiry: Task<Void, Never>?
     private var artworkTask: Task<Void, Never>?
@@ -36,7 +37,7 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
         guard provider != value || !loaded else { return }
         expiry?.cancel(); artworkTask?.cancel(); artworkRevision = UUID()
         previewFixture = false; provider = value; track = NowPlaying(); continuity = NowPlayingContinuity()
-        artwork = nil; artworkURL = nil; frame = nil; error = nil; popup = nil
+        artwork = nil; artworkURL = nil; frame = nil; commandView = nil; error = nil; popup = nil
         loaded = true; webView.load(URLRequest(url: value.url))
     }
     func stop() { expiry?.cancel(); artworkTask?.cancel(); if loaded { webView.stopLoading() } }
@@ -66,11 +67,12 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
         next.duration = number("duration"); next.elapsedTime = number("elapsedTime")
         next.playbackRate = number("playbackRate") ?? 1
         // A silent child frame must not replace the active player frame.
+        let sameFrame = commandView === message.webView && frame?.request.url == message.frameInfo.request.url && frame?.isMainFrame == message.frameInfo.isMainFrame
         if next.hasTrack {
-            if next.isPlaying || !track.isPlaying || frame?.isMainFrame == message.frameInfo.isMainFrame {
-                frame = message.frameInfo
+            if next.isPlaying || !track.isPlaying || sameFrame {
+                frame = message.frameInfo; commandView = message.webView
             } else { return }
-        } else if frame?.isMainFrame != message.frameInfo.isMainFrame { return }
+        } else if frame != nil && !sameFrame { return }
         if let visible = continuity.receive(next, at: Date()) {
             expiry?.cancel(); expiry = nil; track = visible
             updateArtwork(body["artworkURL"] as? String)
@@ -105,7 +107,7 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
         guard safeActions.contains(action) else { return }
         let seconds: Any
         if let value, value.isFinite && value >= 0 { seconds = value } else { seconds = NSNull() }
-        webView.callAsyncJavaScript("return await window.__soloIsland?.command(action, seconds) ?? 'unavailable';",
+        (commandView ?? webView).callAsyncJavaScript("return await window.__soloIsland?.command(action, seconds) ?? 'unavailable';",
                                    arguments: ["action": action, "seconds": seconds], in: frame, in: .page) { [weak self] result in
             Task { @MainActor in
                 switch result {
@@ -171,13 +173,13 @@ extension WebMusicService {
         let html = """
         <!doctype html><html><meta name="viewport" content="width=device-width"><body style="background:#100a1a;color:#eee;font:18px system-ui;padding:24px">
         <h2>Демонстрационный веб-сеанс</h2><p data-testid="context-item-info-title">Веб-трек</p>
-        <p data-testid="context-item-info-subtitles">Тест нативного моста</p>
+        <p data-testid="context-item-info-subtitles">Демонстрационный веб-плеер</p>
         <audio controls loop src="data:audio/wav;base64,\(data.base64EncodedString())"></audio>
         <script>
         if (navigator.mediaSession && window.MediaMetadata) {
-          navigator.mediaSession.metadata = new MediaMetadata({title:'Веб-трек',artist:'Тест нативного моста'});
+          navigator.mediaSession.metadata = new MediaMetadata({title:'Веб-трек',artist:'Демонстрационный веб-плеер'});
           navigator.mediaSession.setActionHandler('nexttrack', () => {
-            navigator.mediaSession.metadata = new MediaMetadata({title:'Следующий веб-трек',artist:'Тест нативного моста'});
+            navigator.mediaSession.metadata = new MediaMetadata({title:'Следующий веб-трек',artist:'Демонстрационный веб-плеер'});
             document.querySelector('[data-testid="context-item-info-title"]').textContent='Следующий веб-трек';
             window.__soloIsland.send();
           });

@@ -33,6 +33,7 @@ struct IslandRootView: View {
         .environment(\.locale, Locale(identifier: "ru_RU"))
         .preferredColorScheme(.dark)
         .buttonStyle(IslandButtonStyle(.soft))
+        .toggleStyle(IslandToggleStyle())
         .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
         .onDrop(of: [UTType.fileURL, .image, .plainText], isTargeted: $dropTargeted) { receive($0) }
         .onChange(of: dropTargeted) { _, targeted in
