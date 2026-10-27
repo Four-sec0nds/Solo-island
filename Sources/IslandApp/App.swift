@@ -194,22 +194,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         struct Sample: Encodable { let seconds: Double; let remaining: Int; let paused: Bool }
         var samples: [Sample] = [], frames: [PreviewRecorder.Frame] = []
         var paused = false, resumed = false
-        var lastCapture = beginning
-        while Date().timeIntervalSince(beginning) < 6.4 {
-            let date = Date(), elapsed = date.timeIntervalSince(beginning)
+        // A controlled demo clock keeps the native recording smooth even when
+        // bitmap rendering on the CI host takes longer than the sample interval.
+        for index in 0..<128 {
+            let elapsed = Double(index) * 0.05
+            let date = beginning.addingTimeInterval(elapsed)
             if elapsed >= 2 && !paused { focus.pause(at: date); paused = true }
             if elapsed >= 3 && !resumed { focus.resume(at: date); resumed = true }
             demo.previewFocus(focus, at: date)
             try? await Task.sleep(nanoseconds: 20_000_000)
             guard let image = PreviewRecorder.snapshot(window)?.cgImage else { throw CocoaError(.fileWriteUnknown) }
-            let capture = Date()
-            if !frames.isEmpty { frames[frames.count - 1].delay = capture.timeIntervalSince(lastCapture) }
-            frames.append(.init(image: image, delay: 0.08))
-            samples.append(Sample(seconds: capture.timeIntervalSince(beginning), remaining: Int(ceil(focus.remaining(at: date))), paused: focus.isPaused))
-            lastCapture = capture
-            try? await Task.sleep(nanoseconds: 60_000_000)
+            frames.append(.init(image: image, delay: 0.05))
+            samples.append(Sample(seconds: elapsed, remaining: Int(ceil(focus.remaining(at: date))), paused: focus.isPaused))
         }
-        guard Set(samples.map(\.remaining)).count >= 4, samples.contains(where: \.paused), resumed, frames.count >= 30 else {
+        guard Set(samples.map(\.remaining)).count >= 4, samples.contains(where: \.paused), resumed, frames.count == 128 else {
             fputs("Focus motion did not record countdown, pause and resume\n", stderr); exit(1)
         }
         try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-focus-motion.gif"))
