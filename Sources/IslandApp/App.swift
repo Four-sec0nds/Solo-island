@@ -46,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if store.focusAutomationActive {
             let alert = NSAlert()
+            alert.window.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 5)
             alert.messageText = "Режим «Не беспокоить» включён через Solo Island"
             alert.informativeText = "Отключите его в разделе «Фокус» перед выходом или выключите вручную в Пункте управления."
             alert.addButton(withTitle: "Вернуться к фокусу"); alert.addButton(withTitle: "Выйти")

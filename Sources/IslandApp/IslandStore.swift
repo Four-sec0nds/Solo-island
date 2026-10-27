@@ -249,7 +249,8 @@ final class IslandStore: ObservableObject {
         if !NSWorkspace.shared.open(entry.url) { error = "Не удалось открыть файл." }
     }
     func pickFiles() {
-        let panel = NSOpenPanel(); panel.allowsMultipleSelection = true
+        let panel = NSOpenPanel()
+        panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 5); panel.allowsMultipleSelection = true
         panel.canChooseFiles = true; panel.canChooseDirectories = true
         if panel.runModal() == .OK { addFiles(panel.urls) }
     }

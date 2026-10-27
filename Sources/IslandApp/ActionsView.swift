@@ -64,6 +64,7 @@ struct ActionsView: View {
     private func reset() { adding = false; title = ""; target = "" }
     private func choose() {
         let panel = NSOpenPanel()
+        panel.level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 5)
         panel.canChooseDirectories = kind == .folder; panel.canChooseFiles = kind == .application
         panel.allowsMultipleSelection = false
         if kind == .application { panel.allowedContentTypes = [.applicationBundle]; panel.directoryURL = URL(fileURLWithPath: "/Applications") }
