@@ -114,7 +114,7 @@ struct IslandRootView: View {
             ForEach(IslandTab.allCases) { tab in
                 Button { store.tab = tab } label: {
                     HStack(spacing: 11) {
-                        Image(systemName: tab.icon).renderingMode(.template).symbolRenderingMode(.monochrome).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
+                        SidebarIcon(tab: tab, color: tab.color).frame(width: 20, height: 18)
                         Text(tab.rawValue).font(.system(size: 12, weight: store.tab == tab ? .semibold : .regular))
                         Spacer(minLength: 0)
                         if tab == .files && !store.state.shelf.isEmpty {
@@ -261,5 +261,36 @@ struct NotchAttachmentShape: Shape {
         p.addQuadCurve(to: CGPoint(x: left, y: bodyY - shoulder), control: CGPoint(x: left, y: bodyY))
         p.addLine(to: CGPoint(x: left, y: 0)); p.closeSubpath()
         return p
+    }
+}
+
+@MainActor
+private struct SidebarIcon: View {
+    let tab: IslandTab
+    let color: Color
+    var body: some View {
+        Group {
+            if tab == .tasks {
+                VStack(spacing: 3) {
+                    ForEach(0..<3) { _ in
+                        HStack(spacing: 3) {
+                            Circle().fill(color).frame(width: 3, height: 3)
+                            Capsule().fill(color).frame(width: 11, height: 1.6)
+                        }
+                    }
+                }
+            } else if tab == .focus {
+                ZStack {
+                    Circle().stroke(color, lineWidth: 1.4).frame(width: 12, height: 12)
+                    Circle().fill(color).frame(width: 3, height: 3)
+                    Capsule().fill(color).frame(width: 1.4, height: 3).offset(y: -8)
+                    Capsule().fill(color).frame(width: 1.4, height: 3).offset(y: 8)
+                    Capsule().fill(color).frame(width: 3, height: 1.4).offset(x: -8)
+                    Capsule().fill(color).frame(width: 3, height: 1.4).offset(x: 8)
+                }
+            } else {
+                Image(systemName: tab.icon).font(.system(size: 14, weight: .medium)).foregroundStyle(color)
+            }
+        }
     }
 }
