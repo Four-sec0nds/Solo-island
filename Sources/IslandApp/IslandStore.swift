@@ -11,6 +11,9 @@ final class IslandStore: ObservableObject {
     @Published var tab: IslandTab = .music
     @Published var cameraWidth: CGFloat = 160
     @Published var compactHeight: CGFloat = 37
+    @Published var presentationWidth: CGFloat = 720
+    @Published var presentationHeight: CGFloat = 557
+    @Published var contentVisible = false
     @Published var expanded = false
     @Published var pinned = false
     @Published var editingForm = false
@@ -86,7 +89,7 @@ final class IslandStore: ObservableObject {
         let isFullScreen = NSApp.currentSystemPresentationOptions.contains(.fullScreen)
         if isFullScreen != fullScreen {
             fullScreen = isFullScreen
-            if isFullScreen { collapseTask?.cancel(); expanded = false }
+            if isFullScreen && !pinned { collapseTask?.cancel(); expanded = false }
         }
         if now >= toastUntil { toast = nil }
         if let focus = state.focus, !focus.isPaused, focus.remaining(at: now) <= 0 {
@@ -123,7 +126,7 @@ final class IslandStore: ObservableObject {
             try? await Task.sleep(nanoseconds: inside ? 180_000_000 : 550_000_000)
             guard !Task.isCancelled else { return }
             if inside { expanded = true }
-            else if (!pinned || fullScreen) && !editingForm && !draggingFiles && NSApp.modalWindow == nil { expanded = false }
+            else if !pinned && !editingForm && !draggingFiles && NSApp.modalWindow == nil { expanded = false }
         }
     }
     func reveal(_ target: IslandTab? = nil) {

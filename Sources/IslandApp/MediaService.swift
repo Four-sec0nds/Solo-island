@@ -15,6 +15,8 @@ final class MediaService: ObservableObject {
     private var buffer = Data()
     private var lastArtwork: String?
     private var generation = UUID()
+    private var continuity = NowPlayingContinuity()
+    private var emptyReset: Task<Void, Never>?
 
     var executable: String? {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("MediaControl/bin/media-control").path
@@ -27,6 +29,7 @@ final class MediaService: ObservableObject {
         if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
             return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
         }
+        if id.localizedCaseInsensitiveContains("yandex") { return "Яндекс Музыка" }
         return id
     }
     func start() {
@@ -69,6 +72,8 @@ final class MediaService: ObservableObject {
     }
     func stop() {
         generation = UUID()
+        emptyReset?.cancel(); emptyReset = nil
+        continuity = NowPlayingContinuity()
         stream?.terminationHandler = nil
         outputPipe?.fileHandleForReading.readabilityHandler = nil
         errorPipe?.fileHandleForReading.readabilityHandler = nil
@@ -87,11 +92,17 @@ final class MediaService: ObservableObject {
             guard !line.isEmpty else { continue }
             do {
                 let next = try NowPlaying.decodeLine(Data(line))
-                receivedAt = Date(); track = next
-                if next.artworkData != lastArtwork {
-                    lastArtwork = next.artworkData
-                    artwork = next.artworkData.flatMap { Data(base64Encoded: $0) }.flatMap(NSImage.init(data:))
-                    artworkColor = artwork?.averageColor ?? .systemMint
+                if let visible = continuity.receive(next, at: Date()) {
+                    emptyReset?.cancel(); emptyReset = nil
+                    apply(visible)
+                } else if emptyReset == nil {
+                    let token = generation
+                    emptyReset = Task { @MainActor [weak self] in
+                        try? await Task.sleep(nanoseconds: 2_050_000_000)
+                        guard !Task.isCancelled, let self, self.generation == token else { return }
+                        if let empty = self.continuity.expire(at: Date()) { self.apply(empty) }
+                        self.emptyReset = nil
+                    }
                 }
                 error = nil
             } catch {
@@ -99,6 +110,32 @@ final class MediaService: ObservableObject {
             }
         }
     }
+    private func apply(_ next: NowPlaying) {
+        receivedAt = Date(); track = next
+        if next.artworkData != lastArtwork {
+            lastArtwork = next.artworkData
+            artwork = next.artworkData.flatMap { Data(base64Encoded: $0) }.flatMap(NSImage.init(data:))
+            artworkColor = artwork?.averageColor ?? .systemMint
+        }
+    }
+    func setPreview(_ snapshot: NowPlaying) { apply(snapshot) }
+    func openYandexMusic() {
+        for id in ["ru.yandex.desktop.music", "ru.yandex.music", "com.yandex.desktop.music"] {
+            if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
+                NSWorkspace.shared.openApplication(at: url, configuration: .init()); return
+            }
+        }
+        for folder in [URL(fileURLWithPath: "/Applications"), FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Applications")] {
+            for name in ["Яндекс Музыка.app", "Yandex Music.app"] {
+                let url = folder.appendingPathComponent(name)
+                if FileManager.default.fileExists(atPath: url.path) {
+                    NSWorkspace.shared.openApplication(at: url, configuration: .init()); return
+                }
+            }
+        }
+        openMusicWebsite()
+    }
+    func openMusicWebsite() { NSWorkspace.shared.open(URL(string: "https://music.yandex.ru")!) }
     func command(_ arguments: [String]) {
         guard let executable else { return }
         Task {

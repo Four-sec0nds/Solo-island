@@ -36,6 +36,9 @@ jobs:
             dist/SoloIsland.dmg
             dist/SoloIsland.dmg.sha256
             dist/SoloIsland-preview.png
+            dist/SoloIsland-opening.gif
+            dist/SoloIsland-tasks.png
+            dist/SoloIsland-actions.png
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'

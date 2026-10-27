@@ -36,3 +36,22 @@ public struct NowPlaying: Decodable, Equatable {
         return try JSONDecoder().decode(Envelope.self, from: data).payload
     }
 }
+
+/// Keeps a real track visible across the empty snapshots emitted between songs.
+public struct NowPlayingContinuity {
+    public private(set) var visible = NowPlaying()
+    public private(set) var emptySince: Date?
+    public let grace: TimeInterval
+    public init(grace: TimeInterval = 2) { self.grace = grace }
+    public mutating func receive(_ snapshot: NowPlaying, at date: Date) -> NowPlaying? {
+        if snapshot.hasTrack || !visible.hasTrack {
+            emptySince = nil; visible = snapshot; return snapshot
+        }
+        if emptySince == nil { emptySince = date }
+        return nil
+    }
+    public mutating func expire(at date: Date) -> NowPlaying? {
+        guard let since = emptySince, date.timeIntervalSince(since) >= grace else { return nil }
+        visible = NowPlaying(); emptySince = nil; return visible
+    }
+}

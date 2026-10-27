@@ -15,8 +15,8 @@ struct FilesView: View {
                 HStack {
                     Button { self.preview = nil } label: { Label("Назад", systemImage: "chevron.left") }
                     Spacer()
-                    Button("Скопировать") { store.copyEntry(preview) }.buttonStyle(.borderedProminent)
-                }.buttonStyle(.plain)
+                    Button("Скопировать") { store.copyEntry(preview) }.buttonStyle(IslandButtonStyle(.filled))
+                }.buttonStyle(IslandButtonStyle(.bare))
                 ScrollView { Text(preview.text ?? "").font(.system(size: 13)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).padding(16) }
                     .islandCard()
             } else {
@@ -27,13 +27,11 @@ struct FilesView: View {
                     }
                     Spacer(minLength: 4)
                     Button { store.captureClipboardNow() } label: { Image(systemName: "doc.on.clipboard").frame(width: 24, height: 26) }
-                        .buttonStyle(.plain).help("Добавить текущий буфер обмена")
+                        .buttonStyle(IslandButtonStyle(.bare)).help("Добавить текущий буфер обмена")
                     Button { store.pickFiles() } label: { Image(systemName: "plus").frame(width: 24, height: 26) }
-                        .buttonStyle(.plain).help("Добавить файлы")
+                        .buttonStyle(IslandButtonStyle(.bare)).help("Добавить файлы")
                 }
-                Picker("Показать", selection: $filter) {
-                    ForEach(ShelfFilter.allCases) { Text($0.rawValue).tag($0) }
-                }.pickerStyle(.segmented).labelsHidden()
+                IslandSegments(options: ShelfFilter.allCases, selection: $filter, title: { $0.rawValue })
                 let entries = store.state.shelf.filter { filter.kind == nil || $0.kind == filter.kind }
                 if entries.isEmpty {
                     EmptyState(icon: "square.on.square", title: "Место для важного", detail: "Скопируйте текст или файл, сделайте скриншот в буфер либо перетащите его сюда. История останется после перезапуска.")
@@ -66,7 +64,7 @@ struct FilesView: View {
                 }.help(entry.isPinned ? "Открепить" : "Хранить до удаления")
             }
         }
-        .buttonStyle(.plain).padding(12).islandCard(tint: entry.kind == .text ? .cyan : entry.kind == .image ? .pink : .purple)
+        .buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard(tint: entry.kind == .text ? .cyan : entry.kind == .image ? .pink : .purple)
         .onDrag {
             if entry.kind == .text { return NSItemProvider(object: (entry.text ?? "") as NSString) }
             return exists ? NSItemProvider(contentsOf: entry.url) ?? NSItemProvider() : NSItemProvider()

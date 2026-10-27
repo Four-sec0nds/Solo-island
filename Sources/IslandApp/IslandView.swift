@@ -9,8 +9,39 @@ struct IslandRootView: View {
     @State private var dropTargeted = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
+        GeometryReader { geometry in
+            let shape = NotchAttachmentShape(neckWidth: store.cameraWidth + 16, neckHeight: store.compactHeight, radius: store.state.settings.cornerRadius)
+            ZStack(alignment: .top) {
+                Color(red: 0.055, green: 0.035, blue: 0.085)
+                RadialGradient(colors: [Color.purple.opacity(0.13), .clear], center: .topLeading, startRadius: 0, endRadius: 500)
+                RadialGradient(colors: [Color.blue.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 400)
+                Color.black.frame(height: store.compactHeight)
+                expandedBody
+                    .frame(width: store.presentationWidth, height: store.presentationHeight - store.compactHeight)
+                    .opacity(store.contentVisible ? 1 : 0)
+                    .position(x: geometry.size.width / 2, y: store.compactHeight + (store.presentationHeight - store.compactHeight) / 2 + (store.contentVisible ? 0 : -6))
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: store.contentVisible)
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .clipShape(shape)
+            .overlay(shape.stroke(dropTargeted ? accent.opacity(0.8) : .white.opacity(0.09), lineWidth: dropTargeted ? 2 : 1))
+        }
+        .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
+        .tint(accent).environment(\.islandAccent, accent)
+        .environment(\.locale, Locale(identifier: "ru_RU"))
+        .preferredColorScheme(.dark)
+        .buttonStyle(IslandButtonStyle(.soft))
+        .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
+        .onDrop(of: [UTType.fileURL, .image, .plainText], isTargeted: $dropTargeted) { receive($0) }
+        .onChange(of: dropTargeted) { _, targeted in
+            store.draggingFiles = targeted
+            if targeted { store.reveal(.files) } else { store.hover(false) }
+        }
+        .onExitCommand { store.dismiss() }
+    }
+    private var expandedBody: some View {
         VStack(spacing: 0) {
-            header.padding(.horizontal, 22).padding(.top, 19).padding(.bottom, 16)
+            header.padding(.horizontal, 22).padding(.top, 15).padding(.bottom, 14)
             Rectangle().fill(.white.opacity(0.06)).frame(height: 1)
             HStack(spacing: 0) {
                 sidebar.frame(width: 150)
@@ -21,39 +52,13 @@ struct IslandRootView: View {
                             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                             Text(error).font(.caption).lineLimit(3).textSelection(.enabled)
                             Spacer(minLength: 0)
-                            Button { store.error = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
+                            Button { store.error = nil } label: { Image(systemName: "checkmark") }.buttonStyle(IslandButtonStyle(.icon))
                         }.padding(11).islandCard(tint: .orange)
                     }
                     content.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }.padding(20)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            ZStack {
-                Color(red: 0.055, green: 0.035, blue: 0.085)
-                RadialGradient(colors: [Color.purple.opacity(0.13), .clear], center: .topLeading, startRadius: 0, endRadius: 500)
-                RadialGradient(colors: [Color.blue.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 400)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: store.state.settings.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: store.state.settings.cornerRadius, style: .continuous)
-                .strokeBorder(dropTargeted ? accent.opacity(0.8) : .white.opacity(0.1), lineWidth: dropTargeted ? 2 : 1)
-        }
-        .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
-        .tint(accent).environment(\.islandAccent, accent)
-        .environment(\.locale, Locale(identifier: "ru_RU"))
-        .preferredColorScheme(.dark)
-        .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
-        .onDrop(of: [UTType.fileURL, .image, .plainText], isTargeted: $dropTargeted) { providers in
-            receive(providers)
-        }
-        .onChange(of: dropTargeted) { _, targeted in
-            store.draggingFiles = targeted
-            if targeted { store.reveal(.files) } else { store.hover(false) }
-        }
-        .onExitCommand { store.dismiss() }
     }
     @ViewBuilder private var content: some View {
         switch store.tab {
@@ -91,16 +96,14 @@ struct IslandRootView: View {
                     .foregroundStyle(accent).padding(.horizontal, 10).padding(.vertical, 8).background(accent.opacity(0.1), in: Capsule())
             } else if store.state.focus != nil {
                 Button { store.tab = .focus } label: { Label(store.focusedTime, systemImage: "timer").monospacedDigit() }
-                    .buttonStyle(.plain).font(.system(size: 12, weight: .medium)).foregroundStyle(accent)
+                    .buttonStyle(IslandButtonStyle(.bare)).font(.system(size: 12, weight: .medium)).foregroundStyle(accent)
             }
             Button { store.pinned.toggle() } label: {
-                Image(systemName: store.pinned ? "pin.fill" : "pin").frame(width: 30, height: 30)
-                    .foregroundStyle(store.pinned ? accent : Color.white.opacity(0.45))
-            }.buttonStyle(.plain).help("Оставить окно открытым")
-            Button { store.dismiss() } label: {
-                Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).frame(width: 30, height: 30)
-                    .background(.white.opacity(0.05), in: Circle())
-            }.buttonStyle(.plain).help("Скрыть до наведения")
+                Label(store.pinned ? "Закреплено" : "Закрепить", systemImage: store.pinned ? "pin.fill" : "pin")
+                    .font(.system(size: 11, weight: .medium)).frame(height: 22)
+            }.buttonStyle(IslandButtonStyle(store.pinned ? .filled : .soft))
+                .help("Удерживать островок открытым поверх остальных окон")
+
         }
     }
     private var sidebar: some View {
@@ -123,7 +126,7 @@ struct IslandRootView: View {
                             }
                         }
                         .contentShape(RoundedRectangle(cornerRadius: 13))
-                }.buttonStyle(.plain).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65))
+                }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65))
             }
             Spacer()
             HStack(spacing: 6) {
@@ -223,5 +226,38 @@ private extension IslandTab {
         case .actions: return .yellow
         case .settings: return .indigo
         }
+    }
+}
+
+/// A narrow black neck touches the screen edge; the body grows from the hardware notch.
+struct NotchAttachmentShape: Shape {
+    var neckWidth: CGFloat
+    var neckHeight: CGFloat
+    var radius: Double
+    func path(in rect: CGRect) -> Path {
+        guard rect.height > neckHeight + 1 else {
+            return RoundedRectangle(cornerRadius: min(12, rect.height / 2), style: .continuous).path(in: rect)
+        }
+        let bodyY = neckHeight
+        let r = min(CGFloat(radius), max(0, (rect.height - bodyY) / 2), rect.width / 3)
+        let neck = min(neckWidth, max(1, rect.width - 2 * r))
+        let left = (rect.width - neck) / 2, right = left + neck
+        let shoulder = min(8, max(0, left - r))
+        var p = Path()
+        p.move(to: CGPoint(x: left, y: 0)); p.addLine(to: CGPoint(x: right, y: 0))
+        p.addLine(to: CGPoint(x: right, y: bodyY - shoulder))
+        p.addQuadCurve(to: CGPoint(x: right + shoulder, y: bodyY), control: CGPoint(x: right, y: bodyY))
+        p.addLine(to: CGPoint(x: rect.width - r, y: bodyY))
+        p.addQuadCurve(to: CGPoint(x: rect.width, y: bodyY + r), control: CGPoint(x: rect.width, y: bodyY))
+        p.addLine(to: CGPoint(x: rect.width, y: rect.height - r))
+        p.addQuadCurve(to: CGPoint(x: rect.width - r, y: rect.height), control: CGPoint(x: rect.width, y: rect.height))
+        p.addLine(to: CGPoint(x: r, y: rect.height))
+        p.addQuadCurve(to: CGPoint(x: 0, y: rect.height - r), control: CGPoint(x: 0, y: rect.height))
+        p.addLine(to: CGPoint(x: 0, y: bodyY + r))
+        p.addQuadCurve(to: CGPoint(x: r, y: bodyY), control: CGPoint(x: 0, y: bodyY))
+        p.addLine(to: CGPoint(x: left - shoulder, y: bodyY))
+        p.addQuadCurve(to: CGPoint(x: left, y: bodyY - shoulder), control: CGPoint(x: left, y: bodyY))
+        p.addLine(to: CGPoint(x: left, y: 0)); p.closeSubpath()
+        return p
     }
 }

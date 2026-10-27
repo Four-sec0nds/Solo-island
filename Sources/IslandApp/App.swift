@@ -66,32 +66,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             IslandTask(title: title, dueAt: Date().addingTimeInterval(Double(index + 1) * 1800))
         }
         fixture.shelf = [ShelfEntry(kind: .text, text: "Здесь остаются идеи, ссылки и всё, к чему хочется вернуться.")]
+        fixture.settings.animationDuration = 0.32
+        fixture.actions = [
+            QuickAction(title: "Finder", kind: .application, target: "/System/Library/CoreServices/Finder.app"),
+            QuickAction(title: "Заметки", kind: .application, target: "/System/Applications/Notes.app"),
+            QuickAction(title: "Быстрые команды", kind: .application, target: "/System/Applications/Shortcuts.app")
+        ]
         do { try StateRepository(url: folder.appendingPathComponent("state.json")).save(fixture) }
         catch { fputs("Preview fixture: \(error.localizedDescription)\n", stderr); exit(1) }
         store = IslandStore(dataFolder: folder)
         store.notificationsEnabled = true
+        var previewTrack = NowPlaying()
+        previewTrack.bundleIdentifier = "ru.yandex.desktop.music"; previewTrack.title = "Любимый трек"
+        previewTrack.artist = "Твоя музыка · предпросмотр"; previewTrack.duration = 228
+        previewTrack.elapsedTime = 78; previewTrack.playing = true
+        store.media.setPreview(previewTrack)
         island = IslandWindowController(store: store, trackPointer: false)
         Task { @MainActor [self] in
             guard let window = island.window, !window.isVisible, window.level == .normal,
                   (window as? NSPanel)?.isFloatingPanel == false, let screen = NSScreen.screens.first else {
                 fputs("Hidden/normal window precondition failed\n", stderr); exit(1)
             }
-            island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
-            try? await Task.sleep(nanoseconds: 350_000_000)
-            guard store.expanded, window.isVisible else { fputs("Notch hover did not reveal the window\n", stderr); exit(1) }
-            island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
-            try? await Task.sleep(nanoseconds: 1_100_000_000)
-            guard !store.expanded, !window.isVisible else { fputs("Pointer exit did not hide the window\n", stderr); exit(1) }
-            store.pinned = true; store.reveal(.tasks)
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            guard let view = island.window?.contentView,
-                  let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
-                fputs("Cannot capture preview view\n", stderr); exit(1)
+            let canvas = NSSize(width: store.presentationWidth, height: store.presentationHeight)
+            var frames: [PreviewRecorder.Frame] = []
+            func record(_ delay: Double) {
+                if let image = PreviewRecorder.animationFrame(window, canvas: canvas, neckWidth: store.cameraWidth, neckHeight: store.compactHeight) {
+                    frames.append(.init(image: image, delay: delay))
+                }
             }
-            view.cacheDisplay(in: view.bounds, to: bitmap)
+            record(0.5)
+            island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
+            for _ in 0..<22 { try? await Task.sleep(nanoseconds: 30_000_000); record(0.03) }
+            guard store.expanded, window.isVisible, abs(window.frame.maxY - screen.frame.maxY) < 1 else {
+                fputs("Notch reveal/attachment failed\n", stderr); exit(1)
+            }
+            if !frames.isEmpty { frames[frames.count - 1].delay = 0.9 }
+            store.pinned = true
+            guard window.level.rawValue > NSWindow.Level.mainMenu.rawValue, (window as? NSPanel)?.isFloatingPanel == true else {
+                fputs("Pin did not enable always-on-top\n", stderr); exit(1)
+            }
+            store.pinned = false
+            guard window.level == .normal else { fputs("Unpin did not restore normal ordering\n", stderr); exit(1) }
+            island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
+            for _ in 0..<15 { try? await Task.sleep(nanoseconds: 70_000_000); record(0.07) }
+            guard !store.expanded, !window.isVisible else { fputs("Pointer exit did not hide the window\n", stderr); exit(1) }
+            if !frames.isEmpty { frames[frames.count - 1].delay = 0.9 }
             do {
-                guard let png = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-                try png.write(to: output, options: .atomic)
+                let directory = output.deletingLastPathComponent()
+                try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-opening.gif"))
+                store.pinned = true; store.reveal(.music)
+                try? await Task.sleep(nanoseconds: 650_000_000)
+                try PreviewRecorder.png(window, to: output)
+                store.tab = .tasks
+                try? await Task.sleep(nanoseconds: 350_000_000)
+                try PreviewRecorder.png(window, to: directory.appendingPathComponent("SoloIsland-tasks.png"))
+                store.tab = .actions
+                try? await Task.sleep(nanoseconds: 400_000_000)
+                try PreviewRecorder.png(window, to: directory.appendingPathComponent("SoloIsland-actions.png"))
                 NSApp.terminate(nil)
             } catch { fputs("Preview: \(error.localizedDescription)\n", stderr); exit(1) }
         }
@@ -99,6 +130,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 final class IslandPanel: NSPanel {
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
     override func sendEvent(_ event: NSEvent) {
@@ -115,18 +147,24 @@ final class IslandWindowController: NSWindowController {
     private var pointerTimer: Timer?
     private var hotspot = NSRect.zero
     private var pointerInside = false
+    private var motion: Task<Void, Never>?
     init(store: IslandStore, trackPointer: Bool = true) {
         self.store = store
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
-        panel.level = .normal
-        panel.isFloatingPanel = false
+        panel.level = .normal; panel.isFloatingPanel = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         panel.hidesOnDeactivate = false; panel.isMovable = false
         panel.isReleasedWhenClosed = false; panel.animationBehavior = .none
         super.init(window: panel)
         panel.contentView = NSHostingView(rootView: IslandRootView(store: store))
-        store.$expanded.removeDuplicates().sink { [weak self] expanded in self?.layout(expanded: expanded, raise: expanded) }.store(in: &subscriptions)
+        store.$expanded.removeDuplicates().sink { [weak self] value in self?.layout(expanded: value, transitioning: true) }.store(in: &subscriptions)
+        store.$pinned.removeDuplicates().sink { [weak self] pinned in
+            guard let self, let window = self.window else { return }
+            (window as? NSPanel)?.isFloatingPanel = pinned
+            window.level = pinned ? NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3) : .normal
+            if pinned && window.isVisible { window.orderFront(nil) }
+        }.store(in: &subscriptions)
         store.$state.map(\.settings).removeDuplicates().sink { [weak self] settings in
             guard let self else { return }; self.layout(expanded: self.store.expanded, settings: settings)
         }.store(in: &subscriptions)
@@ -136,68 +174,73 @@ final class IslandWindowController: NSWindowController {
             }
         layout(expanded: false)
         if trackPointer {
-            pointerTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { [weak self] _ in
+            pointerTimer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { [weak self] _ in
                 Task { @MainActor in self?.checkPointer() }
             }
         }
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
     func checkPointer(at location: NSPoint? = nil) {
-        guard let window else { return }
+        guard let window, let screen = NSScreen.screens.first else { return }
         let point = location ?? NSEvent.mouseLocation
-        let inside = hotspot.contains(point) || (store.expanded && window.frame.contains(point))
-        if inside != pointerInside {
-            pointerInside = inside; store.hover(inside)
-        }
+        let inNeckBand = point.y > screen.frame.maxY - store.compactHeight
+        let onNeck = abs(point.x - screen.frame.midX) <= (store.cameraWidth + 16) / 2
+        let onBody = store.expanded && window.frame.contains(point) && (!inNeckBand || onNeck)
+        // Transparent shoulders must never block clicks on the menu bar.
+        if store.expanded { window.ignoresMouseEvents = !onBody }
+        let inside = hotspot.contains(point) || onBody
+        if inside != pointerInside { pointerInside = inside; store.hover(inside) }
     }
-    private func layout(expanded: Bool, settings: IslandSettings? = nil, raise: Bool = false) {
+    private func layout(expanded: Bool, settings: IslandSettings? = nil, transitioning: Bool = false) {
         guard let screen = NSScreen.screens.first, let window else { return }
         let cameraWidth: CGFloat
-        if let left = screen.auxiliaryTopLeftArea, let right = screen.auxiliaryTopRightArea {
-            cameraWidth = max(0, right.minX - left.maxX)
-        } else { cameraWidth = 140 }
+        if let left = screen.auxiliaryTopLeftArea, let right = screen.auxiliaryTopRightArea { cameraWidth = max(0, right.minX - left.maxX) }
+        else { cameraWidth = 160 }
         let preferences = settings ?? store.state.settings
         let top = max(28, screen.safeAreaInsets.top)
-        hotspot = NSRect(x: screen.frame.midX - max(110, cameraWidth / 2 + 22),
-            y: screen.frame.maxY - top - 14, width: max(220, cameraWidth + 44), height: top + 14)
+        hotspot = NSRect(x: screen.frame.midX - max(110, cameraWidth / 2 + 22), y: screen.frame.maxY - top - 12,
+                         width: max(220, cameraWidth + 44), height: top + 12)
+        let width = min(max(640, CGFloat(preferences.expandedWidth)), screen.frame.width - 40)
+        let bodyHeight = min(CGFloat(520), screen.frame.height - top - 36)
+        let target = NSRect(x: screen.frame.midX - width / 2, y: screen.frame.maxY - top - bodyHeight, width: width, height: top + bodyHeight)
+        let neck = NSRect(x: screen.frame.midX - (cameraWidth + 16) / 2, y: screen.frame.maxY - top, width: cameraWidth + 16, height: top)
         store.cameraWidth = cameraWidth; store.compactHeight = top
-        guard expanded else {
-            // No collapsed capsule and no transparent window intercepting other applications.
-            window.ignoresMouseEvents = true
-            if window.isVisible && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                NSAnimationContext.runAnimationGroup({ context in
-                    context.duration = preferences.animationDuration
-                    window.animator().alphaValue = 0
-                }, completionHandler: { [weak self] in
-                    Task { @MainActor in if self?.store.expanded == false { self?.window?.orderOut(nil) } }
-                })
-            } else { window.orderOut(nil) }
+        store.presentationWidth = width; store.presentationHeight = top + bodyHeight
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        let duration = reduceMotion ? 0 : preferences.animationDuration
+        if !expanded {
+            motion?.cancel(); store.contentVisible = false; window.ignoresMouseEvents = true
+            guard window.isVisible, duration > 0 else { window.orderOut(nil); window.setFrame(neck, display: false); return }
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = duration
+                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.7, 1)
+                window.animator().setFrame(neck, display: true)
+            }
+            motion = Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+                guard !Task.isCancelled, let self, !self.store.expanded else { return }
+                self.window?.orderOut(nil)
+            }
             return
         }
-        let width = min(max(640, CGFloat(preferences.expandedWidth)), screen.frame.width - 40)
-        let height = min(CGFloat(520), screen.frame.height - top - 36)
-        let frame = NSRect(x: screen.frame.midX - width / 2, y: screen.frame.maxY - top - 8 - height, width: width, height: height)
         window.ignoresMouseEvents = false
-        if !window.isVisible {
-            window.setFrame(frame, display: true)
-            window.alphaValue = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 1 : 0
-            // Normal window ordering: a subsequently opened application can cover this panel.
-            window.orderFront(nil)
+        if transitioning || !window.isVisible {
+            motion?.cancel(); store.contentVisible = reduceMotion
+            if !window.isVisible { window.setFrame(neck, display: false) }
+            window.alphaValue = 1; window.orderFront(nil)
             NSAnimationContext.runAnimationGroup { context in
-                context.duration = preferences.animationDuration
-                window.animator().alphaValue = 1
+                context.duration = duration
+                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.18, 0.8, 0.2, 1)
+                window.animator().setFrame(target, display: true)
             }
-        } else if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-            window.setFrame(frame, display: true)
+            motion = Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(duration * 0.5 * 1_000_000_000))
+                guard !Task.isCancelled, let self, self.store.expanded else { return }
+                self.store.contentVisible = true
+            }
         } else {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = preferences.animationDuration
-                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-                window.animator().setFrame(frame, display: true)
-                window.animator().alphaValue = 1
-            }
+            // Theme, progress and setting updates cannot raise the window.
+            window.setFrame(target, display: true)
         }
-        if raise { window.orderFront(nil) }
-        // Intentionally no orderFront on settings or timer updates.
     }
 }

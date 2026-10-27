@@ -15,7 +15,7 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("0.3.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text("0.4.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
                 settingSlider("Ширина", value: binding(\.expandedWidth), range: 640...900, suffix: "pt")
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
@@ -25,10 +25,9 @@ struct IslandSettingsView: View {
                 }
                 Toggle("Акцент из обложки", isOn: binding(\.coverAccent)).font(.caption)
                 if !store.state.settings.coverAccent {
-                    Picker("Цвет", selection: binding(\.accent)) {
-                        Text("Мятный").tag("mint"); Text("Синий").tag("blue")
-                        Text("Фиолетовый").tag("purple"); Text("Оранжевый").tag("orange")
-                    }.font(.caption)
+                    IslandSegments(options: ["mint", "blue", "purple", "orange"], selection: binding(\.accent), title: { value in
+                        switch value { case "mint": return "Мятный"; case "blue": return "Синий"; case "purple": return "Фиолетовый"; default: return "Оранжевый" }
+                    })
                 }
                 Divider()
                 HStack {
@@ -41,8 +40,8 @@ struct IslandSettingsView: View {
                 Text("«Не беспокоить» во время фокуса").font(.caption.bold())
                 Text("Создайте две команды в приложении «Быстрые команды»: одну для включения «Не беспокоить», другую для выключения. Укажите их имена ниже. Кнопка включения находится в разделе «Фокус».")
                     .font(.system(size: 11)).foregroundStyle(.secondary)
-                TextField("Имя команды включения", text: binding(\.focusShortcut)).textFieldStyle(.roundedBorder)
-                TextField("Имя команды выключения", text: binding(\.endFocusShortcut)).textFieldStyle(.roundedBorder)
+                TextField("Имя команды включения", text: binding(\.focusShortcut)).textFieldStyle(IslandTextFieldStyle())
+                TextField("Имя команды выключения", text: binding(\.endFocusShortcut)).textFieldStyle(IslandTextFieldStyle())
                 Button("Открыть «Быстрые команды»") { NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Shortcuts.app")) }.font(.caption)
                 Divider()
                 HStack {
@@ -54,7 +53,7 @@ struct IslandSettingsView: View {
                 Text("Используется активный плеер macOS. Источники передают разный набор данных: обложку и перемотку показываем при их наличии.")
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                 Divider()
-                Text("Окно появляется при наведении на чёлку и скрывается после ухода курсора. Другие приложения могут открываться поверх него. Буфер и задачи хранятся только на этом Mac.")
+                Text("Островок раскрывается из чёлки и сворачивается после ухода курсора. Булавка удерживает его открытым поверх других приложений. Буфер и задачи хранятся только на этом Mac.")
                     .font(.system(size: 10)).foregroundStyle(.secondary)
             }.padding(.bottom, 6)
         }

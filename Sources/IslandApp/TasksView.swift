@@ -16,16 +16,14 @@ struct TasksView: View {
             } else if adding {
                 TaskEditor(task: IslandTask(title: title), save: { store.upsertTask($0); title = ""; adding = false }, cancel: { adding = false })
             } else {
-                Picker("Список задач", selection: $list) {
-                    ForEach(TaskList.allCases) { Text($0.rawValue).tag($0) }
-                }.pickerStyle(.segmented).labelsHidden()
+                IslandSegments(options: TaskList.allCases, selection: $list, title: { $0.rawValue })
                 HStack {
                     TextField("Новая задача…", text: $title).textFieldStyle(.plain)
                         .onSubmit { addQuickTask() }
                     Button { adding = true } label: { Image(systemName: "calendar.badge.clock") }.help("Добавить срок и напоминание")
                     Button { addQuickTask() } label: { Image(systemName: "plus.circle.fill").foregroundStyle(accent) }
                         .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).help("Добавить задачу")
-                }.buttonStyle(.plain).padding(12).islandCard()
+                }.buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard()
                 let tasks = TaskQuery.tasks(store.state.tasks, in: list, now: store.now)
                 if tasks.isEmpty {
                     EmptyState(icon: "checklist", title: "Здесь пока пусто", detail: list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
@@ -37,7 +35,7 @@ struct TasksView: View {
                     }
                 }
                 if !store.notificationsEnabled {
-                    Button("Разрешить напоминания") { store.enableNotifications() }.font(.caption).buttonStyle(.plain).foregroundStyle(accent)
+                    Button("Разрешить напоминания") { store.enableNotifications() }.font(.caption).buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(accent)
                 }
             }
         }
@@ -71,7 +69,7 @@ struct TasksView: View {
                 Button { store.startFocus(taskID: task.id) } label: { Image(systemName: "play.circle").font(.title3).foregroundStyle(accent) }
                     .help("Начать фокус-сессию")
             }
-        }.buttonStyle(.plain).padding(12).islandCard()
+        }.buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard()
             .contextMenu {
                 Button("Редактировать") { editing = task }
                 Button("Удалить задачу", role: .destructive) { store.deleteTask(task.id) }
@@ -92,7 +90,7 @@ struct TaskEditor: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Задача").font(.headline)
-            TextField("Название задачи", text: $task.title).textFieldStyle(.roundedBorder)
+            TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle())
             Toggle("Срок выполнения", isOn: $dueEnabled)
             if dueEnabled { DatePicker("Срок", selection: $dueDate).labelsHidden() }
             Toggle("Напомнить", isOn: $reminderEnabled)
@@ -105,7 +103,7 @@ struct TaskEditor: View {
                     task.dueAt = dueEnabled ? dueDate : nil
                     task.reminderAt = reminderEnabled ? reminderDate : nil
                     save(task)
-                }.buttonStyle(.borderedProminent).disabled(task.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }.buttonStyle(IslandButtonStyle(.filled)).disabled(task.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }.onAppear {
             dueEnabled = task.dueAt != nil; reminderEnabled = task.reminderAt != nil

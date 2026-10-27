@@ -127,6 +127,34 @@ final class IslandCoreTests: XCTestCase {
         let paused = try NowPlaying.decodeLine(Data(#"{"payload":{"title":"Paused","playing":false,"elapsedTime":40,"duration":100}}"#.utf8))
         XCTAssertEqual(paused.position(at: now.addingTimeInterval(60), receivedAt: now), 40)
     }
+    func testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates() {
+        var state = NowPlayingContinuity()
+        var first = NowPlaying(); first.title = "Первый трек"; first.playing = true
+        var next = NowPlaying(); next.title = "Следующий трек"; next.playing = true
+        XCTAssertEqual(state.receive(first, at: now)?.title, first.title)
+        XCTAssertNil(state.receive(NowPlaying(), at: now.addingTimeInterval(1)))
+        XCTAssertEqual(state.visible.title, first.title)
+        XCTAssertNil(state.expire(at: now.addingTimeInterval(2.5)))
+        XCTAssertEqual(state.receive(next, at: now.addingTimeInterval(2.6))?.title, next.title)
+        XCTAssertNil(state.expire(at: now.addingTimeInterval(10)))
+        XCTAssertEqual(state.visible.title, next.title)
+    }
+    func testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt() {
+        var state = NowPlayingContinuity()
+        var track = NowPlaying(); track.title = "Трек"
+        _ = state.receive(track, at: now)
+        _ = state.receive(NowPlaying(), at: now.addingTimeInterval(1))
+        _ = state.receive(NowPlaying(), at: now.addingTimeInterval(2.9))
+        XCTAssertFalse(state.expire(at: now.addingTimeInterval(3.1))!.hasTrack)
+        XCTAssertFalse(state.visible.hasTrack)
+    }
+    func testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack() {
+        var state = NowPlayingContinuity()
+        XCTAssertFalse(state.receive(NowPlaying(), at: now)!.hasTrack)
+        var paused = NowPlaying(); paused.title = "Пауза"; paused.playing = false
+        XCTAssertEqual(state.receive(paused, at: now)?.title, "Пауза")
+        XCTAssertNil(state.emptySince)
+    }
     func testMediaTimestampUsesSourceClockNotDeliveryClock() throws {
         let json = #"{"payload":{"title":"Track","playing":true,"elapsedTime":10,"duration":100,"timestamp":"2027-01-15T08:00:00.000Z"}}"#
         let track = try NowPlaying.decodeLine(Data(json.utf8))

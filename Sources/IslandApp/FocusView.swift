@@ -22,24 +22,21 @@ struct FocusView: View {
                     Button(focus.isPaused ? "Продолжить" : "Пауза") { store.toggleFocusPause() }
                     Button("Закончить сессию") { store.endFocus() }
                     Button { store.endFocus(completeTask: true) } label: { Image(systemName: "checkmark") }.help("Завершить задачу")
-                }.buttonStyle(.bordered)
+                }.buttonStyle(IslandButtonStyle(.soft))
                 Button {
                     store.toggleFocusAutomation()
                 } label: {
                     Label(store.focusAutomationActive ? "Выключить «Не беспокоить»" : "Включить «Не беспокоить»", systemImage: "moon.fill")
-                }.buttonStyle(.plain).font(.caption).foregroundStyle(store.focusAutomationActive ? accent : .secondary)
+                }.buttonStyle(IslandButtonStyle(.bare)).font(.caption).foregroundStyle(store.focusAutomationActive ? accent : .secondary)
             } else {
-                HStack {
+                VStack(alignment: .leading, spacing: 12) {
                     Text("Длительность сессии").font(.headline)
-                    Spacer()
-                    Picker("Минуты", selection: Binding(get: { store.state.settings.focusMinutes }, set: { value in store.setSettings { $0.focusMinutes = value } })) {
-                        ForEach([15, 25, 45, 60, 90], id: \.self) { Text("\($0) мин").tag($0) }
-                    }.frame(width: 110).labelsHidden()
+                    IslandSegments(options: [15, 25, 45, 60, 90], selection: Binding(get: { store.state.settings.focusMinutes }, set: { value in store.setSettings { $0.focusMinutes = value } }), title: { "\($0) мин" })
                 }
                 let tasks = store.state.tasks.filter { !$0.isCompleted }
                 if tasks.isEmpty {
                     EmptyState(icon: "timer", title: "Выберите, на чём сосредоточиться", detail: "Создайте задачу в соседнем разделе — у каждой есть кнопка запуска фокуса.")
-                    Button("Создать задачу") { store.tab = .tasks }.buttonStyle(.borderedProminent)
+                    Button("Создать задачу") { store.tab = .tasks }.buttonStyle(IslandButtonStyle(.filled))
                 } else {
                     Text("Выберите задачу для новой сессии").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
                     ScrollView {
@@ -48,7 +45,7 @@ struct FocusView: View {
                                 Button { store.startFocus(taskID: task.id) } label: {
                                     HStack { Text(task.title).lineLimit(2); Spacer(); Image(systemName: "play.fill").foregroundStyle(accent) }
                                         .padding(13).background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
-                                }.buttonStyle(.plain)
+                                }.buttonStyle(IslandButtonStyle(.bare))
                             }
                         }
                     }
