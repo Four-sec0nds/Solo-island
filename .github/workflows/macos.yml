@@ -49,6 +49,8 @@ jobs:
             dist/SoloIsland-settings.png
             dist/SoloIsland-web-demo.png
             dist/SoloIsland-icon.png
+            dist/SoloIsland-focus-motion.gif
+            dist/SoloIsland-focus-motion.json
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'

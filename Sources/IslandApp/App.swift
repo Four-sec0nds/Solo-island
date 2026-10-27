@@ -140,7 +140,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 25,
                                                           now: Date().addingTimeInterval(-360))
                     }
-                    if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 37 * 60 + 15 }
+                    if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 12 }
                     if name == "onboarding" { stillFixture.settings.musicOnboardingComplete = false }
                     if tab == .files {
                         stillFixture.shelf.append(ShelfEntry(path: imageURL.path, kind: .image, isPinned: true))
@@ -164,6 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if name == "preview" { try FileManager.default.copyItem(at: destination, to: imageURL) }
                     stillWindow.orderOut(nil)
                 }
+                try await recordFocusMotion(folder: folder.appendingPathComponent("focus-motion"), directory: directory, fixture: fixture)
                 try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
                 let reducedStore = IslandStore(dataFolder: folder.appendingPathComponent("reduced-motion"))
                 let reducedController = IslandWindowController(store: reducedStore, trackPointer: false, reducedMotionOverride: true)
@@ -177,6 +178,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 NSApp.terminate(nil)
             } catch { fputs("Preview: \(error.localizedDescription)\n", stderr); exit(1) }
         }
+    }
+    private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
+        var fixture = fixture; fixture.settings.customFocusSeconds = 12
+        let beginning = Date()
+        var focus = FocusSession(taskID: fixture.tasks[1].id, duration: 12, now: beginning)
+        fixture.focus = focus
+        try StateRepository(url: folder.appendingPathComponent("state.json")).save(fixture)
+        let demo = IslandStore(dataFolder: folder)
+        demo.tab = .focus; demo.pinned = true
+        let controller = IslandWindowController(store: demo, trackPointer: false, reducedMotionOverride: true)
+        demo.reveal(.focus)
+        guard let window = controller.window else { throw CocoaError(.fileWriteUnknown) }
+        defer { window.orderOut(nil) }
+        struct Sample: Encodable { let seconds: Double; let remaining: Int; let paused: Bool }
+        var samples: [Sample] = [], frames: [PreviewRecorder.Frame] = []
+        var paused = false, resumed = false
+        var lastCapture = beginning
+        while Date().timeIntervalSince(beginning) < 6.4 {
+            let date = Date(), elapsed = date.timeIntervalSince(beginning)
+            if elapsed >= 2 && !paused { focus.pause(at: date); paused = true }
+            if elapsed >= 3 && !resumed { focus.resume(at: date); resumed = true }
+            demo.previewFocus(focus, at: date)
+            try? await Task.sleep(nanoseconds: 20_000_000)
+            guard let image = PreviewRecorder.snapshot(window)?.cgImage else { throw CocoaError(.fileWriteUnknown) }
+            let capture = Date()
+            if !frames.isEmpty { frames[frames.count - 1].delay = capture.timeIntervalSince(lastCapture) }
+            frames.append(.init(image: image, delay: 0.08))
+            samples.append(Sample(seconds: capture.timeIntervalSince(beginning), remaining: Int(ceil(focus.remaining(at: date))), paused: focus.isPaused))
+            lastCapture = capture
+            try? await Task.sleep(nanoseconds: 60_000_000)
+        }
+        guard Set(samples.map(\.remaining)).count >= 4, samples.contains(where: \.paused), resumed, frames.count >= 30 else {
+            fputs("Focus motion did not record countdown, pause and resume\n", stderr); exit(1)
+        }
+        try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-focus-motion.gif"))
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(samples).write(to: directory.appendingPathComponent("SoloIsland-focus-motion.json"))
+        fputs("Focus recording: countdown, progress, pause and resume passed\n", stderr)
     }
     private func verifyWebPlayer(folder: URL, output: URL) async throws {
         var fixture = IslandState(); fixture.settings.musicOnboardingComplete = true; fixture.settings.musicProvider = .yandex

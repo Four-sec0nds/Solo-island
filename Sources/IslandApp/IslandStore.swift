@@ -80,6 +80,11 @@ final class IslandStore: ObservableObject {
         timer?.invalidate(); media.stop(); webMusic.stop(); save()
         // Focus reminders remain scheduled; no assumptions about a surviving process.
     }
+    /// Development recording updates synthetic state without notifications or persistence.
+    func previewFocus(_ session: FocusSession, at date: Date) {
+        guard CommandLine.arguments.contains("--render-preview") else { return }
+        state.focus = session; now = date
+    }
     var focusTask: IslandTask? { state.tasks.first { $0.id == state.focus?.taskID } }
     var focusedTime: String {
         let remaining = Int(ceil(state.focus?.remaining(at: now) ?? 0))
