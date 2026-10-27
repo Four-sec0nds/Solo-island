@@ -70,9 +70,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         catch { fputs("Preview fixture: \(error.localizedDescription)\n", stderr); exit(1) }
         store = IslandStore(dataFolder: folder)
         store.notificationsEnabled = true
-        island = IslandWindowController(store: store)
-        store.pinned = true; store.reveal(.tasks)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
+        island = IslandWindowController(store: store, trackPointer: false)
+        Task { @MainActor [self] in
+            guard let window = island.window, !window.isVisible, window.level == .normal,
+                  (window as? NSPanel)?.isFloatingPanel == false, let screen = NSScreen.screens.first else {
+                fputs("Hidden/normal window precondition failed\n", stderr); exit(1)
+            }
+            island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            guard store.expanded, window.isVisible else { fputs("Notch hover did not reveal the window\n", stderr); exit(1) }
+            island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
+            try? await Task.sleep(nanoseconds: 1_100_000_000)
+            guard !store.expanded, !window.isVisible else { fputs("Pointer exit did not hide the window\n", stderr); exit(1) }
+            store.pinned = true; store.reveal(.tasks)
+            try? await Task.sleep(nanoseconds: 500_000_000)
             guard let view = island.window?.contentView,
                   let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
                 fputs("Cannot capture preview view\n", stderr); exit(1)
@@ -104,7 +115,7 @@ final class IslandWindowController: NSWindowController {
     private var pointerTimer: Timer?
     private var hotspot = NSRect.zero
     private var pointerInside = false
-    init(store: IslandStore) {
+    init(store: IslandStore, trackPointer: Bool = true) {
         self.store = store
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
@@ -115,7 +126,7 @@ final class IslandWindowController: NSWindowController {
         panel.isReleasedWhenClosed = false; panel.animationBehavior = .none
         super.init(window: panel)
         panel.contentView = NSHostingView(rootView: IslandRootView(store: store))
-        store.$expanded.removeDuplicates().sink { [weak self] expanded in self?.layout(expanded: expanded) }.store(in: &subscriptions)
+        store.$expanded.removeDuplicates().sink { [weak self] expanded in self?.layout(expanded: expanded, raise: expanded) }.store(in: &subscriptions)
         store.$state.map(\.settings).removeDuplicates().sink { [weak self] settings in
             guard let self else { return }; self.layout(expanded: self.store.expanded, settings: settings)
         }.store(in: &subscriptions)
@@ -124,20 +135,22 @@ final class IslandWindowController: NSWindowController {
                 Task { @MainActor in guard let self else { return }; self.layout(expanded: self.store.expanded) }
             }
         layout(expanded: false)
-        pointerTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.checkPointer() }
+        if trackPointer {
+            pointerTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.checkPointer() }
+            }
         }
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
-    private func checkPointer() {
+    func checkPointer(at location: NSPoint? = nil) {
         guard let window else { return }
-        let point = NSEvent.mouseLocation
+        let point = location ?? NSEvent.mouseLocation
         let inside = hotspot.contains(point) || (store.expanded && window.frame.contains(point))
         if inside != pointerInside {
             pointerInside = inside; store.hover(inside)
         }
     }
-    private func layout(expanded: Bool, settings: IslandSettings? = nil) {
+    private func layout(expanded: Bool, settings: IslandSettings? = nil, raise: Bool = false) {
         guard let screen = NSScreen.screens.first, let window else { return }
         let cameraWidth: CGFloat
         if let left = screen.auxiliaryTopLeftArea, let right = screen.auxiliaryTopRightArea {
@@ -184,6 +197,7 @@ final class IslandWindowController: NSWindowController {
                 window.animator().alphaValue = 1
             }
         }
+        if raise { window.orderFront(nil) }
         // Intentionally no orderFront on settings or timer updates.
     }
 }

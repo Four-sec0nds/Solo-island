@@ -43,6 +43,7 @@ struct IslandRootView: View {
         }
         .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
         .tint(accent).environment(\.islandAccent, accent)
+        .environment(\.locale, Locale(identifier: "ru_RU"))
         .preferredColorScheme(.dark)
         .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
         .onDrop(of: [UTType.fileURL, .image, .plainText], isTargeted: $dropTargeted) { providers in
@@ -135,7 +136,14 @@ struct IslandRootView: View {
     private func receive(_ providers: [NSItemProvider]) -> Bool {
         guard !providers.isEmpty else { return false }
         for provider in providers {
-            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+            if let type = provider.registeredTypeIdentifiers.first(where: { UTType($0)?.conforms(to: .image) == true }) {
+                provider.loadDataRepresentation(forTypeIdentifier: type) { data, _ in
+                    guard let data else { return }
+                    Task { @MainActor in
+                        if let image = NSImage(data: data) { store.addImage(image); store.reveal(.files) }
+                    }
+                }
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
                 provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { value, _ in
                     let url = (value as? URL) ?? (value as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
                     guard let url else { return }
@@ -145,13 +153,6 @@ struct IslandRootView: View {
                         if let imageData, let image = NSImage(data: imageData) { store.addImage(image) }
                         else { store.addFiles([url]) }
                         store.reveal(.files)
-                    }
-                }
-            } else if let type = provider.registeredTypeIdentifiers.first(where: { UTType($0)?.conforms(to: .image) == true }) {
-                provider.loadDataRepresentation(forTypeIdentifier: type) { data, _ in
-                    guard let data else { return }
-                    Task { @MainActor in
-                        if let image = NSImage(data: data) { store.addImage(image); store.reveal(.files) }
                     }
                 }
             } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
