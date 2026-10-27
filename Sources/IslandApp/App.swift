@@ -89,6 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             let canvas = NSSize(width: store.presentationWidth, height: store.presentationHeight)
             var frames: [PreviewRecorder.Frame] = []
+            var openingWidths = Set<Int>()
             @MainActor func record(_ delay: Double) {
                 if let image = PreviewRecorder.animationFrame(window, canvas: canvas, neckWidth: store.cameraWidth, neckHeight: store.compactHeight) {
                     frames.append(.init(image: image, delay: delay))
@@ -96,7 +97,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             record(0.5)
             island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
-            for _ in 0..<22 { try? await Task.sleep(nanoseconds: 30_000_000); record(0.03) }
+            for _ in 0..<22 {
+                try? await Task.sleep(nanoseconds: 30_000_000)
+                if window.isVisible { openingWidths.insert(Int(window.frame.width)) }
+                record(0.03)
+            }
+            guard openingWidths.count >= 3 else { fputs("Notch motion skipped intermediate widths\n", stderr); exit(1) }
             guard store.expanded, window.isVisible, abs(window.frame.maxY - screen.frame.maxY) < 1 else {
                 fputs("Notch reveal/attachment failed\n", stderr); exit(1)
             }
@@ -157,7 +163,10 @@ final class IslandWindowController: NSWindowController {
         panel.hidesOnDeactivate = false; panel.isMovable = false
         panel.isReleasedWhenClosed = false; panel.animationBehavior = .none
         super.init(window: panel)
-        panel.contentView = NSHostingView(rootView: IslandRootView(store: store))
+        let hosting = NSHostingView(rootView: IslandRootView(store: store))
+        hosting.sizingOptions = []
+        panel.contentView = hosting
+        panel.minSize = .zero; panel.contentMinSize = .zero
         store.$expanded.removeDuplicates().sink { [weak self] value in self?.layout(expanded: value, transitioning: true) }.store(in: &subscriptions)
         store.$pinned.removeDuplicates().sink { [weak self] pinned in
             guard let self, let window = self.window else { return }
