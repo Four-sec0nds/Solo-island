@@ -9,10 +9,21 @@ final class MediaService: ObservableObject {
     @Published var artwork: NSImage?
     @Published var artworkColor = NSColor.systemMint
     @Published var error: String?
+    @Published private(set) var usingWeb = false
+    var onOpenWeb: (() -> Void)?
+    private weak var web: WebMusicService?
+    private var subscriptions = Set<AnyCancellable>()
+    private var nativeTrack = NowPlaying()
+    private var webTrack = NowPlaying()
+    private var nativeReceivedAt = Date()
+    private var webReceivedAt = Date()
+    private var webArtwork: NSImage?
     private var stream: Process?
     private var outputPipe: Pipe?
     private var errorPipe: Pipe?
     private var buffer = Data()
+    private var nativeArtwork: NSImage?
+    private var nativeArtworkColor = NSColor.systemMint
     private var lastArtwork: String?
     private var generation = UUID()
     private var continuity = NowPlayingContinuity()
@@ -25,12 +36,32 @@ final class MediaService: ObservableObject {
         }
     }
     var sourceName: String {
+        if usingWeb, let provider = web?.provider { return provider.title }
         guard let id = track.applicationID else { return "Медиаплеер" }
         if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
             return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
         }
         if id.localizedCaseInsensitiveContains("yandex") { return "Яндекс Музыка" }
         return id
+    }
+    func attach(_ service: WebMusicService) {
+        subscriptions.removeAll(); web = service
+        service.$track.sink { [weak self] snapshot in
+            guard let self else { return }
+            self.webTrack = snapshot; self.webReceivedAt = Date(); self.updateVisible()
+        }.store(in: &subscriptions)
+        service.$artwork.sink { [weak self] image in
+            guard let self else { return }; self.webArtwork = image
+            if self.usingWeb { self.artwork = image; self.artworkColor = image?.averageColor ?? .systemMint }
+        }.store(in: &subscriptions)
+    }
+    private func updateVisible() {
+        usingWeb = webTrack.hasTrack && (webTrack.isPlaying || !nativeTrack.isPlaying)
+        apply(usingWeb ? webTrack : nativeTrack, sampledAt: usingWeb ? webReceivedAt : nativeReceivedAt)
+        if usingWeb { artwork = webArtwork; artworkColor = webArtwork?.averageColor ?? .systemMint }
+    }
+    private func receiveNative(_ snapshot: NowPlaying) {
+        nativeTrack = snapshot; nativeReceivedAt = Date(); updateVisible()
     }
     func start() {
         stop()
@@ -94,13 +125,13 @@ final class MediaService: ObservableObject {
                 let next = try NowPlaying.decodeLine(Data(line))
                 if let visible = continuity.receive(next, at: Date()) {
                     emptyReset?.cancel(); emptyReset = nil
-                    apply(visible)
+                    receiveNative(visible)
                 } else if emptyReset == nil {
                     let token = generation
                     emptyReset = Task { @MainActor [weak self] in
                         try? await Task.sleep(nanoseconds: 2_050_000_000)
                         guard !Task.isCancelled, let self, self.generation == token else { return }
-                        if let empty = self.continuity.expire(at: Date()) { self.apply(empty) }
+                        if let empty = self.continuity.expire(at: Date()) { self.receiveNative(empty) }
                         self.emptyReset = nil
                     }
                 }
@@ -110,33 +141,21 @@ final class MediaService: ObservableObject {
             }
         }
     }
-    private func apply(_ next: NowPlaying) {
-        receivedAt = Date(); track = next
-        if next.artworkData != lastArtwork {
-            lastArtwork = next.artworkData
-            artwork = next.artworkData.flatMap { Data(base64Encoded: $0) }.flatMap(NSImage.init(data:))
-            artworkColor = artwork?.averageColor ?? .systemMint
+    private func apply(_ next: NowPlaying, sampledAt: Date = Date()) {
+        receivedAt = sampledAt; track = next
+        if !usingWeb {
+            if next.artworkData != lastArtwork {
+                lastArtwork = next.artworkData
+                nativeArtwork = next.artworkData.flatMap { Data(base64Encoded: $0) }.flatMap(NSImage.init(data:))
+                nativeArtworkColor = nativeArtwork?.averageColor ?? .systemMint
+            }
+            artwork = nativeArtwork; artworkColor = nativeArtworkColor
         }
     }
-    func setPreview(_ snapshot: NowPlaying) { apply(snapshot) }
-    func openYandexMusic() {
-        for id in ["ru.yandex.desktop.music", "ru.yandex.music", "com.yandex.desktop.music"] {
-            if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) {
-                NSWorkspace.shared.openApplication(at: url, configuration: .init()); return
-            }
-        }
-        for folder in [URL(fileURLWithPath: "/Applications"), FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Applications")] {
-            for name in ["Яндекс Музыка.app", "Yandex Music.app"] {
-                let url = folder.appendingPathComponent(name)
-                if FileManager.default.fileExists(atPath: url.path) {
-                    NSWorkspace.shared.openApplication(at: url, configuration: .init()); return
-                }
-            }
-        }
-        openMusicWebsite()
-    }
-    func openMusicWebsite() { NSWorkspace.shared.open(URL(string: "https://music.yandex.ru")!) }
+
+    func setPreview(_ snapshot: NowPlaying) { nativeTrack = snapshot; usingWeb = false; apply(snapshot) }
     func command(_ arguments: [String]) {
+        if usingWeb, let action = arguments.first { web?.command(action); return }
         guard let executable else { return }
         Task {
             do {
@@ -146,9 +165,11 @@ final class MediaService: ObservableObject {
         }
     }
     func seek(_ seconds: Double) {
+        if usingWeb { web?.command("seek", value: seconds); return }
         command(["seek", String(format: "%.2f", locale: Locale(identifier: "en_US_POSIX"), seconds)])
     }
     func openSource() {
+        if usingWeb { onOpenWeb?(); return }
         guard let id = track.applicationID,
               let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) else { return }
         NSWorkspace.shared.openApplication(at: url, configuration: .init())

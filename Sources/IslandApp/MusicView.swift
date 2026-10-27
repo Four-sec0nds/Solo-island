@@ -4,41 +4,82 @@ import IslandCore
 @MainActor
 struct MusicView: View {
     @Environment(\.islandAccent) private var accent
+    @ObservedObject var store: IslandStore
     @ObservedObject var media: MediaService
+    @ObservedObject var web: WebMusicService
     var now: Date
     @State private var seeking: Double?
     var body: some View {
-        VStack(spacing: 14) {
-            if let error = media.error {
-                HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: "waveform.badge.exclamationmark").foregroundStyle(.orange)
-                    Text(error).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                    Spacer(minLength: 0)
-                    Button("Повторить") { media.start() }.buttonStyle(IslandButtonStyle(.soft))
-                }.padding(12).islandCard(tint: .orange)
+        VStack(spacing: 10) {
+            if let provider = store.state.settings.musicProvider {
+                HStack(spacing: 8) {
+                    MusicProviderIcon(provider: provider, size: 22)
+                    Text(provider.title).font(.system(size: 11, weight: .medium))
+                    Spacer()
+                    Button(store.musicWebsiteVisible ? "К плееру" : "Веб-плеер / вход") {
+                        web.configure(provider); store.musicWebsiteVisible.toggle()
+                    }.font(.system(size: 10)).buttonStyle(IslandButtonStyle(.soft))
+                }
             }
-            Spacer(minLength: 0)
-            if media.track.hasTrack {
-                player
+            if store.musicWebsiteVisible, let provider = store.state.settings.musicProvider {
+                website(provider)
             } else {
-                VStack(spacing: 16) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .fill(LinearGradient(colors: [.purple.opacity(0.28), accent.opacity(0.12)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        Image(systemName: "music.note").font(.system(size: 38, weight: .light)).foregroundStyle(accent)
-                    }.frame(width: 92, height: 92)
-                    VStack(spacing: 7) {
+                if let error = web.error ?? (media.usingWeb ? nil : media.error) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "info.circle").foregroundStyle(.orange)
+                        Text(error).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(2)
+                        Spacer(minLength: 0)
+                    }.padding(8).islandCard(tint: .orange)
+                }
+                Spacer(minLength: 0)
+                if media.track.hasTrack { player }
+                else {
+                    VStack(spacing: 13) {
+                        IslandBrandMark(size: 76)
                         Text("Включи любимую музыку").font(.system(size: 20, weight: .semibold, design: .rounded))
-                        Text("Открой Яндекс Музыку и запусти трек.\nУправление появится здесь автоматически.")
-                            .font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center).lineSpacing(3)
-                    }
-                    Button { media.openYandexMusic() } label: { Label("Открыть Яндекс Музыку", systemImage: "play.fill") }
-                        .buttonStyle(IslandButtonStyle(.filled))
-                    Button("Открыть в браузере") { media.openMusicWebsite() }.buttonStyle(IslandButtonStyle(.soft))
-                }.frame(maxWidth: .infinity)
+                        if let provider = store.state.settings.musicProvider {
+                            Text("Войди на сайте сервиса и выбери трек.
+Музыка играет прямо внутри Solo Island.")
+                                .font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Button { web.configure(provider); store.musicWebsiteVisible = true } label: {
+                                Label("Открыть веб-плеер", systemImage: "play.fill")
+                            }.buttonStyle(IslandButtonStyle(.filled))
+                            Button("Открыть сервис в браузере") { web.openInBrowser() }.font(.caption)
+                        } else {
+                            Text("Системный плеер работает с активным источником macOS.")
+                                .font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Button("Выбрать музыкальный сервис") { store.setSettings { $0.musicOnboardingComplete = false } }
+                                .buttonStyle(IslandButtonStyle(.filled))
+                        }
+                    }.frame(maxWidth: .infinity)
+                }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 0)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onChange(of: store.musicWebsiteVisible) { _, visible in store.editingForm = visible }
+            .onAppear { store.editingForm = store.musicWebsiteVisible }
+            .onDisappear { store.editingForm = false }
+    }
+    private func website(_ provider: MusicProvider) -> some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 9) {
+                Button { if let popup = web.popup { popup.goBack() } else { web.webView.goBack() } } label: { Image(systemName: "chevron.left") }
+                Button { if let popup = web.popup { popup.reload() } else { web.reload() } } label: { Image(systemName: "arrow.clockwise") }
+                Image(systemName: "lock.fill").font(.system(size: 9)).foregroundStyle(.secondary)
+                Text((web.popup ?? web.webView).url?.host ?? provider.url.host ?? "").font(.system(size: 9)).lineLimit(1).foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+                if web.popup != nil { Button("Назад") { web.popup = nil }.font(.system(size: 9)) }
+                if web.loading { ProgressView().controlSize(.small) }
+                Button { web.openInBrowser() } label: { Image(systemName: "safari") }.help("Открыть в браузере")
+            }.buttonStyle(IslandButtonStyle(.bare)).padding(.horizontal, 3)
+            if let error = web.error {
+                Text(error).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
+            }
+            EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
+                .font(.system(size: 9)).foregroundStyle(.secondary)
+        }
     }
     private var player: some View {
         VStack(spacing: 14) {

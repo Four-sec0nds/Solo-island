@@ -5,6 +5,10 @@ import IslandCore
 struct FocusView: View {
     @Environment(\.islandAccent) private var accent
     @ObservedObject var store: IslandStore
+    @State private var custom = false
+    @State private var hours = 0
+    @State private var minutes = 25
+    @State private var seconds = 0
     var body: some View {
         VStack(spacing: 14) {
             if let focus = store.state.focus {
@@ -31,7 +35,20 @@ struct FocusView: View {
             } else {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Длительность сессии").font(.headline)
-                    IslandSegments(options: [15, 25, 45, 60, 90], selection: Binding(get: { store.state.settings.focusMinutes }, set: { value in store.setSettings { $0.focusMinutes = value } }), title: { "\($0) мин" })
+                    IslandSegments(options: [15, 25, 45, 60, 90, 0], selection: Binding(get: { store.state.settings.customFocusSeconds == nil ? store.state.settings.focusMinutes : 0 }, set: { value in
+                        if value == 0 { custom = true; saveCustomTime() }
+                        else { custom = false; store.setSettings { $0.focusMinutes = value; $0.customFocusSeconds = nil } }
+                    }), title: { $0 == 0 ? "Своё" : "\($0) мин" })
+                    if custom || store.state.settings.customFocusSeconds != nil {
+                        HStack(spacing: 12) {
+                            timeField("Часы", value: $hours, range: 0...99)
+                            Text(":").foregroundStyle(accent)
+                            timeField("Минуты", value: $minutes, range: 0...59)
+                            Text(":").foregroundStyle(accent)
+                            timeField("Секунды", value: $seconds, range: 0...59)
+                        }.padding(12).islandCard(tint: accent)
+                        Text("От 1 секунды до 99:59:59. Длительность сохраняется.").font(.system(size: 10)).foregroundStyle(.secondary)
+                    }
                 }
                 let tasks = store.state.tasks.filter { !$0.isCompleted }
                 if tasks.isEmpty {
@@ -56,5 +73,23 @@ struct FocusView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity)
+            .onAppear {
+                let value = Int(store.state.settings.focusDuration)
+                hours = value / 3600; minutes = value % 3600 / 60; seconds = value % 60
+                custom = store.state.settings.customFocusSeconds != nil
+            }
+    }
+    private func timeField(_ title: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.system(size: 10)).foregroundStyle(.secondary)
+            TextField(title, value: value, format: .number).textFieldStyle(IslandTextFieldStyle()).monospacedDigit()
+                .onChange(of: value.wrappedValue) { _, next in
+                    value.wrappedValue = min(range.upperBound, max(range.lowerBound, next))
+                    if custom { saveCustomTime() }
+                }
+        }
+    }
+    private func saveCustomTime() {
+        store.setSettings { $0.customFocusSeconds = max(1, min(359999, hours * 3600 + minutes * 60 + seconds)) }
     }
 }

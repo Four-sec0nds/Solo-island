@@ -57,14 +57,17 @@ struct IslandRootView: View {
                             Button { store.error = nil } label: { Image(systemName: "checkmark") }.buttonStyle(IslandButtonStyle(.icon))
                         }.padding(11).islandCard(tint: .orange)
                     }
-                    content.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    Group {
+                        if !store.state.settings.musicOnboardingComplete { MusicOnboardingView(store: store) }
+                        else { content }
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }.padding(20)
             }
         }
     }
     @ViewBuilder private var content: some View {
         switch store.tab {
-        case .music: MusicView(media: store.media, now: store.now)
+        case .music: MusicView(store: store, media: store.media, web: store.webMusic, now: store.now)
         case .tasks: TasksView(store: store)
         case .focus: FocusView(store: store)
         case .files: FilesView(store: store)
@@ -83,11 +86,7 @@ struct IslandRootView: View {
     }
     private var header: some View {
         HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .fill(LinearGradient(colors: [.purple.opacity(0.9), .indigo.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                Image(systemName: "sparkle").font(.system(size: 20, weight: .medium)).foregroundStyle(.white)
-            }.frame(width: 42, height: 42)
+            IslandBrandMark(size: 42)
             VStack(alignment: .leading, spacing: 3) {
                 Text("Solo Island").font(.system(size: 17, weight: .semibold, design: .rounded))
                 Text(store.tab.rawValue).font(.system(size: 11)).foregroundStyle(.secondary)

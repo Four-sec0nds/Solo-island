@@ -68,6 +68,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         fixture.shelf = [ShelfEntry(kind: .text, text: "Здесь остаются идеи, ссылки и всё, к чему хочется вернуться.")]
         fixture.settings.animationDuration = 0.32
+        fixture.settings.musicOnboardingComplete = true
+        fixture.settings.musicProvider = .yandex
         fixture.actions = [
             QuickAction(title: "Finder", kind: .application, target: "/System/Library/CoreServices/Finder.app"),
             QuickAction(title: "Заметки", kind: .application, target: "/System/Applications/Notes.app"),
@@ -126,20 +128,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let imageURL = folder.appendingPathComponent("Дизайн проекта.png")
                 let briefURL = folder.appendingPathComponent("План проекта.txt")
                 try "Идея → дизайн → готовый проект".write(to: briefURL, atomically: true, encoding: .utf8)
-                let stills: [(IslandTab, URL)] = [
-                    (.music, output),
-                    (.tasks, directory.appendingPathComponent("SoloIsland-tasks.png")),
-                    (.focus, directory.appendingPathComponent("SoloIsland-focus.png")),
-                    (.files, directory.appendingPathComponent("SoloIsland-files.png")),
-                    (.actions, directory.appendingPathComponent("SoloIsland-actions.png"))
+                let stills: [(String, IslandTab)] = [
+                    ("preview", .music), ("tasks", .tasks), ("focus", .focus), ("files", .files), ("actions", .actions),
+                    ("onboarding", .music), ("custom-focus", .focus), ("deadline", .tasks), ("reminder", .tasks), ("settings", .settings)
                 ]
-                for (tab, destination) in stills {
-                    let stillFolder = folder.appendingPathComponent("still-" + tab.id)
+                for (name, tab) in stills {
+                    let destination = name == "preview" ? output : directory.appendingPathComponent("SoloIsland-" + name + ".png")
+                    let stillFolder = folder.appendingPathComponent("still-" + name)
                     var stillFixture = fixture
-                    if tab == .focus {
+                    if name == "focus" {
                         stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 25,
                                                           now: Date().addingTimeInterval(-360))
                     }
+                    if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 37 * 60 + 15 }
+                    if name == "onboarding" { stillFixture.settings.musicOnboardingComplete = false }
                     if tab == .files {
                         stillFixture.shelf.append(ShelfEntry(path: imageURL.path, kind: .image, isPinned: true))
                         stillFixture.shelf.append(ShelfEntry(path: briefURL.path))
@@ -148,14 +150,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     let stillStore = IslandStore(dataFolder: stillFolder)
                     stillStore.media.setPreview(previewTrack)
                     stillStore.tab = tab; stillStore.pinned = true
+                    if name == "deadline" || name == "reminder" {
+                        var draft = fixture.tasks[1]
+                        draft.dueAt = Calendar.current.date(bySettingHour: 18, minute: 0, second: 0, of: Date().addingTimeInterval(3 * 86400))
+                        draft.reminderAt = Date().addingTimeInterval(2 * 86400)
+                        stillStore.taskDraft = draft; stillStore.editingReminder = name == "reminder"
+                    }
                     let stillController = IslandWindowController(store: stillStore, trackPointer: false, reducedMotionOverride: true)
                     stillStore.reveal(tab)
                     try? await Task.sleep(nanoseconds: 850_000_000)
                     guard let stillWindow = stillController.window else { throw CocoaError(.fileWriteUnknown) }
                     try PreviewRecorder.png(stillWindow, to: destination)
-                    if tab == .music { try FileManager.default.copyItem(at: destination, to: imageURL) }
+                    if name == "preview" { try FileManager.default.copyItem(at: destination, to: imageURL) }
                     stillWindow.orderOut(nil)
                 }
+                try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
                 let reducedStore = IslandStore(dataFolder: folder.appendingPathComponent("reduced-motion"))
                 let reducedController = IslandWindowController(store: reducedStore, trackPointer: false, reducedMotionOverride: true)
                 reducedStore.reveal()
@@ -169,6 +178,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } catch { fputs("Preview: \(error.localizedDescription)\n", stderr); exit(1) }
         }
     }
+    private func verifyWebPlayer(folder: URL, output: URL) async throws {
+        var fixture = IslandState(); fixture.settings.musicOnboardingComplete = true; fixture.settings.musicProvider = .yandex
+        try StateRepository(url: folder.appendingPathComponent("state.json")).save(fixture)
+        let webStore = IslandStore(dataFolder: folder)
+        webStore.musicWebsiteVisible = true
+        let controller = IslandWindowController(store: webStore, trackPointer: false, reducedMotionOverride: true)
+        webStore.reveal(.music)
+        webStore.webMusic.loadPreviewFixture()
+        @MainActor func until(_ check: () -> Bool) async -> Bool {
+            for _ in 0..<100 {
+                if check() { return true }; try? await Task.sleep(nanoseconds: 60_000_000)
+            }
+            return check()
+        }
+        guard await until({ webStore.media.usingWeb && webStore.media.track.title == "Веб-трек" }) else {
+            fputs("Web fixture metadata did not reach the native player\n", stderr); exit(1)
+        }
+        webStore.media.command(["toggle-play-pause"])
+        guard await until({ webStore.media.track.isPlaying }) else { fputs("Embedded web play failed\n", stderr); exit(1) }
+        webStore.media.seek(2)
+        guard await until({ (webStore.media.track.elapsedTime ?? 0) >= 1.8 }) else { fputs("Embedded web seek failed\n", stderr); exit(1) }
+        webStore.media.command(["next-track"])
+        guard await until({ webStore.media.track.title == "Следующий веб-трек" }) else { fputs("Embedded web next failed\n", stderr); exit(1) }
+        webStore.media.command(["toggle-play-pause"])
+        guard await until({ !webStore.media.track.isPlaying }) else { fputs("Embedded web pause failed\n", stderr); exit(1) }
+        webStore.musicWebsiteVisible = false
+        try? await Task.sleep(nanoseconds: 250_000_000)
+        if let window = controller.window { try PreviewRecorder.png(window, to: output); window.orderOut(nil) }
+        webStore.webMusic.stop()
+        fputs("Embedded WKWebView smoke: metadata, play, seek, next and pause passed\n", stderr)
+    }
+
 }
 
 final class IslandPanel: NSPanel {

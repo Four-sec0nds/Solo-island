@@ -23,14 +23,14 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         catch { onError?(error.localizedDescription); return false }
     }
     func sync(tasks: [IslandTask]) {
-        let requests: [UNNotificationRequest] = tasks.compactMap { task in
-            guard !task.isCompleted, let date = task.reminderAt, date > Date() else { return nil }
+        let titles = Dictionary(uniqueKeysWithValues: tasks.map { ($0.id, $0.title) })
+        let requests: [UNNotificationRequest] = TaskReminderPlan.requests(for: tasks).map { reminder in
             let content = UNMutableNotificationContent()
-            content.title = "Пора заняться задачей"; content.body = task.title
+            content.title = reminder.title; content.body = titles[reminder.taskID] ?? "Задача"
             content.sound = .default; content.categoryIdentifier = "TASK"
-            content.userInfo = ["taskID": task.id.uuidString]
-            return .init(identifier: "task.\(task.id)", content: content,
-                trigger: UNTimeIntervalNotificationTrigger(timeInterval: max(1, date.timeIntervalSinceNow), repeats: false))
+            content.userInfo = ["taskID": reminder.taskID.uuidString]
+            return .init(identifier: reminder.identifier, content: content,
+                trigger: UNTimeIntervalNotificationTrigger(timeInterval: max(1, reminder.date.timeIntervalSinceNow), repeats: false))
         }
         replace(prefix: "task.", requests: requests)
     }

@@ -8,11 +8,29 @@ public struct IslandTask: Identifiable, Codable, Equatable {
     public var reminderAt: Date?
     public var completedAt: Date?
     public var focusedSeconds: Int
+    public var alertDayBefore: Bool
+    public var alertHourBefore: Bool
 
     public init(id: UUID = UUID(), title: String, createdAt: Date = Date(), dueAt: Date? = nil,
-                reminderAt: Date? = nil, completedAt: Date? = nil, focusedSeconds: Int = 0) {
+                reminderAt: Date? = nil, completedAt: Date? = nil, focusedSeconds: Int = 0,
+                alertDayBefore: Bool = true, alertHourBefore: Bool = true) {
         self.id = id; self.title = title; self.createdAt = createdAt; self.dueAt = dueAt
         self.reminderAt = reminderAt; self.completedAt = completedAt; self.focusedSeconds = focusedSeconds
+        self.alertDayBefore = alertDayBefore; self.alertHourBefore = alertHourBefore
+    }
+    private enum CodingKeys: String, CodingKey {
+        case id, title, createdAt, dueAt, reminderAt, completedAt, focusedSeconds, alertDayBefore, alertHourBefore
+    }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id); title = try c.decode(String.self, forKey: .title)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        dueAt = try c.decodeIfPresent(Date.self, forKey: .dueAt)
+        reminderAt = try c.decodeIfPresent(Date.self, forKey: .reminderAt)
+        completedAt = try c.decodeIfPresent(Date.self, forKey: .completedAt)
+        focusedSeconds = try c.decodeIfPresent(Int.self, forKey: .focusedSeconds) ?? 0
+        alertDayBefore = try c.decodeIfPresent(Bool.self, forKey: .alertDayBefore) ?? true
+        alertHourBefore = try c.decodeIfPresent(Bool.self, forKey: .alertHourBefore) ?? true
     }
     public var isCompleted: Bool { completedAt != nil }
     public func isOverdue(at now: Date) -> Bool { !isCompleted && dueAt.map { $0 < now } == true }
@@ -48,7 +66,10 @@ public struct FocusSession: Codable, Equatable {
     public var creditedSeconds: Int
 
     public init(taskID: UUID, minutes: Int, now: Date = Date()) {
-        self.taskID = taskID; duration = TimeInterval(max(1, minutes) * 60)
+        self.init(taskID: taskID, duration: Double(max(1, minutes)) * 60, now: now)
+    }
+    public init(taskID: UUID, duration seconds: TimeInterval, now: Date = Date()) {
+        self.taskID = taskID; duration = seconds.isFinite ? min(359999, max(1, seconds)) : 1500
         remainingWhenPaused = duration; deadline = now.addingTimeInterval(duration); creditedSeconds = 0
     }
     public var isPaused: Bool { deadline == nil }
@@ -142,7 +163,29 @@ public struct IslandSettings: Codable, Equatable {
     public var focusMinutes: Int = 25
     public var focusShortcut: String = ""
     public var endFocusShortcut: String = ""
+    public var customFocusSeconds: Int?
+    public var musicProvider: MusicProvider?
+    public var musicOnboardingComplete = false
     public init() {}
+    public var focusDuration: TimeInterval { Double(customFocusSeconds.map { min(359999, max(1, $0)) } ?? min(5999, max(1, focusMinutes)) * 60) }
+    private enum CodingKeys: String, CodingKey {
+        case expandedWidth, cornerRadius, animationDuration, coverAccent, accent, focusMinutes, focusShortcut, endFocusShortcut
+        case customFocusSeconds, musicProvider, musicOnboardingComplete
+    }
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        expandedWidth = try c.decodeIfPresent(Double.self, forKey: .expandedWidth) ?? 720
+        cornerRadius = try c.decodeIfPresent(Double.self, forKey: .cornerRadius) ?? 30
+        animationDuration = try c.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0.25
+        coverAccent = try c.decodeIfPresent(Bool.self, forKey: .coverAccent) ?? true
+        accent = try c.decodeIfPresent(String.self, forKey: .accent) ?? "mint"
+        focusMinutes = try c.decodeIfPresent(Int.self, forKey: .focusMinutes) ?? 25
+        focusShortcut = try c.decodeIfPresent(String.self, forKey: .focusShortcut) ?? ""
+        endFocusShortcut = try c.decodeIfPresent(String.self, forKey: .endFocusShortcut) ?? ""
+        customFocusSeconds = try c.decodeIfPresent(Int.self, forKey: .customFocusSeconds)
+        if let raw = try c.decodeIfPresent(String.self, forKey: .musicProvider) { musicProvider = MusicProvider(rawValue: raw) }
+        musicOnboardingComplete = try c.decodeIfPresent(Bool.self, forKey: .musicOnboardingComplete) ?? false
+    }
 }
 
 public struct IslandState: Codable, Equatable {

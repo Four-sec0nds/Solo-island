@@ -15,8 +15,28 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("0.4.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text("0.5.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
+                HStack(spacing: 10) {
+                    IslandBrandMark(size: 36)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Музыкальный сервис").font(.caption.bold())
+                        Text("Можно сменить в любой момент").font(.system(size: 10)).foregroundStyle(.secondary)
+                    }
+                }
+                MusicProviderGrid(selected: store.state.settings.musicProvider) { store.selectMusicProvider($0) }
+                if store.state.settings.musicProvider != nil {
+                    HStack {
+                        Button("Открыть веб-плеер / вход") {
+                            if let provider = store.state.settings.musicProvider { store.selectMusicProvider(provider) }
+                        }.font(.caption)
+                        Spacer()
+                        Button("Сбросить веб-сессии") { store.webMusic.resetSession() }.font(.system(size: 10))
+                    }
+                    Text("Веб-сессии хранятся в Solo Island. Сброс не затрагивает аккаунты Safari и других браузеров.")
+                        .font(.system(size: 10)).foregroundStyle(.secondary)
+                }
+                Divider()
                 settingSlider("Ширина", value: binding(\.expandedWidth), range: 640...900, suffix: "pt")
                 settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
                 VStack(alignment: .leading, spacing: 5) {

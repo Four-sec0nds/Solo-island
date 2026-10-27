@@ -24,6 +24,7 @@ jobs:
           set -o pipefail
           {
             command -v cmake || brew install cmake
+            node --test Tests/WebPlayerTests/bridge.test.cjs
             python3 -m unittest discover -s Tests/PackagingTests -v
             bash scripts/build.sh
           } 2>&1 | tee "$RUNNER_TEMP/solo-build.log"
@@ -41,6 +42,12 @@ jobs:
             dist/SoloIsland-actions.png
             dist/SoloIsland-focus.png
             dist/SoloIsland-files.png
+            dist/SoloIsland-onboarding.png
+            dist/SoloIsland-custom-focus.png
+            dist/SoloIsland-deadline.png
+            dist/SoloIsland-reminder.png
+            dist/SoloIsland-settings.png
+            dist/SoloIsland-web-demo.png
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'

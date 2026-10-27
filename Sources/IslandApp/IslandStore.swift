@@ -22,8 +22,12 @@ final class IslandStore: ObservableObject {
     @Published var error: String?
     @Published var toast: IslandToast?
     @Published var notificationsEnabled = false
+    @Published var taskDraft: IslandTask?
+    @Published var editingReminder = false
+    @Published var musicWebsiteVisible = false
     @Published var focusAutomationActive = false
     let media = MediaService()
+    let webMusic = WebMusicService()
     let notifications = NotificationService()
     private let repository: StateRepository
     private var canPersist = true
@@ -59,9 +63,12 @@ final class IslandStore: ObservableObject {
             Task { @MainActor in self?.notificationsEnabled = enabled }
         }
         audio = AudioService.snapshot()
+        media.attach(webMusic)
+        media.onOpenWeb = { [weak self] in self?.musicWebsiteVisible = true; self?.reveal(.music) }
     }
     func start() {
         media.start()
+        if let provider = state.settings.musicProvider { webMusic.configure(provider) }
         notifications.sync(tasks: state.tasks)
         notifications.scheduleFocus(state.focus, taskTitle: focusTask?.title ?? "Можно сделать перерыв")
         tick()
@@ -70,7 +77,7 @@ final class IslandStore: ObservableObject {
         }
     }
     func stop() {
-        timer?.invalidate(); media.stop(); save()
+        timer?.invalidate(); media.stop(); webMusic.stop(); save()
         // Focus reminders remain scheduled; no assumptions about a surviving process.
     }
     var focusTask: IslandTask? { state.tasks.first { $0.id == state.focus?.taskID } }
@@ -78,7 +85,11 @@ final class IslandStore: ObservableObject {
         let remaining = Int(ceil(state.focus?.remaining(at: now) ?? 0))
         return Self.clock(remaining)
     }
-    static func clock(_ seconds: Int) -> String { String(format: "%02d:%02d", max(0, seconds) / 60, max(0, seconds) % 60) }
+    static func clock(_ seconds: Int) -> String {
+        let value = max(0, seconds)
+        if value >= 3600 { return String(format: "%02d:%02d:%02d", value / 3600, value % 3600 / 60, value % 60) }
+        return String(format: "%02d:%02d", value / 60, value % 60)
+    }
     func save() {
         guard canPersist else { return }
         do { try repository.save(state) }
@@ -86,6 +97,7 @@ final class IslandStore: ObservableObject {
     }
     private func tick() {
         now = Date(); tickCount += 1
+        if tickCount % 240 == 0 { notifications.sync(tasks: state.tasks) }
         let isFullScreen = NSApp.currentSystemPresentationOptions.contains(.fullScreen)
         if isFullScreen != fullScreen {
             fullScreen = isFullScreen
@@ -137,6 +149,11 @@ final class IslandStore: ObservableObject {
     func setSettings(_ transform: (inout IslandSettings) -> Void) {
         transform(&state.settings); save()
     }
+    func selectMusicProvider(_ provider: MusicProvider) {
+        setSettings { $0.musicProvider = provider; $0.musicOnboardingComplete = true }
+        webMusic.configure(provider); musicWebsiteVisible = true; reveal(.music)
+    }
+    func skipMusicSetup() { setSettings { $0.musicOnboardingComplete = true }; musicWebsiteVisible = false }
     func upsertTask(_ task: IslandTask) {
         let clean = task.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
@@ -144,6 +161,7 @@ final class IslandStore: ObservableObject {
         if let index = state.tasks.firstIndex(where: { $0.id == task.id }) { state.tasks[index] = task }
         else { state.tasks.insert(task, at: 0) }
         save(); notifications.sync(tasks: state.tasks)
+        if !notificationsEnabled && (task.dueAt != nil || task.reminderAt != nil) { enableNotifications() }
     }
     func completeTask(_ id: UUID) {
         guard let index = state.tasks.firstIndex(where: { $0.id == id }) else { return }
@@ -162,7 +180,7 @@ final class IslandStore: ObservableObject {
             else { error = "Сначала завершите текущую фокус-сессию." }
             return
         }
-        state.focus = FocusSession(taskID: taskID, minutes: state.settings.focusMinutes)
+        state.focus = FocusSession(taskID: taskID, duration: state.settings.focusDuration)
         now = Date(); save(); reveal(.focus)
         notifications.scheduleFocus(state.focus, taskTitle: focusTask?.title ?? "")
     }
