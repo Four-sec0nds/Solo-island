@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 struct IslandRootView: View {
     @ObservedObject var store: IslandStore
     @State private var dropTargeted = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     var body: some View {
         GeometryReader { geometry in
             let shape = NotchAttachmentShape(neckWidth: store.cameraWidth + 16, neckHeight: store.compactHeight, radius: store.state.settings.cornerRadius)

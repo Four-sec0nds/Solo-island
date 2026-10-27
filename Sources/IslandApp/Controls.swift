@@ -13,7 +13,9 @@ private struct IslandButtonSurface: View {
     let kind: IslandButtonStyle.Kind
     @Environment(\.islandAccent) private var accent
     @Environment(\.isEnabled) private var enabled
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     @State private var hovered = false
     private var color: Color { configuration.role == .destructive ? .pink : accent }
     private var radius: CGFloat { kind == .icon ? 12 : 14 }
@@ -56,7 +58,9 @@ struct IslandSegments<Selection: Hashable>: View {
     @Binding var selection: Selection
     let title: (Selection) -> String
     @Environment(\.islandAccent) private var accent
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     var body: some View {
         HStack(spacing: 4) {
             ForEach(options, id: \.self) { option in
@@ -93,7 +97,9 @@ struct IslandSlider: View {
     var range: ClosedRange<Double>
     var onEditingChanged: (Bool) -> Void
     @Environment(\.islandAccent) private var accent
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     @State private var dragging = false
     @State private var hovered = false
     init(value: Binding<Double>, in range: ClosedRange<Double>, onEditingChanged: @escaping (Bool) -> Void = { _ in }) {
@@ -140,4 +146,12 @@ struct IslandSlider: View {
             }
     }
     private func setFraction(_ fraction: Double) { value = range.lowerBound + min(1, max(0, fraction)) * (range.upperBound - range.lowerBound) }
+}
+
+private struct IslandReducedMotionOverrideKey: EnvironmentKey { static let defaultValue: Bool? = nil }
+extension EnvironmentValues {
+    var islandReducedMotionOverride: Bool? {
+        get { self[IslandReducedMotionOverrideKey.self] }
+        set { self[IslandReducedMotionOverrideKey.self] = newValue }
+    }
 }

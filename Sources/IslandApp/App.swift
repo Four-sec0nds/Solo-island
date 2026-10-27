@@ -176,7 +176,7 @@ final class IslandWindowController: NSWindowController {
         super.init(window: panel)
         let root = IslandRootView(store: store)
         let view: AnyView
-        if let reducedMotionOverride { view = AnyView(root.environment(\.accessibilityReduceMotion, reducedMotionOverride)) }
+        if let reducedMotionOverride { view = AnyView(root.environment(\.islandReducedMotionOverride, reducedMotionOverride)) }
         else { view = AnyView(root) }
         let hosting = NSHostingView(rootView: view)
         hosting.sizingOptions = []
