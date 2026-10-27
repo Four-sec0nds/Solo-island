@@ -89,7 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             let canvas = NSSize(width: store.presentationWidth, height: store.presentationHeight)
             var frames: [PreviewRecorder.Frame] = []
-            func record(_ delay: Double) {
+            @MainActor func record(_ delay: Double) {
                 if let image = PreviewRecorder.animationFrame(window, canvas: canvas, neckWidth: store.cameraWidth, neckHeight: store.compactHeight) {
                     frames.append(.init(image: image, delay: delay))
                 }
