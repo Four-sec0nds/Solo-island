@@ -1,10 +1,18 @@
 # Solo Island
 
+[![Скачать последнюю версию для Mac](docs/download.svg)](https://github.com/Four-sec0nds/Solo-island/raw/refs/heads/solo-island-builds/SoloIsland.dmg)
+
+**macOS 14+ · Apple Silicon · DMG** · [SHA-256](https://github.com/Four-sec0nds/Solo-island/raw/refs/heads/solo-island-builds/SoloIsland.dmg.sha256) · [Статус сборки](https://github.com/Four-sec0nds/Solo-island/blob/solo-island-builds/build-info.json)
+
+Если кнопка не отображается: **[скачать SoloIsland.dmg](https://github.com/Four-sec0nds/Solo-island/raw/refs/heads/solo-island-builds/SoloIsland.dmg)**. Ссылка ведёт на актуальную сборку и сохраняется при обновлениях.
+
+[Результаты проверки безопасности и приватности](docs/SECURITY_REVIEW.md).
+
 Нативный Dynamic Island для Mac: музыка, собственные задачи, фокусировка, файловая полка и быстрые действия. Интерфейс на русском. Swift / SwiftUI / AppKit, macOS 14+, Apple Silicon (сборка arm64 по умолчанию). На MacBook Air M4 используйте установленную macOS 15 или новее.
 
 ## Установка из DMG
 
-Скачайте `SoloIsland.dmg` из ветки [`solo-island-builds`](https://github.com/Four-sec0nds/Exploit-CVE/tree/solo-island-builds) этого репозитория, откройте его и перетащите приложение в **Applications / Программы**. Извлеките диск и запустите приложение из «Программ».
+Нажмите **«Скачать для Mac»** выше, откройте `SoloIsland.dmg` и перетащите приложение в **Applications / Программы**. Извлеките диск и запустите приложение из «Программ».
 
 Homebrew, Node.js, Xcode и компиляция для использования DMG не нужны: медиамодуль включён внутрь приложения. В покое окно полностью скрыто. Наведите курсор на чёлку или непосредственно под неё, чтобы открыть панель **поверх остальных приложений**, в том числе в полноэкранном пространстве. После ухода курсора она скрывается. Значок капсулы в строке меню также открывает приложение. Булавка удерживает островок открытым при уходе курсора; открепление сохраняет появление поверх окон и возвращает автоматическое сворачивание. Крестика закрытия в панели нет.
 

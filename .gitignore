@@ -5,3 +5,18 @@ dist/
 *.xcuserstate
 __pycache__/
 *.pyc
+
+# Local secrets and runtime data must stay outside the public repository.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+.secrets/
+/credentials.json
+/state.json
+/Clipboard/

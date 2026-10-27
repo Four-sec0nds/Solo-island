@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="76" viewBox="0 0 360 76" role="img" aria-labelledby="title description">
+  <title id="title">Скачать Solo Island для Mac</title>
+  <desc id="description">Последняя версия, установщик DMG для Apple Silicon</desc>
+  <defs>
+    <linearGradient id="surface" x2="1" y2="1">
+      <stop stop-color="#20152f"/>
+      <stop offset="1" stop-color="#100d18"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="358" height="74" rx="20" fill="url(#surface)" stroke="#79e0be" stroke-width="2"/>
+  <rect x="14" y="14" width="48" height="48" rx="16" fill="#79e0be"/>
+  <path d="M38 25v18m-7-7 7 7 7-7M27 46v5h22v-5" fill="none" stroke="#15101f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="78" y="34" fill="#f5f1fb" font-size="20" font-weight="700">Скачать для Mac</text>
+    <text x="78" y="55" fill="#bfb6d1" font-size="13">Последняя версия · DMG</text>
+  </g>
+</svg>
