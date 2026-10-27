@@ -50,6 +50,15 @@ class PublishBuildTests(unittest.TestCase):
         return self.run_git('show', 'FETCH_HEAD:' + filename)
 
     def test_success_publishes_dmg_and_checksum_without_modifying_source(self):
+        # Old recordings can remain in dist on a reused checkout. They must never
+        # return to the artifact branch after the promo cleanup.
+        for filename in ('SoloIsland-opening.gif', 'SoloIsland-focus-motion.gif',
+                         'SoloIsland-focus-motion.json', 'SoloIsland-interactions.zip',
+                         'SoloIsland-interactions.zip.part-aa',
+                         'SoloIsland-interactions.zip.sha256',
+                         'SoloIsland-promo-vertical.mp4', 'soundtrack.wav'):
+            (self.repo / 'dist' / filename).write_bytes(b'old recording fixture')
+        (self.repo / 'dist' / 'SoloIsland-preview.png').write_bytes(b'still preview fixture')
         index_before = (self.repo / '.git' / 'index').read_bytes()
         result = self.publish()
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -58,6 +67,9 @@ class PublishBuildTests(unittest.TestCase):
         self.assertEqual(info['source_commit'], self.sha)
         self.assertIn('fixture, not a real disk image', self.inspect('SoloIsland.dmg'))
         self.assertIn('  SoloIsland.dmg', self.inspect('SoloIsland.dmg.sha256'))
+        self.assertEqual(set(self.run_git('ls-tree', '--name-only', 'FETCH_HEAD').splitlines()),
+                         {'SoloIsland.dmg', 'SoloIsland.dmg.sha256', 'preview.png',
+                          'build-info.json', 'build.log'})
         self.assertEqual((self.repo / '.git' / 'index').read_bytes(), index_before)
         self.assertEqual(self.run_git('rev-parse', 'HEAD').strip(), self.sha)
         self.assertEqual((self.repo / 'source.txt').read_text(), 'preserve me')

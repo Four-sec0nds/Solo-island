@@ -42,11 +42,9 @@ if [[ "${BUILD_RESULT:-}" == success ]]; then
     [[ -f dist/SoloIsland.dmg ]] || { echo 'Successful build has no DMG.' >&2; exit 1; }
     add_file dist/SoloIsland.dmg SoloIsland.dmg
     if [[ -f dist/SoloIsland-preview.png ]]; then add_file dist/SoloIsland-preview.png preview.png; fi
-    for preview in SoloIsland-opening.gif SoloIsland-tasks.png SoloIsland-actions.png SoloIsland-focus.png SoloIsland-files.png SoloIsland-onboarding.png SoloIsland-custom-focus.png SoloIsland-deadline.png SoloIsland-reminder.png SoloIsland-settings.png SoloIsland-web-demo.png SoloIsland-icon.png SoloIsland-focus-motion.gif SoloIsland-focus-motion.json SoloIsland-interactions.zip.sha256; do
+    # Publish only the installer and named still images; recording output stays local.
+    for preview in SoloIsland-tasks.png SoloIsland-actions.png SoloIsland-focus.png SoloIsland-files.png SoloIsland-onboarding.png SoloIsland-custom-focus.png SoloIsland-deadline.png SoloIsland-reminder.png SoloIsland-settings.png SoloIsland-web-demo.png SoloIsland-icon.png; do
         if [[ -f "dist/$preview" ]]; then add_file "dist/$preview" "$preview"; fi
-    done
-    for capture_part in dist/SoloIsland-interactions.zip.part-*; do
-        if [[ -f "$capture_part" ]]; then add_file "$capture_part" "${capture_part##*/}"; fi
     done
     # A relative filename makes the checksum file usable after downloading.
     (cd dist && shasum -a 256 SoloIsland.dmg) > "$work_dir/SoloIsland.dmg.sha256"

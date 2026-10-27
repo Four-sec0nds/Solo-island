@@ -37,7 +37,6 @@ jobs:
             dist/SoloIsland.dmg
             dist/SoloIsland.dmg.sha256
             dist/SoloIsland-preview.png
-            dist/SoloIsland-opening.gif
             dist/SoloIsland-tasks.png
             dist/SoloIsland-actions.png
             dist/SoloIsland-focus.png
@@ -49,10 +48,6 @@ jobs:
             dist/SoloIsland-settings.png
             dist/SoloIsland-web-demo.png
             dist/SoloIsland-icon.png
-            dist/SoloIsland-focus-motion.gif
-            dist/SoloIsland-focus-motion.json
-            dist/SoloIsland-interactions.zip.part-*
-            dist/SoloIsland-interactions.zip.sha256
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'
