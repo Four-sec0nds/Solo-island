@@ -51,7 +51,7 @@ struct ActionsView: View {
                                     Image(systemName: action.kind == .folder ? "folder.fill" : action.kind == .shortcut ? "bolt.fill" : "app.fill").font(.title2).foregroundStyle(accent)
                                     Text(action.title).font(.system(size: 12, weight: .medium)).lineLimit(2)
                                 }.frame(maxWidth: .infinity, minHeight: 72, alignment: .leading).padding(14)
-                                    .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
+                                    .islandCard()
                             }.buttonStyle(.plain).contextMenu { Button("Удалить действие", role: .destructive) { store.removeAction(action.id) } }
                         }
                     }

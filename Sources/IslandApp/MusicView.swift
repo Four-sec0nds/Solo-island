@@ -15,7 +15,7 @@ struct MusicView: View {
                     Text(error).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
                     Button("Переподключить") { media.start() }
                 }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16))
+                    .islandCard()
             }
             if media.track.hasTrack {
                 HStack(spacing: 20) {

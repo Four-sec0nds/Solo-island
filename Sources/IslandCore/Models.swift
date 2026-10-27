@@ -69,26 +69,53 @@ public struct FocusSession: Codable, Equatable {
     }
 }
 
+public enum ShelfKind: String, Codable { case file, text, image }
+
 public struct ShelfEntry: Identifiable, Codable, Equatable {
     public var id: UUID
     public var path: String
     public var addedAt: Date
-    public init(path: String, addedAt: Date = Date()) {
+    public var kind: ShelfKind
+    public var text: String?
+    public var isPinned: Bool
+    public init(path: String = "", addedAt: Date = Date(), kind: ShelfKind = .file, text: String? = nil, isPinned: Bool = false) {
         id = UUID(); self.path = path; self.addedAt = addedAt
+        self.kind = kind; self.text = text; self.isPinned = isPinned
     }
     public var url: URL { URL(fileURLWithPath: path) }
+    public var identity: String { kind == .text ? "text:" + (text ?? "") : kind.rawValue + ":" + path }
+    enum CodingKeys: String, CodingKey { case id, path, addedAt, kind, text, isPinned }
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(UUID.self, forKey: .id)
+        path = try values.decodeIfPresent(String.self, forKey: .path) ?? ""
+        addedAt = try values.decode(Date.self, forKey: .addedAt)
+        kind = try values.decodeIfPresent(ShelfKind.self, forKey: .kind) ?? .file
+        text = try values.decodeIfPresent(String.self, forKey: .text)
+        isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
+    }
 }
 
 public enum ShelfHistory {
-    /// The first URL is the newest. Moving an existing URL to the front does not duplicate it.
-    public static func adding(_ urls: [URL], to entries: [ShelfEntry], now: Date = Date()) -> [ShelfEntry] {
-        var result = entries
-        for url in urls.reversed() where url.isFileURL {
-            let path = url.standardizedFileURL.path
-            result.removeAll { $0.path == path }
-            result.insert(ShelfEntry(path: path, addedAt: now), at: 0)
+    /// Five recent files, twenty text snippets and twenty unpinned images; pins are retained until removed.
+    public static func inserting(_ entries: [ShelfEntry], to existing: [ShelfEntry]) -> [ShelfEntry] {
+        var result = existing
+        for var entry in entries.reversed() {
+            if let old = result.first(where: { $0.identity == entry.identity }) {
+                entry.id = old.id; entry.isPinned = old.isPinned || entry.isPinned
+            }
+            result.removeAll { $0.identity == entry.identity }
+            result.insert(entry, at: 0)
         }
-        return Array(result.prefix(5))
+        var counts: [ShelfKind: Int] = [:]
+        return result.filter { entry in
+            if entry.isPinned { return true }
+            let count = (counts[entry.kind] ?? 0) + 1; counts[entry.kind] = count
+            return count <= (entry.kind == .file ? 5 : 20)
+        }
+    }
+    public static func adding(_ urls: [URL], to entries: [ShelfEntry], now: Date = Date()) -> [ShelfEntry] {
+        inserting(urls.filter(\.isFileURL).map { ShelfEntry(path: $0.standardizedFileURL.path, addedAt: now) }, to: entries)
     }
 }
 
@@ -107,8 +134,8 @@ public struct QuickAction: Identifiable, Codable, Equatable {
 }
 
 public struct IslandSettings: Codable, Equatable {
-    public var expandedWidth: Double = 520
-    public var cornerRadius: Double = 28
+    public var expandedWidth: Double = 720
+    public var cornerRadius: Double = 30
     public var animationDuration: Double = 0.25
     public var coverAccent: Bool = true
     public var accent: String = "mint"

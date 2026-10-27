@@ -15,10 +15,10 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text("0.2.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text("0.3.0").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
-                settingSlider("Ширина", value: binding(\.expandedWidth), range: 460...640, suffix: "pt")
-                settingSlider("Скругление", value: binding(\.cornerRadius), range: 16...36, suffix: "pt")
+                settingSlider("Ширина", value: binding(\.expandedWidth), range: 640...900, suffix: "pt")
+                settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Скорость анимации").font(.caption)
                     Slider(value: binding(\.animationDuration), in: 0.12...0.6)
@@ -54,7 +54,7 @@ struct IslandSettingsView: View {
                 Text("Используется активный плеер macOS. Источники передают разный набор данных: обложку и перемотку показываем при их наличии.")
                     .font(.system(size: 11)).foregroundStyle(.secondary)
                 Divider()
-                Text("Файлы и задачи хранятся на этом Mac. Календарь, статистика системы и батарея не используются.")
+                Text("Окно появляется при наведении на чёлку и скрывается после ухода курсора. Другие приложения могут открываться поверх него. Буфер и задачи хранятся только на этом Mac.")
                     .font(.system(size: 10)).foregroundStyle(.secondary)
             }.padding(.bottom, 6)
         }

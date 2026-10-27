@@ -85,6 +85,34 @@ final class IslandCoreTests: XCTestCase {
         XCTAssertThrowsError(try StateRepository(url: url).load())
         XCTAssertEqual(try Data(contentsOf: url), bytes)
     }
+    func testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath() throws {
+        let id = UUID()
+        let json = "{\"id\":\"\(id)\",\"path\":\"/tmp/legacy.txt\",\"addedAt\":0}"
+        let entry = try JSONDecoder().decode(ShelfEntry.self, from: Data(json.utf8))
+        XCTAssertEqual(entry.id, id); XCTAssertEqual(entry.path, "/tmp/legacy.txt")
+        XCTAssertEqual(entry.kind, .file); XCTAssertFalse(entry.isPinned); XCTAssertNil(entry.text)
+    }
+    func testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory() {
+        let image = ShelfEntry(path: "/owned/screenshot.png", kind: .image, isPinned: true)
+        let text = ShelfEntry(kind: .text, text: "сохранённый текст")
+        var history = ShelfHistory.inserting([image, text], to: [])
+        for index in 0..<10 { history = ShelfHistory.adding([URL(fileURLWithPath: "/file\(index)")], to: history) }
+        XCTAssertEqual(history.filter { $0.kind == .file }.count, 5)
+        XCTAssertTrue(history.contains(image)); XCTAssertTrue(history.contains(text))
+        let repeated = ShelfHistory.inserting([ShelfEntry(path: image.path, kind: .image)], to: history)
+        XCTAssertEqual(repeated.first?.id, image.id); XCTAssertEqual(repeated.first?.isPinned, true)
+        XCTAssertEqual(repeated.filter { $0.kind == .image }.count, 1)
+    }
+    func testTextAndImagesRoundTripWithPinsAndUnicode() throws {
+        var state = IslandState()
+        state.shelf = [ShelfEntry(kind: .text, text: "Текст\nв две строки 🌌", isPinned: true),
+                       ShelfEntry(path: "/owned/image.png", kind: .image, isPinned: true)]
+        XCTAssertEqual(try JSONDecoder().decode(IslandState.self, from: JSONEncoder().encode(state)), state)
+        var history: [ShelfEntry] = []
+        for index in 0..<25 { history = ShelfHistory.inserting([ShelfEntry(kind: .text, text: "text \(index)")], to: history) }
+        XCTAssertEqual(history.count, 20)
+        XCTAssertEqual(history.first?.text, "text 24")
+    }
     func testMediaStreamDecodesOptionalMetadataAndCalculatesPosition() throws {
         let json = #"{"type":"data","diff":false,"payload":{"title":"Трек","bundleIdentifier":"ru.yandex.desktop.music","playing":true,"elapsedTime":10,"duration":180,"playbackRate":1,"unknownField":42}}"#
         let track = try NowPlaying.decodeLine(Data(json.utf8))

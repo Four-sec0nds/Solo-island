@@ -30,6 +30,7 @@ bash scripts/bundle-media.sh
 codesign --force --sign - "$app_dir"
 codesign --verify --deep --strict --verbose=2 "$app_dir"
 ditto -c -k --keepParent "$app_dir" "$PWD/dist/SoloIsland-macOS.zip"
+"$app_dir/Contents/MacOS/SoloIsland" --render-preview "$PWD/dist/SoloIsland-preview.png"
 bash scripts/package-dmg.sh
 echo "Built: $app_dir"
 echo "Archive: $PWD/dist/SoloIsland-macOS.zip"

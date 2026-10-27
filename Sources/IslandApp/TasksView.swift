@@ -25,7 +25,7 @@ struct TasksView: View {
                     Button { adding = true } label: { Image(systemName: "calendar.badge.clock") }.help("Добавить срок и напоминание")
                     Button { addQuickTask() } label: { Image(systemName: "plus.circle.fill").foregroundStyle(accent) }
                         .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).help("Добавить задачу")
-                }.buttonStyle(.plain).padding(12).background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
+                }.buttonStyle(.plain).padding(12).islandCard()
                 let tasks = TaskQuery.tasks(store.state.tasks, in: list, now: store.now)
                 if tasks.isEmpty {
                     EmptyState(icon: "checklist", title: "Здесь пока пусто", detail: list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
@@ -71,7 +71,7 @@ struct TasksView: View {
                 Button { store.startFocus(taskID: task.id) } label: { Image(systemName: "play.circle").font(.title3).foregroundStyle(accent) }
                     .help("Начать фокус-сессию")
             }
-        }.buttonStyle(.plain).padding(12).background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 12))
+        }.buttonStyle(.plain).padding(12).islandCard()
             .contextMenu {
                 Button("Редактировать") { editing = task }
                 Button("Удалить задачу", role: .destructive) { store.deleteTask(task.id) }

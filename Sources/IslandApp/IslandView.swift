@@ -10,58 +10,43 @@ struct IslandRootView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
         VStack(spacing: 0) {
-            IslandHeader(store: store, media: store.media)
-                .frame(height: store.compactHeight)
-                .contentShape(Rectangle())
-                .onTapGesture { store.reveal() }
-            if store.expanded {
-                VStack(spacing: 12) {
-                    navigation
+            header.padding(.horizontal, 22).padding(.top, 19).padding(.bottom, 16)
+            Rectangle().fill(.white.opacity(0.06)).frame(height: 1)
+            HStack(spacing: 0) {
+                sidebar.frame(width: 150)
+                Rectangle().fill(.white.opacity(0.06)).frame(width: 1)
+                VStack(alignment: .leading, spacing: 13) {
                     if let error = store.error {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                             Text(error).font(.caption).lineLimit(3).textSelection(.enabled)
                             Spacer(minLength: 0)
                             Button { store.error = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
-                        }.padding(10).background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
+                        }.padding(11).islandCard(tint: .orange)
                     }
-                    Group {
-                        switch store.tab {
-                        case .music: MusicView(media: store.media, now: store.now)
-                        case .tasks: TasksView(store: store)
-                        case .focus: FocusView(store: store)
-                        case .files: FilesView(store: store)
-                        case .actions: ActionsView(store: store)
-                        case .settings: IslandSettingsView(store: store, media: store.media)
-                        }
-                    }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                }
-                .padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 20)
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                    content.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                }.padding(20)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(.black)
-        .clipShape(IslandShape(radius: store.state.settings.cornerRadius))
-        .overlay { if dropTargeted { IslandShape(radius: store.state.settings.cornerRadius).stroke(accent.opacity(0.8), lineWidth: 2) } }
-        .foregroundStyle(.white)
-        .tint(accent)
-        .environment(\.islandAccent, accent)
-        .preferredColorScheme(.dark)
-        .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.expanded)
-        .onHover { store.hover($0) }
-        .onDrop(of: [UTType.fileURL], isTargeted: $dropTargeted) { providers in
-            let group = DispatchGroup(), collector = DroppedURLs()
-            for provider in providers {
-                group.enter()
-                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                    defer { group.leave() }
-                    if let url = item as? URL { collector.add(url) }
-                    else if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) { collector.add(url) }
-                }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            ZStack {
+                Color(red: 0.055, green: 0.035, blue: 0.085)
+                RadialGradient(colors: [Color.purple.opacity(0.13), .clear], center: .topLeading, startRadius: 0, endRadius: 500)
+                RadialGradient(colors: [Color.blue.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 400)
             }
-            group.notify(queue: .main) { store.addFiles(collector.values); store.reveal(.files) }
-            return !providers.isEmpty
+        }
+        .clipShape(RoundedRectangle(cornerRadius: store.state.settings.cornerRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: store.state.settings.cornerRadius, style: .continuous)
+                .strokeBorder(dropTargeted ? accent.opacity(0.8) : .white.opacity(0.1), lineWidth: dropTargeted ? 2 : 1)
+        }
+        .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
+        .tint(accent).environment(\.islandAccent, accent)
+        .preferredColorScheme(.dark)
+        .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
+        .onDrop(of: [UTType.fileURL, .image, .plainText], isTargeted: $dropTargeted) { providers in
+            receive(providers)
         }
         .onChange(of: dropTargeted) { _, targeted in
             store.draggingFiles = targeted
@@ -69,115 +54,131 @@ struct IslandRootView: View {
         }
         .onExitCommand { store.dismiss() }
     }
-    private var accent: Color {
-        if store.state.settings.coverAccent { return Color(nsColor: store.media.artworkColor) }
-        switch store.state.settings.accent {
-        case "purple": return .purple
-        case "orange": return .orange
-        case "blue": return .blue
-        default: return .mint
+    @ViewBuilder private var content: some View {
+        switch store.tab {
+        case .music: MusicView(media: store.media, now: store.now)
+        case .tasks: TasksView(store: store)
+        case .focus: FocusView(store: store)
+        case .files: FilesView(store: store)
+        case .actions: ActionsView(store: store)
+        case .settings: IslandSettingsView(store: store, media: store.media)
         }
     }
-    private var navigation: some View {
-        HStack(spacing: 4) {
+    private var accent: Color {
+        if store.state.settings.coverAccent, store.media.artwork != nil { return Color(nsColor: store.media.artworkColor) }
+        switch store.state.settings.accent {
+        case "mint": return Color(red: 0.25, green: 0.86, blue: 0.78)
+        case "orange": return .orange
+        case "blue": return .cyan
+        default: return Color(red: 0.67, green: 0.5, blue: 1)
+        }
+    }
+    private var header: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .fill(LinearGradient(colors: [.purple.opacity(0.9), .indigo.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                Image(systemName: "sparkle").font(.system(size: 20, weight: .medium)).foregroundStyle(.white)
+            }.frame(width: 42, height: 42)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Solo Island").font(.system(size: 17, weight: .semibold, design: .rounded))
+                Text(store.tab.rawValue).font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            if let toast = store.toast {
+                Label(toast.message, systemImage: toast.symbol).font(.system(size: 11, weight: .medium)).lineLimit(1)
+                    .foregroundStyle(accent).padding(.horizontal, 10).padding(.vertical, 8).background(accent.opacity(0.1), in: Capsule())
+            } else if store.state.focus != nil {
+                Button { store.tab = .focus } label: { Label(store.focusedTime, systemImage: "timer").monospacedDigit() }
+                    .buttonStyle(.plain).font(.system(size: 12, weight: .medium)).foregroundStyle(accent)
+            }
+            Button { store.pinned.toggle() } label: {
+                Image(systemName: store.pinned ? "pin.fill" : "pin").frame(width: 30, height: 30)
+                    .foregroundStyle(store.pinned ? accent : Color.white.opacity(0.45))
+            }.buttonStyle(.plain).help("Оставить окно открытым")
+            Button { store.dismiss() } label: {
+                Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)).frame(width: 30, height: 30)
+                    .background(.white.opacity(0.05), in: Circle())
+            }.buttonStyle(.plain).help("Скрыть до наведения")
+        }
+    }
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text("ПРОСТРАНСТВО").font(.system(size: 8, weight: .semibold)).tracking(1.7).foregroundStyle(.white.opacity(0.3)).padding(.horizontal, 11).padding(.bottom, 6)
             ForEach(IslandTab.allCases) { tab in
                 Button { store.tab = tab } label: {
-                    Image(systemName: tab.icon).font(.system(size: 14, weight: .medium))
-                        .frame(maxWidth: .infinity).frame(height: 32)
-                        .foregroundStyle(store.tab == tab ? accent : Color.white.opacity(0.5))
-                        .background(store.tab == tab ? accent.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 10))
-                }.buttonStyle(.plain).help(tab.rawValue).accessibilityLabel(tab.rawValue)
+                    HStack(spacing: 11) {
+                        Image(systemName: tab.icon).font(.system(size: 14, weight: .medium)).frame(width: 20).foregroundStyle(tab.color)
+                        Text(tab.rawValue).font(.system(size: 12, weight: store.tab == tab ? .semibold : .regular))
+                        Spacer(minLength: 0)
+                        if tab == .files && !store.state.shelf.isEmpty {
+                            Text("\(store.state.shelf.count)").font(.system(size: 9, weight: .medium)).foregroundStyle(.white.opacity(0.5))
+                        }
+                    }.padding(.horizontal, 11).padding(.vertical, 11)
+                        .background {
+                            if store.tab == tab {
+                                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                                    .fill(LinearGradient(colors: [tab.color.opacity(0.18), tab.color.opacity(0.06)], startPoint: .leading, endPoint: .trailing))
+                            }
+                        }
+                        .contentShape(RoundedRectangle(cornerRadius: 13))
+                }.buttonStyle(.plain).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65))
             }
-            Divider().frame(height: 18).padding(.horizontal, 4)
-            Button { store.pinned.toggle() } label: {
-                Image(systemName: store.pinned ? "pin.fill" : "pin").frame(width: 30, height: 32)
-                    .foregroundStyle(store.pinned ? accent : .white.opacity(0.5))
-            }.buttonStyle(.plain).help("Закрепить раскрытым")
-            Button { store.dismiss() } label: { Image(systemName: "chevron.up").frame(width: 24, height: 32) }
-                .buttonStyle(.plain).foregroundStyle(.white.opacity(0.5)).help("Свернуть")
-        }
-    }
-}
-
-private final class DroppedURLs: @unchecked Sendable {
-    private let lock = NSLock()
-    private var storage: [URL] = []
-    func add(_ url: URL) { lock.lock(); defer { lock.unlock() }; storage.append(url) }
-    var values: [URL] { lock.lock(); defer { lock.unlock() }; return storage }
-}
-
-struct IslandShape: Shape {
-    var radius: Double
-    var animatableData: Double { get { radius } set { radius = newValue } }
-    func path(in rect: CGRect) -> Path {
-        let r = min(CGFloat(radius), rect.height / 2)
-        var p = Path()
-        p.move(to: .zero); p.addLine(to: CGPoint(x: rect.maxX, y: 0))
-        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
-        p.addQuadCurve(to: CGPoint(x: rect.maxX - r, y: rect.maxY), control: CGPoint(x: rect.maxX, y: rect.maxY))
-        p.addLine(to: CGPoint(x: r, y: rect.maxY))
-        p.addQuadCurve(to: CGPoint(x: 0, y: rect.maxY - r), control: CGPoint(x: 0, y: rect.maxY))
-        p.closeSubpath(); return p
-    }
-}
-
-@MainActor
-struct IslandHeader: View {
-    @Environment(\.islandAccent) private var accent
-    @ObservedObject var store: IslandStore
-    @ObservedObject var media: MediaService
-    var body: some View {
-        HStack(spacing: 0) {
+            Spacer()
             HStack(spacing: 6) {
-                if let toast = store.toast { Image(systemName: toast.symbol).foregroundStyle(accent) }
-                else if store.state.focus != nil { Image(systemName: "timer").foregroundStyle(accent) }
-                else { CoverView(image: media.artwork, size: 24) }
-                if store.expanded {
-                    Text(store.toast?.message ?? "SOLO").font(.system(size: 10, weight: .semibold, design: .rounded))
-                        .tracking(store.toast == nil ? 2 : 0).lineLimit(1)
+                Circle().fill(.green.opacity(0.8)).frame(width: 5, height: 5)
+                Text("Только на этом Mac").font(.system(size: 9)).foregroundStyle(.secondary)
+            }.padding(.horizontal, 10)
+        }.padding(.horizontal, 10).padding(.vertical, 20)
+            .background(Color(red: 0.065, green: 0.04, blue: 0.095).opacity(0.65))
+    }
+    private func receive(_ providers: [NSItemProvider]) -> Bool {
+        guard !providers.isEmpty else { return false }
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { value, _ in
+                    let url = (value as? URL) ?? (value as? Data).flatMap { URL(dataRepresentation: $0, relativeTo: nil) }
+                    guard let url else { return }
+                    // Load image bytes while a temporary drag representation is still alive.
+                    let imageData = UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true ? try? Data(contentsOf: url) : nil
+                    Task { @MainActor in
+                        if let imageData, let image = NSImage(data: imageData) { store.addImage(image) }
+                        else { store.addFiles([url]) }
+                        store.reveal(.files)
+                    }
                 }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-            Color.clear.frame(width: store.cameraWidth)
-            HStack(spacing: 6) {
-                if let toast = store.toast, let progress = toast.progress {
-                    Text("\(Int(progress * 100))%").font(.system(size: 10, weight: .semibold, design: .monospaced))
-                } else if store.state.focus != nil {
-                    Text(store.focusedTime).font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(accent)
-                } else { Waveform(playing: media.track.isPlaying).frame(width: 24, height: 18) }
-            }.frame(maxWidth: .infinity, alignment: .trailing)
-        }.padding(.horizontal, 14)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(store.state.focus != nil ? "Фокус: \(store.focusedTime)" : (media.track.title ?? "Solo Island"))
-        .help(store.toast?.message ?? media.track.title ?? "Solo Island")
+            } else if let type = provider.registeredTypeIdentifiers.first(where: { UTType($0)?.conforms(to: .image) == true }) {
+                provider.loadDataRepresentation(forTypeIdentifier: type) { data, _ in
+                    guard let data else { return }
+                    Task { @MainActor in
+                        if let image = NSImage(data: data) { store.addImage(image); store.reveal(.files) }
+                    }
+                }
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                provider.loadObject(ofClass: NSString.self) { value, _ in
+                    guard let text = value as? String else { return }
+                    Task { @MainActor in store.addText(text); store.reveal(.files) }
+                }
+            }
+        }
+        return true
     }
 }
 
 @MainActor
 struct CoverView: View {
-    @Environment(\.islandAccent) private var accent
     var image: NSImage?
     var size: CGFloat
     var body: some View {
         Group {
             if let image { Image(nsImage: image).resizable().aspectRatio(contentMode: .fill) }
-            else { ZStack { LinearGradient(colors: [.mint.opacity(0.4), .indigo.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing); Image(systemName: "music.note").font(.system(size: size * 0.36)) } }
-        }.frame(width: size, height: size).clipShape(RoundedRectangle(cornerRadius: size * 0.2))
-    }
-}
-@MainActor
-struct Waveform: View {
-    @Environment(\.islandAccent) private var accent
-    var playing: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 15, paused: !playing || reduceMotion)) { context in
-            let time = context.date.timeIntervalSinceReferenceDate
-            HStack(alignment: .center, spacing: 2) {
-                ForEach(0..<5) { index in
-                    Capsule().fill(accent).frame(width: 3, height: playing && !reduceMotion ? 4 + abs(sin(time * 4 + Double(index) * 1.7)) * 13 : 4)
+            else {
+                ZStack {
+                    LinearGradient(colors: [.purple.opacity(0.6), .indigo.opacity(0.65)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Image(systemName: "music.note").font(.system(size: size * 0.36))
                 }
-            }.frame(height: 18)
-        }
+            }
+        }.frame(width: size, height: size).clipShape(RoundedRectangle(cornerRadius: size * 0.2, style: .continuous))
     }
 }
 
@@ -188,18 +189,38 @@ struct EmptyState: View {
     var title: String
     var detail: String
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: icon).font(.system(size: 30, weight: .light)).foregroundStyle(accent)
-            Text(title).font(.headline)
-            Text(detail).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        VStack(spacing: 12) {
+            Image(systemName: icon).font(.system(size: 32, weight: .light)).foregroundStyle(accent)
+                .frame(width: 72, height: 72).background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            Text(title).font(.system(size: 15, weight: .semibold, design: .rounded))
+            Text(detail).font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center).lineSpacing(3)
         }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(20)
     }
 }
 
-private struct IslandAccentKey: EnvironmentKey { static let defaultValue = Color.mint }
+private struct IslandAccentKey: EnvironmentKey { static let defaultValue = Color.purple }
 extension EnvironmentValues {
     var islandAccent: Color {
         get { self[IslandAccentKey.self] }
         set { self[IslandAccentKey.self] = newValue }
+    }
+}
+extension View {
+    func islandCard(tint: Color = .purple, radius: CGFloat = 18) -> some View {
+        background(LinearGradient(colors: [tint.opacity(0.07), Color.white.opacity(0.025)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(.white.opacity(0.06), lineWidth: 1))
+    }
+}
+private extension IslandTab {
+    var color: Color {
+        switch self {
+        case .music: return .purple
+        case .tasks: return .cyan
+        case .focus: return .orange
+        case .files: return .pink
+        case .actions: return .yellow
+        case .settings: return .indigo
+        }
     }
 }

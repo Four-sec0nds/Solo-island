@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import IslandCore
+import IslandPlatform
 import UniformTypeIdentifiers
 
 @MainActor
@@ -24,23 +25,25 @@ final class IslandStore: ObservableObject {
     private let repository: StateRepository
     private var canPersist = true
     private var timer: Timer?
-    private var pasteboardCount = NSPasteboard.general.changeCount
+    let clipboard: ClipboardService
     private var audio: AudioSnapshot?
     private var toastUntil = Date.distantPast
     private var tickCount = 0
     private var collapseTask: Task<Void, Never>?
     private var focusAutomationBusy = false
 
-    init() {
-        let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    init(dataFolder: URL? = nil) {
+        let folder = dataFolder ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SoloIsland", isDirectory: true)
         repository = StateRepository(url: folder.appendingPathComponent("state.json"))
+        clipboard = ClipboardService(folder: folder)
         var loadingError: String?
         do { state = try repository.load() }
         catch {
             state = IslandState(); canPersist = false
             loadingError = "Не удалось прочитать сохранённые данные. Исходный файл оставлен без изменений: \(error.localizedDescription)"
         }
+        if state.settings.expandedWidth < 640 { state.settings.expandedWidth = 720 }
         error = loadingError
         notifications.onAction = { [weak self] action, id in
             Task { @MainActor in self?.handleNotification(action, id: id) }
@@ -59,7 +62,7 @@ final class IslandStore: ObservableObject {
         notifications.sync(tasks: state.tasks)
         notifications.scheduleFocus(state.focus, taskTitle: focusTask?.title ?? "Можно сделать перерыв")
         tick()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
     }
@@ -91,14 +94,14 @@ final class IslandStore: ObservableObject {
             notify("Сессия завершена", symbol: "checkmark.circle.fill")
             stopFocusAutomation()
         }
-        let pasteboard = NSPasteboard.general
-        if pasteboard.changeCount != pasteboardCount {
-            pasteboardCount = pasteboard.changeCount
-            if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty {
-                addFiles(urls, announce: false)
-            }
+        do {
+            let entries = try clipboard.capture()
+            if !entries.isEmpty { addClipboardEntries(entries) }
+        } catch {
+            // Retry promised data on the next tick; report failures without discarding existing history.
+            self.error = "Буфер обмена: \(error.localizedDescription)"
         }
-        if tickCount % 2 == 0, let next = AudioService.snapshot() {
+        if tickCount % 4 == 0, let next = AudioService.snapshot() {
             if let old = audio {
                 if old.device != next.device || old.name != next.name {
                     notify(next.name, symbol: "headphones")
@@ -183,14 +186,60 @@ final class IslandStore: ObservableObject {
         save(); notifications.scheduleFocus(nil, taskTitle: ""); notifications.sync(tasks: state.tasks)
         stopFocusAutomation()
     }
-    func addFiles(_ urls: [URL], announce: Bool = true) {
-        let files = urls.filter { $0.isFileURL && FileManager.default.fileExists(atPath: $0.path) }
-        guard !files.isEmpty else { return }
-        state.shelf = ShelfHistory.adding(files, to: state.shelf); save()
-        if announce { notify("Добавлено: \(files.count)", symbol: "tray.and.arrow.down.fill") }
+    func captureClipboardNow() {
+        do {
+            let entries = try clipboard.capture(force: true)
+            addClipboardEntries(entries)
+            if entries.isEmpty { notify("Нет подходящих данных в буфере", symbol: "clipboard") }
+            else { notify("Добавлено из буфера", symbol: "doc.on.clipboard.fill") }
+        } catch { self.error = "Не удалось прочитать буфер: \(error.localizedDescription)" }
     }
-    func removeFile(_ id: UUID) { state.shelf.removeAll { $0.id == id }; save() }
+    func addClipboardEntries(_ entries: [ShelfEntry]) {
+        guard !entries.isEmpty else { return }
+        state.shelf = ShelfHistory.inserting(entries, to: state.shelf); save()
+    }
+    func addFiles(_ urls: [URL], announce: Bool = true) {
+        var entries: [ShelfEntry] = []
+        for url in urls where url.isFileURL {
+            do { entries.append(try clipboard.importFile(url)) }
+            catch { self.error = "Не удалось сохранить \(url.lastPathComponent): \(error.localizedDescription)" }
+        }
+        addClipboardEntries(entries)
+        if announce && !entries.isEmpty { notify("Добавлено: \(entries.count)", symbol: "tray.and.arrow.down.fill") }
+    }
+    func addImage(_ image: NSImage) {
+        do { addClipboardEntries([try clipboard.importImage(image)]) }
+        catch { self.error = "Не удалось сохранить изображение: \(error.localizedDescription)" }
+    }
+    func addText(_ text: String) {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        addClipboardEntries([ShelfEntry(kind: .text, text: text)])
+    }
+    func toggleShelfPin(_ id: UUID) {
+        if let index = state.shelf.firstIndex(where: { $0.id == id }) {
+            state.shelf[index].isPinned.toggle()
+            state.shelf = ShelfHistory.inserting([], to: state.shelf); save()
+        }
+    }
+    func removeFile(_ id: UUID) {
+        guard let entry = state.shelf.first(where: { $0.id == id }) else { return }
+        state.shelf.removeAll { $0.id == id }; save()
+        if !state.shelf.contains(where: { $0.path == entry.path }) { clipboard.removeOwnedImage(entry) }
+    }
+    func copyEntry(_ entry: ShelfEntry) {
+        let pasteboard = NSPasteboard.general
+        if entry.kind == .text {
+            pasteboard.clearContents(); pasteboard.setString(entry.text ?? "", forType: .string)
+        } else if entry.kind == .image, let image = NSImage(contentsOf: entry.url) {
+            pasteboard.clearContents(); pasteboard.writeObjects([image])
+        } else {
+            guard FileManager.default.fileExists(atPath: entry.path) else { error = "Файл больше недоступен."; return }
+            pasteboard.clearContents(); pasteboard.writeObjects([entry.url as NSURL])
+        }
+        notify("Скопировано", symbol: "doc.on.doc.fill")
+    }
     func openFile(_ entry: ShelfEntry) {
+        if entry.kind == .text { copyEntry(entry); return }
         guard FileManager.default.fileExists(atPath: entry.path) else {
             error = "Файл перемещён или удалён. Добавьте его на полку заново."; return
         }
@@ -263,7 +312,7 @@ final class IslandStore: ObservableObject {
 }
 
 enum IslandTab: String, CaseIterable, Identifiable {
-    case music = "Музыка", tasks = "Задачи", focus = "Фокус", files = "Файлы", actions = "Действия", settings = "Настройки"
+    case music = "Музыка", tasks = "Задачи", focus = "Фокус", files = "Буфер", actions = "Действия", settings = "Настройки"
     var id: String { rawValue }
     var icon: String {
         switch self {
