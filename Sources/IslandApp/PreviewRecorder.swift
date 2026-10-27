@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 enum PreviewRecorder {
     struct Frame { let image: CGImage; var delay: Double }
     static func snapshot(_ window: NSWindow) -> NSBitmapImageRep? {
-        guard let view = window.contentView, let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return nil }
+        guard let view = window.contentView else { return nil }
+        view.layoutSubtreeIfNeeded()
+        guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return nil }
         view.cacheDisplay(in: view.bounds, to: bitmap); return bitmap
     }
     static func png(_ window: NSWindow, to url: URL) throws {

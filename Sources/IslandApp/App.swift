@@ -209,38 +209,50 @@ final class IslandWindowController: NSWindowController {
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         let duration = reduceMotion ? 0 : preferences.animationDuration
         if !expanded {
-            motion?.cancel(); store.contentVisible = false; window.ignoresMouseEvents = true
-            guard window.isVisible, duration > 0 else { window.orderOut(nil); window.setFrame(neck, display: false); return }
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = duration
-                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.5, 0, 0.7, 1)
-                window.animator().setFrame(neck, display: true)
+            store.contentVisible = false; window.ignoresMouseEvents = true
+            guard window.isVisible, duration > 0 else {
+                motion?.cancel(); window.orderOut(nil); window.setFrame(neck, display: false); return
             }
-            motion = Task { @MainActor [weak self] in
-                try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
-                guard !Task.isCancelled, let self, !self.store.expanded else { return }
-                self.window?.orderOut(nil)
-            }
+            animate(to: neck, expanding: false, duration: duration)
             return
         }
         window.ignoresMouseEvents = false
         if transitioning || !window.isVisible {
-            motion?.cancel(); store.contentVisible = reduceMotion
+            store.contentVisible = reduceMotion
             if !window.isVisible { window.setFrame(neck, display: false) }
             window.alphaValue = 1; window.orderFront(nil)
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = duration
-                context.timingFunction = CAMediaTimingFunction(controlPoints: 0.18, 0.8, 0.2, 1)
-                window.animator().setFrame(target, display: true)
-            }
-            motion = Task { @MainActor [weak self] in
-                try? await Task.sleep(nanoseconds: UInt64(duration * 0.5 * 1_000_000_000))
-                guard !Task.isCancelled, let self, self.store.expanded else { return }
-                self.store.contentVisible = true
-            }
+            animate(to: target, expanding: true, duration: duration)
         } else {
-            // Theme, progress and setting updates cannot raise the window.
-            window.setFrame(target, display: true)
+            // Theme and setting updates cannot raise the window.
+            motion?.cancel(); window.setFrame(target, display: true); store.contentVisible = true
+        }
+    }
+    private func animate(to target: NSRect, expanding: Bool, duration: Double) {
+        motion?.cancel()
+        guard let window else { return }
+        guard duration > 0 else {
+            window.setFrame(target, display: true); store.contentVisible = expanding
+            if !expanding { window.orderOut(nil) }; return
+        }
+        let origin = window.frame
+        motion = Task { @MainActor [weak self] in
+            let started = ProcessInfo.processInfo.systemUptime
+            while !Task.isCancelled {
+                guard let self, self.store.expanded == expanding, let window = self.window else { return }
+                let progress = min(1, (ProcessInfo.processInfo.systemUptime - started) / duration)
+                let fraction = expanding ? 1 - pow(1 - progress, 3) : progress * progress * (3 - 2 * progress)
+                let frame = NSRect(x: origin.minX + (target.minX - origin.minX) * fraction,
+                                   y: origin.minY + (target.minY - origin.minY) * fraction,
+                                   width: origin.width + (target.width - origin.width) * fraction,
+                                   height: origin.height + (target.height - origin.height) * fraction)
+                window.setFrame(frame, display: true)
+                if expanding && progress >= 0.55 && !self.store.contentVisible { self.store.contentVisible = true }
+                if progress >= 1 {
+                    if !expanding { window.orderOut(nil) }
+                    return
+                }
+                try? await Task.sleep(nanoseconds: 16_666_667)
+            }
         }
     }
 }
