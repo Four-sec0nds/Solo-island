@@ -265,10 +265,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                           userInfo: [NSLocalizedDescriptionKey: "Native quit button was not laid out"])
         }
         previewQuitResult = result
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+        // AppKit may track mouse-down synchronously. Queue its release first,
+        // and keep the watchdog off the UI thread so a broken click cannot hang CI.
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 3) {
             fputs("Native quit button did not terminate the process\n", stderr); exit(1)
         }
+        var events: [NSEvent] = []
         for (index, type) in [NSEvent.EventType.leftMouseDown, .leftMouseUp].enumerated() {
             guard let event = NSEvent.mouseEvent(with: type,
                 location: NSPoint(x: rect.midX, y: window.frame.height - rect.midY), modifierFlags: [],
@@ -276,9 +278,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 context: nil, eventNumber: index + 1, clickCount: 1, pressure: index == 0 ? 1 : 0) else {
                 throw CocoaError(.fileWriteUnknown)
             }
-            window.sendEvent(event)
-            if index == 0 { try? await Task.sleep(nanoseconds: 40_000_000) }
+            events.append(event)
         }
+        NSApp.postEvent(events[1], atStart: false)
+        window.sendEvent(events[0])
     }
     private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
         var fixture = fixture; fixture.settings.customFocusSeconds = 12
