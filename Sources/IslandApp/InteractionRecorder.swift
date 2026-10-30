@@ -328,11 +328,22 @@ final class InteractionRecorder {
         try await press("Алерт:напоминание", fallback: NSPoint(x: 680,y: 235))
         try await press("Календарь:вперёд", fallback: NSPoint(x: 685,y: 273)); try await capture(7)
         try await press("Календарь:назад", fallback: NSPoint(x: 185,y: 273)); try await capture(7)
-        // The last row always contains valid future dates in the chosen month.
         let futureDay = Calendar.current.date(byAdding: .day, value: 2, to: Date())!
-        try await press(futureDay.formatted(date: .complete, time: .omitted), fallback: NSPoint(x: 575,y: 400)); try await capture(8)
+        let futureLabel = futureDay.formatted(date: .complete, time: .omitted)
+        // At month end the future date is not a cell in the current month.
+        // Navigate explicitly instead of silently clicking a fallback position.
+        if RecordingTargets.frames[futureLabel] == nil {
+            try await press("Календарь:вперёд", fallback: NSPoint(x: 685,y: 273)); try await capture(7)
+        }
+        guard RecordingTargets.frames[futureLabel] != nil else { throw failure("Future reminder day is not visible in the calendar") }
+        try await press(futureLabel, fallback: NSPoint(x: 575,y: 400)); try await capture(8)
         try await press("Сохранить задачу", fallback: NSPoint(x: 675,y: 145)); try await capture(8)
-        guard store.taskDraft == nil else { throw failure("Reminder form did not save its future date") }
+        guard store.taskDraft == nil,
+              let saved = store.state.tasks.first(where: { $0.title == "Подготовить новый проект" }),
+              let reminder = saved.reminderAt,
+              Calendar.current.isDate(reminder, inSameDayAs: futureDay) else {
+            throw failure("Reminder form did not save its chosen future date")
+        }
 
         try begin("custom-focus"); try await tab(.focus)
         try await scroll(to: 1); try await scroll(to: 0)
