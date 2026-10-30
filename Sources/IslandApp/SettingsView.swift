@@ -15,7 +15,7 @@ struct IslandSettingsView: View {
                         Text("Своя точка управления").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.5.3").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.5.4").font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 10) {
                     IslandBrandMark(size: 36)

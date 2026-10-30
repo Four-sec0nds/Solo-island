@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var island: IslandWindowController!
     private var status: NSStatusItem!
     private var previewFolder: URL?
+    private var previewQuitResult: URL?
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         if let flag = CommandLine.arguments.firstIndex(of: "--render-preview"), CommandLine.arguments.count > flag + 1 {
@@ -57,6 +58,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         if let previewFolder { try? FileManager.default.removeItem(at: previewFolder) }
         else { store.stop() }
+        if let previewQuitResult {
+            try? Data("{\"native_quit_button\":true}\n".utf8).write(to: previewQuitResult, options: .atomic)
+            fputs("Quit button: native click terminated Solo Island through its application lifecycle\n", stderr)
+        }
     }
     private func renderPreview(at output: URL) {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("solo-preview-" + UUID().uuidString)
@@ -148,6 +153,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             do {
                 let directory = output.deletingLastPathComponent()
                 try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-opening.gif"))
+                try await verifyScreenSwitchHover(on: screen)
                 // Each still gets a fresh, motion-free host. Reusing a host while changing
                 // tabs can cache a SwiftUI crossfade rather than its final content.
                 let imageURL = folder.appendingPathComponent("Дизайн проекта.png")
@@ -201,8 +207,77 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 reducedStore.dismiss()
                 guard !reducedWindow.isVisible else { fputs("Reduce Motion did not hide immediately\n", stderr); exit(1) }
-                NSApp.terminate(nil)
+                try await verifyQuitButton(in: reducedController, store: reducedStore,
+                    result: directory.appendingPathComponent("SoloIsland-quit-check.json"))
             } catch { fputs("Preview: \(error.localizedDescription)\n", stderr); exit(1) }
+        }
+    }
+    private func verifyScreenSwitchHover(on screen: NSScreen) async throws {
+        guard let window = island.window else { throw CocoaError(.fileWriteUnknown) }
+        let neck = NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4)
+        let outside = NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5)
+        @MainActor func requireOpen(_ phase: String) {
+            guard store.expanded, window.isVisible else {
+                fputs("Immediate hover after screen switch failed: \(phase)\n", stderr); exit(1)
+            }
+        }
+        island.screenContextDidChange(at: outside)
+        island.checkPointer(at: neck)
+        requireOpen("first entry after an outside sample")
+        island.checkPointer(at: outside) // Queue an old close before switching again.
+        island.screenContextDidChange(at: neck)
+        requireOpen("stationary cursor")
+        try? await Task.sleep(nanoseconds: 650_000_000)
+        requireOpen("old close was cancelled")
+        store.dismiss()
+        island.screenContextDidChange(at: neck)
+        requireOpen("cached inside state after hiding")
+        store.pinned = true
+        island.screenContextDidChange(at: outside)
+        try? await Task.sleep(nanoseconds: 650_000_000)
+        requireOpen("pin survives a Space switch")
+        store.pinned = false; store.cancelPendingHover(); store.dismiss()
+        try? await Task.sleep(nanoseconds: 400_000_000)
+        // Exercise both actual notification subscriptions, not just the helper.
+        for (center, name) in [
+            (NSWorkspace.shared.notificationCenter, NSWorkspace.activeSpaceDidChangeNotification),
+            (NotificationCenter.default, NSApplication.didChangeScreenParametersNotification)
+        ] {
+            store.hover(true)
+            center.post(name: name, object: nil)
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !store.expanded else { fputs("Screen notification retained a stale hover\n", stderr); exit(1) }
+            island.checkPointer(at: neck)
+            requireOpen("notification resets hover tracking")
+            store.cancelPendingHover(); store.dismiss()
+            try? await Task.sleep(nanoseconds: 400_000_000)
+        }
+        fputs("Screen hover: Space/display notifications, immediate entry, cached cursor, stale close and pin passed\n", stderr)
+    }
+    private func verifyQuitButton(in controller: IslandWindowController, store: IslandStore, result: URL) async throws {
+        guard let window = controller.window else { throw CocoaError(.fileWriteUnknown) }
+        store.reveal(.settings); window.makeKeyAndOrderFront(nil)
+        try? await Task.sleep(nanoseconds: 250_000_000)
+        window.contentView?.layoutSubtreeIfNeeded()
+        guard let rect = RecordingTargets.frames["Завершить Solo Island:\(ObjectIdentifier(store))"],
+              rect.width > 10, rect.height > 10 else {
+            throw NSError(domain: "SoloIsland.Preview", code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "Native quit button was not laid out"])
+        }
+        previewQuitResult = result
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            fputs("Native quit button did not terminate the process\n", stderr); exit(1)
+        }
+        for (index, type) in [NSEvent.EventType.leftMouseDown, .leftMouseUp].enumerated() {
+            guard let event = NSEvent.mouseEvent(with: type,
+                location: NSPoint(x: rect.midX, y: window.frame.height - rect.midY), modifierFlags: [],
+                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                context: nil, eventNumber: index + 1, clickCount: 1, pressure: index == 0 ? 1 : 0) else {
+                throw CocoaError(.fileWriteUnknown)
+            }
+            window.sendEvent(event)
+            if index == 0 { try? await Task.sleep(nanoseconds: 40_000_000) }
         }
     }
     private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
@@ -289,15 +364,17 @@ final class IslandPanel: NSPanel {
 final class IslandWindowController: NSWindowController {
     private let store: IslandStore
     private var subscriptions = Set<AnyCancellable>()
-    private var screenObserver: NSObjectProtocol?
     private var pointerTimer: Timer?
     private var hotspot = NSRect.zero
-    private var pointerInside = false
+    private var hoverTracker = NotchHoverTracker()
+    private var pointerDisplay: NSNumber?
+    private let tracksPointer: Bool
     private var motion: Task<Void, Never>?
     private var animationTarget: NSRect?
     private let reducedMotionOverride: Bool?
     init(store: IslandStore, trackPointer: Bool = true, reducedMotionOverride: Bool? = nil) {
         self.store = store; self.reducedMotionOverride = reducedMotionOverride
+        self.tracksPointer = trackPointer
         let panel = IslandPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
         // The island always reveals above other apps. Pinning only keeps it open.
@@ -319,10 +396,11 @@ final class IslandWindowController: NSWindowController {
         store.$state.map(\.settings).removeDuplicates().sink { [weak self] settings in
             guard let self else { return }; self.layout(expanded: self.store.expanded, settings: settings)
         }.store(in: &subscriptions)
-        screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
-            object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in guard let self else { return }; self.layout(expanded: self.store.expanded) }
-            }
+        NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
+            .merge(with: NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification))
+            .sink { [weak self] _ in
+                Task { @MainActor in self?.screenContextDidChange() }
+            }.store(in: &subscriptions)
         layout(expanded: false)
         if trackPointer {
             pointerTimer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { [weak self] _ in
@@ -331,16 +409,37 @@ final class IslandWindowController: NSWindowController {
         }
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+    func screenContextDidChange(at location: NSPoint? = nil) {
+        store.cancelPendingHover()
+        hoverTracker.screenDidChange()
+        pointerDisplay = nil
+        layout(expanded: store.expanded)
+        if tracksPointer || location != nil { checkPointer(at: location) }
+        if store.pinned && store.expanded { window?.orderFrontRegardless() }
+    }
     func checkPointer(at location: NSPoint? = nil) {
         guard let window, let screen = NSScreen.screens.first else { return }
         let point = location ?? NSEvent.mouseLocation
+        let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+            .deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
+        if let previous = pointerDisplay, let display, previous != display {
+            store.cancelPendingHover()
+            hoverTracker.screenDidChange()
+        }
+        pointerDisplay = display
         let inNeckBand = point.y > screen.frame.maxY - store.compactHeight
         let onNeck = abs(point.x - screen.frame.midX) <= (store.cameraWidth + 16) / 2
         let onBody = store.expanded && window.frame.contains(point) && (!inNeckBand || onNeck)
         // Transparent shoulders must never block clicks on the menu bar.
         if store.expanded { window.ignoresMouseEvents = !onBody }
         let inside = hotspot.contains(point) || onBody
-        if inside != pointerInside { pointerInside = inside; store.hover(inside) }
+        switch hoverTracker.update(isInside: inside) {
+        case .entered(let immediately):
+            store.hover(true, immediately: immediately)
+            if immediately && store.expanded { window.orderFrontRegardless() }
+        case .exited: store.hover(false)
+        case nil: break
+        }
     }
     private func layout(expanded: Bool, settings: IslandSettings? = nil, transitioning: Bool = false) {
         guard let screen = NSScreen.screens.first, let window else { return }

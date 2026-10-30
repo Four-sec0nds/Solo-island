@@ -107,7 +107,13 @@ struct IslandRootView: View {
             }.buttonStyle(IslandButtonStyle(store.pinned ? .filled : .soft))
                 .recordingTarget(store.pinned ? "Закреплено" : "Закрепить")
                 .help("Удерживать островок открытым поверх остальных окон")
-
+            Button(role: .destructive) { NSApp.terminate(nil) } label: {
+                Image(systemName: "power").font(.system(size: 14, weight: .semibold)).frame(width: 22, height: 22)
+            }.buttonStyle(IslandButtonStyle(.icon))
+                .accessibilityLabel("Завершить Solo Island")
+                .help("Завершить Solo Island полностью (⌘Q)")
+                .keyboardShortcut("q", modifiers: .command)
+                .recordingTarget("Завершить Solo Island:\(ObjectIdentifier(store))")
         }
     }
     private var sidebar: some View {

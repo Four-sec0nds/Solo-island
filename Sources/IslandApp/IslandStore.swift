@@ -76,7 +76,9 @@ final class IslandStore: ObservableObject {
         }
     }
     func stop() {
-        timer?.invalidate(); media.stop(); webMusic.stop(); save()
+        cancelPendingHover()
+        timer?.invalidate(); timer = nil
+        media.stop(); webMusic.stop(); save()
         // Focus reminders remain scheduled; no assumptions about a surviving process.
     }
     /// Development recording updates synthetic state without notifications or persistence.
@@ -132,20 +134,27 @@ final class IslandStore: ObservableObject {
         toast = IslandToast(message: message, symbol: symbol, progress: progress)
         toastUntil = Date().addingTimeInterval(3)
     }
-    func hover(_ inside: Bool) {
-        collapseTask?.cancel()
+    func cancelPendingHover() {
+        collapseTask?.cancel(); collapseTask = nil
+    }
+    func hover(_ inside: Bool, immediately: Bool = false) {
+        cancelPendingHover()
+        if immediately { applyHover(inside); return }
         collapseTask = Task {
             try? await Task.sleep(nanoseconds: inside ? 180_000_000 : 550_000_000)
             guard !Task.isCancelled else { return }
-            if inside { expanded = true }
-            else if !pinned && !editingForm && !draggingFiles && NSApp.modalWindow == nil { expanded = false }
+            applyHover(inside)
         }
     }
+    private func applyHover(_ inside: Bool) {
+        if inside { expanded = true }
+        else if !pinned && !editingForm && !draggingFiles && NSApp.modalWindow == nil { expanded = false }
+    }
     func reveal(_ target: IslandTab? = nil) {
-        collapseTask?.cancel(); expanded = true
+        cancelPendingHover(); expanded = true
         if let target { tab = target }
     }
-    func dismiss() { pinned = false; expanded = false }
+    func dismiss() { cancelPendingHover(); pinned = false; expanded = false }
     func setSettings(_ transform: (inout IslandSettings) -> Void) {
         transform(&state.settings); save()
     }
