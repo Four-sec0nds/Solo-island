@@ -1,0 +1,653 @@
+/opt/homebrew/bin/cmake
+TAP version 13
+# Subtest: empty and login pages do not become tracks or expose form data
+ok 1 - empty and login pages do not become tracks or expose form data
+  ---
+  duration_ms: 2.181459
+  type: 'test'
+  ...
+# Subtest: active HTML5 media wins and non-finite stream duration is omitted
+ok 2 - active HTML5 media wins and non-finite stream duration is omitted
+  ---
+  duration_ms: 0.526459
+  type: 'test'
+  ...
+# Subtest: media session next and seek handlers receive structured action details
+ok 3 - media session next and seek handlers receive structured action details
+  ---
+  duration_ms: 0.389667
+  type: 'test'
+  ...
+# Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
+ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
+  ---
+  duration_ms: 0.475833
+  type: 'test'
+  ...
+# Subtest: site-specific next button is used only when enabled
+ok 5 - site-specific next button is used only when enabled
+  ---
+  duration_ms: 0.364
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109.127958
+test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
+test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
+test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
+test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
+test_a_stale_build_does_not_overwrite_new_source (test_publish_preview.PublishPreviewTests.test_a_stale_build_does_not_overwrite_new_source) ... ok
+test_failure_removes_an_older_preview_installer (test_publish_preview.PublishPreviewTests.test_failure_removes_an_older_preview_installer) ... ok
+test_local_or_public_branch_publication_is_rejected (test_publish_preview.PublishPreviewTests.test_local_or_public_branch_publication_is_rejected) ... ok
+test_success_preserves_sources_and_public_refs_and_excludes_recordings (test_publish_preview.PublishPreviewTests.test_success_preserves_sources_and_public_refs_and_excludes_recordings) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.027s
+
+OK
+Building for debugging...
+[0/14] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
+[0/14] Write SoloIsland-entitlement.plist
+[2/14] Write sources
+[8/14] Write swift-version--79AA4F9932D1E87A.txt
+[10/20] Emitting module IslandCore
+[11/22] Compiling IslandCore ProcessRunner.swift
+[12/22] Compiling IslandCore TaskReminders.swift
+[13/22] Compiling IslandCore NotchHoverTracker.swift
+[14/22] Compiling IslandCore NowPlaying.swift
+[15/22] Compiling IslandCore Models.swift
+[16/22] Compiling IslandCore MusicProvider.swift
+[17/22] Compiling IslandCore NotchActivity.swift
+[18/28] Compiling IslandPlatform ClipboardService.swift
+[19/28] Emitting module IslandPlatform
+[20/45] Compiling IslandCoreTests NotchHoverTrackerTests.swift
+[21/46] Emitting module IslandPlatformTests
+[22/46] Compiling IslandPlatformTests ClipboardServiceTests.swift
+[23/46] Emitting module IslandCoreTests
+[24/46] Compiling IslandApp ActionsView.swift
+[25/46] Compiling IslandApp App.swift
+[26/46] Compiling IslandCoreTests PlanningTests.swift
+[27/48] Emitting module IslandApp
+[28/54] Compiling SoloIslandPackageTests runner.swift
+[29/54] Emitting module SoloIslandPackageTests
+[29/54] Write Objects.LinkFileList
+[30/54] Linking SoloIslandPackageTests
+[32/54] Compiling IslandApp NotificationService.swift
+[33/54] Compiling IslandApp PreviewRecorder.swift
+[34/54] Compiling IslandApp SettingsView.swift
+[35/54] Compiling IslandApp TasksView.swift
+[36/54] Compiling IslandApp WebMusicService.swift
+[37/54] Compiling IslandApp WebPlayerScript.swift
+[40/54] Compiling IslandApp AudioService.swift
+[41/54] Compiling IslandApp BrandViews.swift
+[42/54] Compiling IslandApp Controls.swift
+[43/54] Compiling IslandApp FilesView.swift
+[44/54] Compiling IslandApp FocusView.swift
+[45/54] Compiling IslandApp InteractionRecorder.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[46/54] Compiling IslandApp IslandStore.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[47/54] Compiling IslandApp IslandTheme.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[48/54] Compiling IslandApp IslandView.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[49/54] Compiling IslandApp MediaService.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[50/54] Compiling IslandApp MusicView.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+[51/54] Compiling IslandApp NotchActivityView.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:167:20: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+165 |     private func attributes(_ object: NSObject) -> String {
+166 |         [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+167 |             object.accessibilityAttributeValue($0) as? String
+    |                    `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+168 |         }.joined(separator: " | ")
+169 |     }
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:175:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+173 |             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
+174 |             result.append(object)
+175 |             for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+176 |         }
+177 |         visit(window, depth: 0)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:181:32: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+179 |     }
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+    |                                `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+183 |         let p = pos.pointValue, s = size.sizeValue
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:182:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+180 |     private func rectangle(_ object: NSObject) -> NSRect? {
+181 |         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
+182 |               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+183 |         let p = pos.pointValue, s = size.sizeValue
+184 |         return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:189:51: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+187 |         objects().first { object in
+188 |             let match = attributes(object).contains(query)
+189 |             let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+    |                                                   `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+190 |             guard match, validRole, let r = rectangle(object) else { return false }
+191 |             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:212:33: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+210 |             var smallest: CGFloat = .greatestFiniteMagnitude
+211 |             for candidate in objects() {
+212 |                 guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+    |                                 `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+213 |                       let frame = rectangle(candidate), frame.contains(point) else { continue }
+214 |                 let area: CGFloat = frame.width * frame.height
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:219:57: error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+217 |         }
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+    |                                                         `- error: cannot use optional chaining on non-optional value of type '[NSAccessibility.Action]'
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+221 |             try await capture(2)
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:220:20: warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+218 |         pressed = true
+219 |         if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+220 |             button.accessibilityPerformAction(NSAccessibility.Action.press)
+    |                    `- warning: 'accessibilityPerformAction' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+221 |             try await capture(2)
+222 |         } else {
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:249:63: warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+247 |         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
+248 |         for object in objects() {
+249 |             if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
+    |                                                               `- warning: 'accessibilityAttributeValue' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+250 |         }
+251 |         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/InteractionRecorder.swift:314:17: warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+312 |         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+313 |         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+314 |         control.accessibilitySetValue(true, forAttribute: .focused)
+    |                 `- warning: 'accessibilitySetValue(_:forAttribute:)' was deprecated in macOS 10.10: Use the NSAccessibility protocol methods instead (see NSAccessibilityProtocols.h)
+315 |         try await capture(2)
+316 |         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+error: fatalError
