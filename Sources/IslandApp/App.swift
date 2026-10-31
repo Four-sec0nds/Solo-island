@@ -274,7 +274,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     private func verifyQuitButton(in controller: IslandWindowController, store: IslandStore, result: URL) async throws {
         guard let window = controller.window else { throw CocoaError(.fileWriteUnknown) }
-        store.reveal(.settings); window.makeKeyAndOrderFront(nil)
+        store.reveal(.settings); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
         try? await Task.sleep(nanoseconds: 250_000_000)
         window.contentView?.layoutSubtreeIfNeeded()
         guard let rect = RecordingTargets.frames["Завершить Solo Island:\(ObjectIdentifier(store))"],
@@ -298,8 +298,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             events.append(event)
         }
-        NSApp.postEvent(events[1], atStart: false)
-        window.sendEvent(events[0])
+        for event in events { NSApp.postEvent(event, atStart: false) }
     }
     private func verifyNotchActivity(folder: URL, directory: URL, fixture: IslandState) async throws {
         var fixture = fixture; fixture.focus = nil
@@ -348,7 +347,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller.checkPointer(at: NSPoint(x: hud.frame.minX + 18, y: hud.frame.midY))
         try require(demo.expanded && main.isVisible, "Hovering a wing after a Space switch must reveal immediately")
         controller.checkPointer(at: outside)
-        try? await Task.sleep(nanoseconds: 650_000_000)
+        // Match production pointer polling while the CI compositor settles.
+        for _ in 0..<30 {
+            if !demo.expanded && !main.isVisible { break }
+            controller.checkPointer(at: outside)
+            try? await Task.sleep(nanoseconds: 80_000_000)
+        }
+        fputs("Notch exit state: expanded=\(demo.expanded) visible=\(main.isVisible) hud=\(hud.isVisible) passive=\(hud.ignoresMouseEvents) pin=\(demo.pinned) editing=\(demo.editingForm) modal=\(NSApp.modalWindow != nil)\n", stderr)
         try require(!demo.expanded && !main.isVisible && hud.isVisible && hud.ignoresMouseEvents,
                     "Leaving the island must collapse the body while retaining the focus wings")
         demo.previewFocus(nil, at: date)
