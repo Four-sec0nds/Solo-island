@@ -205,12 +205,19 @@ final class InteractionRecorder {
         // Activate the actual native button's accessibility action. This also
         // verifies keyboard/VoiceOver semantics without AppKit's mouse tracking
         // consuming a synthetic release while the button replaces its own view.
-        let button = object ?? objects().filter {
-            $0.accessibilityAttributeValue(.role) as? String == "AXButton" && rectangle($0)?.contains(point) == true
-        }.min { (rectangle($0)?.width ?? 0) * (rectangle($0)?.height ?? 0) < (rectangle($1)?.width ?? 0) * (rectangle($1)?.height ?? 0) }
+        var button: NSObject? = object
+        if button == nil {
+            var smallest: CGFloat = .greatestFiniteMagnitude
+            for candidate in objects() {
+                guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+                      let frame = rectangle(candidate), frame.contains(point) else { continue }
+                let area: CGFloat = frame.width * frame.height
+                if area < smallest { button = candidate; smallest = area }
+            }
+        }
         pressed = true
-        if let button, button.accessibilityActionNames()?.contains(.press) == true {
-            button.accessibilityPerformAction(.press)
+        if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+            button.accessibilityPerformAction(NSAccessibility.Action.press)
             try await capture(2)
         } else {
             mouse(.leftMouseUp, at: point, queued: true)
@@ -304,7 +311,7 @@ final class InteractionRecorder {
         guard let control = control(field, role: "AXTextField") else { throw failure("Text field is not visible: " + field) }
         if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
-        control.accessibilitySetValue(true, for: .focused)
+        control.accessibilitySetValue(true, forAttribute: .focused)
         try await capture(2)
         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
         editor.setSelectedRange(NSRange(location: 0, length: editor.string.utf16.count))
