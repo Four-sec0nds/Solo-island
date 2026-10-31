@@ -99,6 +99,7 @@ struct FocusView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
             TextField(title, value: value, format: .number).textFieldStyle(IslandTextFieldStyle()).monospacedDigit()
+                .accessibilityLabel(title)
                 .recordingTarget(title)
                 .onChange(of: value.wrappedValue) { _, next in
                     value.wrappedValue = min(range.upperBound, max(range.lowerBound, next))

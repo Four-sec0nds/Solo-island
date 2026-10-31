@@ -102,6 +102,7 @@ struct IslandSlider: View {
     private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     @State private var dragging = false
     @State private var hovered = false
+    @FocusState private var focused: Bool
     init(value: Binding<Double>, in range: ClosedRange<Double>, onEditingChanged: @escaping (Bool) -> Void = { _ in }) {
         _value = value; self.range = range; self.onEditingChanged = onEditingChanged
     }
@@ -138,6 +139,9 @@ struct IslandSlider: View {
                 onEditingChanged(false)
             }
             .focusable()
+            .focused($focused)
+            .focusEffectDisabled()
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(accent.opacity(focused ? 0.8 : 0), lineWidth: 1))
             .onMoveCommand { direction in
                 guard direction == .left || direction == .right else { return }
                 onEditingChanged(true)

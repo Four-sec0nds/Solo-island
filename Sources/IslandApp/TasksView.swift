@@ -113,7 +113,8 @@ struct TaskEditor: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
-                TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle()).recordingTarget("Название задачи")
+                TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle())
+                    .accessibilityLabel("Название задачи").recordingTarget("Название задачи")
                 Button(action: cancel) { Image(systemName: "arrow.uturn.backward") }.help("Отмена")
                 Button {
                     task.dueAt = dueEnabled ? dueDate : nil; task.reminderAt = reminderEnabled ? reminderDate : nil

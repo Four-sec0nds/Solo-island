@@ -163,7 +163,7 @@ final class InteractionRecorder {
         }
     }
     private func attributes(_ object: NSObject) -> String {
-        [NSAccessibility.Attribute.title, .description, .help, .value].compactMap {
+        [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
             object.accessibilityAttributeValue($0) as? String
         }.joined(separator: " | ")
     }
@@ -195,17 +195,28 @@ final class InteractionRecorder {
         fputs("Native input: click \(query)\n", stderr)
         let deadline = inputDeadline("click " + query)
         defer { deadline.cancel() }
+        window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
         let object = control(query, role: "AXButton")
         let rect = RecordingTargets.frames[query] ?? object.flatMap(rectangle)
         let point = rect.map { NSPoint(x: query.hasPrefix("Алерт:") ? $0.maxX - 18 : $0.midX, y: $0.midY) } ?? fallback
         try await move(to: point)
         events.append(Event(frame: frames.count, kind: "click", label: query))
         try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
-        // Any AppKit-backed button can track synchronously, especially when its
-        // action replaces the onboarding view with a WKWebView. Queue the real
-        // release before mouse-down instead of waiting for the tracking loop.
-        mouse(.leftMouseUp, at: point, queued: true)
-        pressed = true; mouse(.leftMouseDown, at: point); try await capture(2)
+        // Activate the actual native button's accessibility action. This also
+        // verifies keyboard/VoiceOver semantics without AppKit's mouse tracking
+        // consuming a synthetic release while the button replaces its own view.
+        let button = object ?? objects().filter {
+            $0.accessibilityAttributeValue(.role) as? String == "AXButton" && rectangle($0)?.contains(point) == true
+        }.min { (rectangle($0)?.width ?? 0) * (rectangle($0)?.height ?? 0) < (rectangle($1)?.width ?? 0) * (rectangle($1)?.height ?? 0) }
+        pressed = true
+        if let button, button.accessibilityActionNames()?.contains(.press) == true {
+            button.accessibilityPerformAction(.press)
+            try await capture(2)
+        } else {
+            mouse(.leftMouseUp, at: point, queued: true)
+            mouse(.leftMouseDown, at: point); try await capture(2)
+            mouse(.leftMouseUp, at: point)
+        }
         pressed = false; after(); try await capture(5)
     }
     private func inputDeadline(_ label: String, seconds: Double = 20) -> DispatchSourceTimer {
@@ -287,12 +298,20 @@ final class InteractionRecorder {
         pressed = false; mouse(.leftMouseUp, at: pointer); try await capture(5)
     }
     private func type(_ value: String, field: String, at point: NSPoint) async throws {
-        try await press(field, fallback: point)
-        window.firstResponder?.selectAll(nil)
+        fputs("Native input: type \(field)\n", stderr)
+        let deadline = inputDeadline("type " + field)
+        defer { deadline.cancel() }
+        guard let control = control(field, role: "AXTextField") else { throw failure("Text field is not visible: " + field) }
+        if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+        window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+        control.accessibilitySetValue(true, for: .focused)
+        try await capture(2)
+        guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
+        editor.setSelectedRange(NSRange(location: 0, length: editor.string.utf16.count))
         events.append(Event(frame: frames.count, kind: "type", label: value))
-        window.firstResponder?.insertText(value)
+        editor.insertText(value, replacementRange: editor.selectedRange())
         try await capture(4)
-        window.makeFirstResponder(nil)
+        guard window.makeFirstResponder(nil) else { throw failure("Text field refused to commit: " + field) }
         try await capture(2)
     }
 
@@ -333,6 +352,7 @@ final class InteractionRecorder {
 
         try begin("deadline")
         try await press("Добавить срок и напоминание", fallback: NSPoint(x: 660,y: 198))
+        guard store.taskDraft != nil else { throw failure("Deadline editor did not open from its button") }
         try await type("Подготовить новый проект", field: "Название задачи", at: NSPoint(x: 330,y:145))
         try await press("Алерт:срок", fallback: NSPoint(x: 680,y: 235))
         try await capture(8)
