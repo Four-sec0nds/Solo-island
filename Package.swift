@@ -9,9 +9,8 @@ var targets: [Target] = [
 #if os(macOS)
 products.append(.executable(name: "SoloIsland", targets: ["IslandApp"]))
 targets.append(.target(name: "IslandPlatform", dependencies: ["IslandCore"]))
-targets.append(.target(name: "IslandAccessibility", publicHeadersPath: "include"))
-targets.append(.executableTarget(name: "IslandApp", dependencies: ["IslandCore", "IslandPlatform", "IslandAccessibility"]))
-targets.append(.testTarget(name: "IslandPlatformTests", dependencies: ["IslandPlatform", "IslandCore", "IslandAccessibility"]))
+targets.append(.executableTarget(name: "IslandApp", dependencies: ["IslandCore", "IslandPlatform"]))
+targets.append(.testTarget(name: "IslandPlatformTests", dependencies: ["IslandPlatform", "IslandCore"]))
 #endif
 
 let package = Package(name: "SoloIsland", platforms: [.macOS(.v14)], products: products, targets: targets)

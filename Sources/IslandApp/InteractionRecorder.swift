@@ -2,7 +2,6 @@ import AppKit
 import IslandCore
 import CryptoKit
 import SwiftUI
-import IslandAccessibility
 
 @MainActor
 enum RecordingTargets { static var frames: [String: CGRect] = [:] }
@@ -163,84 +162,24 @@ final class InteractionRecorder {
             else { window.sendEvent(event) }
         }
     }
-    private func attributes(_ object: NSObject) -> String {
-        let legacy = [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
-            object.accessibilityAttributeValue($0) as? String
-        }.joined(separator: " | ")
-        return SIAXText(object) + " | " + legacy
-    }
-    private func objects() -> [NSObject] {
-        var result: [NSObject] = [], seen = Set<ObjectIdentifier>()
-        func visit(_ object: NSObject, depth: Int) {
-            guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
-            result.append(object)
-            let modern = SIAXChildren(object).compactMap { $0 as? NSObject }
-            let legacy = object.accessibilityAttributeValue(.children) as? [NSObject] ?? []
-            for child in modern + legacy { visit(child, depth: depth + 1) }
-        }
-        visit(window, depth: 0)
-        return result
-    }
-    private func role(_ object: NSObject) -> String? {
-        SIAXRole(object) ?? (object.accessibilityAttributeValue(.role) as? String)
-    }
-    private func rectangle(_ object: NSObject) -> NSRect? {
-        var frame = SIAXFrame(object)
-        if frame.width > 0 && frame.height > 0 {
-            if !window.frame.intersects(frame), let screen = window.screen {
-                let flipped = NSRect(x: frame.minX, y: screen.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
-                if window.frame.intersects(flipped) { frame = flipped }
-            }
-            return NSRect(x: frame.minX - window.frame.minX, y: window.frame.maxY - frame.maxY,
-                          width: frame.width, height: frame.height)
-        }
-        guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
-              let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
-        let p = pos.pointValue, s = size.sizeValue
-        return NSRect(x: p.x - window.frame.minX, y: window.frame.maxY - p.y - s.height, width: s.width, height: s.height)
-    }
-    private func control(_ query: String, role: String? = nil) -> NSObject? {
-        objects().first { object in
-            let label = query.hasPrefix("Вкладка:") ? String(query.dropFirst("Вкладка:".count)) : query
-            let match = attributes(object).contains(label)
-            let validRole = role == nil || self.role(object) == role
-            guard match, validRole, let r = rectangle(object) else { return false }
-            return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
-        }
-    }
     private func press(_ query: String, fallback: NSPoint, after: () -> Void = {}) async throws {
         fputs("Native input: click \(query)\n", stderr)
         let deadline = inputDeadline("click " + query)
         defer { deadline.cancel() }
+        guard let rect = RecordingTargets.frames[query], rect.width > 2, rect.height > 2 else {
+            throw failure("Interactive control is not laid out: " + query)
+        }
+        let point = NSPoint(x: query.hasPrefix("Алерт:") ? rect.maxX - 18 : rect.midX, y: rect.midY)
         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
-        let object = control(query, role: "AXButton")
-        let rect = RecordingTargets.frames[query] ?? object.flatMap(rectangle)
-        let point = rect.map { NSPoint(x: query.hasPrefix("Алерт:") ? $0.maxX - 18 : $0.midX, y: $0.midY) } ?? fallback
         try await move(to: point)
         events.append(Event(frame: frames.count, kind: "click", label: query))
         try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
-        // Activate the actual native button's accessibility action. This also
-        // verifies keyboard/VoiceOver semantics without AppKit's mouse tracking
-        // consuming a synthetic release while the button replaces its own view.
-        var button: NSObject?
-        if let object, rectangle(object)?.contains(point) == true { button = object }
-        if button == nil {
-            var smallest: CGFloat = .greatestFiniteMagnitude
-            for candidate in objects() {
-                guard ["AXButton", "AXCheckBox", "AXRadioButton", "AXSwitch"].contains(role(candidate) ?? ""),
-                      let frame = rectangle(candidate), frame.contains(point) else { continue }
-                let area: CGFloat = frame.width * frame.height
-                if area < smallest { button = candidate; smallest = area }
-            }
-        }
+        // NSApplication owns event dispatch and synchronous tracking. Enqueue
+        // down and up in normal order so currentEvent and release both exist.
         pressed = true
-        if let button, SIAXPress(button) {
-            try await capture(2)
-        } else {
-            mouse(.leftMouseUp, at: point, queued: true)
-            mouse(.leftMouseDown, at: point); try await capture(2)
-            mouse(.leftMouseUp, at: point)
-        }
+        mouse(.leftMouseDown, at: point, queued: true)
+        mouse(.leftMouseUp, at: point, queued: true)
+        try await capture(2)
         pressed = false; after(); try await capture(5)
     }
     private func inputDeadline(_ label: String, seconds: Double = 20) -> DispatchSourceTimer {
@@ -262,9 +201,6 @@ final class InteractionRecorder {
         fputs("Interaction recording: \(reason)\n", stderr)
         try? PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
         for (key,rect) in RecordingTargets.frames.sorted(by: { $0.key < $1.key }) { fputs("TARGET \(key) \(rect)\n", stderr) }
-        for object in objects() {
-            if let r = rectangle(object) { fputs("AX \(object.accessibilityAttributeValue(.role) ?? "?") \(attributes(object)) \(r)\n", stderr) }
-        }
         return NSError(domain: "SoloIsland.Interactions", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
     }
     private func scrollViews(_ root: NSView) -> [NSScrollView] {
@@ -292,23 +228,17 @@ final class InteractionRecorder {
         fputs("Native input: drag \(label)\n", stderr)
         let deadline = inputDeadline("drag " + label)
         defer { deadline.cancel() }
-        func slider() -> NSObject? {
-            control(label, role: "AXSlider") ?? objects().first {
-                guard attributes($0).contains(label), let r = rectangle($0) else { return false }
-                return r.width > 120 && r.height >= 10 && r.height < 30 && r.midY > 100 && r.midY < window.frame.height - 10
-            }
-        }
-        let object = slider()
-        let initial = RecordingTargets.frames[label] ?? object.flatMap(rectangle) ?? fallback
+        guard RecordingTargets.frames[label] != nil else { throw failure("Slider is not laid out: " + label) }
+        let initial = RecordingTargets.frames[label] ?? fallback
         try await move(to: NSPoint(x: initial.minX + 6 + (initial.width - 12) * fractions[0], y: initial.midY))
         events.append(Event(frame: frames.count, kind: "drag", label: label))
-        pressed = true; mouse(.leftMouseDown, at: pointer)
+        pressed = true; mouse(.leftMouseDown, at: pointer, queued: true)
         for (start, end) in zip(fractions, fractions.dropFirst()) {
             for step in 1...14 {
-                let rect = RecordingTargets.frames[label] ?? slider().flatMap(rectangle) ?? initial
+                let rect = RecordingTargets.frames[label] ?? initial
                 let t = Double(step) / 14, p = t * t * (3 - 2 * t)
                 pointer = NSPoint(x: rect.minX + 6 + (rect.width - 12) * (start + (end - start) * p), y: rect.midY)
-                mouse(.leftMouseDragged, at: pointer); try await capture()
+                mouse(.leftMouseDragged, at: pointer, queued: true); try await capture()
                 let value: Double?
                 switch label {
                 case "Ширина": value = store.state.settings.expandedWidth
@@ -319,18 +249,14 @@ final class InteractionRecorder {
                 if let value { sliderValues[label, default: []].append(value) }
             }
         }
-        pressed = false; mouse(.leftMouseUp, at: pointer); try await capture(5)
+        pressed = false; mouse(.leftMouseUp, at: pointer, queued: true); try await capture(5)
     }
     private func type(_ value: String, field: String, at point: NSPoint) async throws {
         fputs("Native input: type \(field)\n", stderr)
         let deadline = inputDeadline("type " + field)
         defer { deadline.cancel() }
-        let control = control(field, role: "AXTextField")
-        guard let target = RecordingTargets.frames[field] ?? control.flatMap(rectangle) else { throw failure("Text field is not visible: " + field) }
-        try await move(to: NSPoint(x: target.midX, y: target.midY))
-        window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
-        if let control { _ = SIAXFocus(control) }
-        try await capture(2)
+        guard let target = RecordingTargets.frames[field] else { throw failure("Text field is not visible: " + field) }
+        try await press(field, fallback: NSPoint(x: target.midX, y: target.midY))
         if !(window.firstResponder is NSTextView), let root = window.contentView {
             let point = NSPoint(x: target.midX, y: window.frame.height - target.midY)
             func fieldView(_ view: NSView) -> NSTextField? {
