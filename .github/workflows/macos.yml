@@ -1,7 +1,7 @@
 name: macOS installer
 on:
   push:
-    branches: [solo-island]
+    branches: [solo-island, 'preview/**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -48,9 +48,27 @@ jobs:
             dist/SoloIsland-settings.png
             dist/SoloIsland-web-demo.png
             dist/SoloIsland-icon.png
+            dist/SoloIsland-music-compact.png
+            dist/SoloIsland-tasks-compact.png
+            dist/SoloIsland-focus-compact.png
+            dist/SoloIsland-settings-compact.png
+            dist/SoloIsland-settings-appearance.png
+            dist/SoloIsland-music-empty.png
+            dist/SoloIsland-tasks-empty.png
+            dist/SoloIsland-music-error.png
+            dist/SoloIsland-notch-music.png
+            dist/SoloIsland-notch-paused.png
+            dist/SoloIsland-notch-focus.png
+            dist/SoloIsland-notch-focus-paused.png
+            dist/SoloIsland-notch-combined.png
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'
         env:
           BUILD_RESULT: ${{ steps.build.outcome }}
         run: bash scripts/publish-build.sh
+      - name: Save test installer only in its preview branch
+        if: always() && github.event_name == 'push' && startsWith(github.ref, 'refs/heads/preview/')
+        env:
+          BUILD_RESULT: ${{ steps.build.outcome }}
+        run: bash scripts/publish-preview.sh

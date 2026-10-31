@@ -13,29 +13,29 @@ private struct IslandButtonSurface: View {
     let kind: IslandButtonStyle.Kind
     @Environment(\.islandAccent) private var accent
     @Environment(\.isEnabled) private var enabled
+    @Environment(\.isFocused) private var focused
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.islandReducedMotionOverride) private var motionOverride
     private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     @State private var hovered = false
-    private var color: Color { configuration.role == .destructive ? .pink : accent }
-    private var radius: CGFloat { kind == .icon ? 12 : 14 }
+    private var color: Color { configuration.role == .destructive ? IslandPalette.pink : accent }
+    private var radius: CGFloat { kind == .icon ? 12 : 13 }
     var body: some View {
         label
-            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
             .padding(.horizontal, kind == .bare ? 0 : kind == .icon ? 8 : 14)
             .padding(.vertical, kind == .bare ? 0 : kind == .icon ? 7 : 10)
             .background {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .fill(LinearGradient(colors: background, startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .fill(background)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .strokeBorder(color.opacity(kind == .bare ? (hovered ? 0.16 : 0) : hovered ? 0.4 : 0.18), lineWidth: 1)
+                    .strokeBorder(color.opacity(focused ? 0.9 : kind == .bare ? (hovered ? 0.14 : 0) : hovered ? 0.4 : 0.16), lineWidth: focused ? 1.5 : 0.8)
             }
-            .shadow(color: color.opacity(hovered && enabled && kind != .bare ? 0.16 : 0), radius: 10, y: 3)
             .scaleEffect(!reduceMotion && configuration.isPressed && enabled ? 0.96 : 1)
             .offset(y: !reduceMotion && configuration.isPressed && enabled ? 1 : 0)
-            .brightness(configuration.isPressed && enabled ? 0.06 : 0)
+            .brightness(configuration.isPressed && enabled ? -0.035 : hovered && enabled ? 0.035 : 0)
             .opacity(enabled ? 1 : 0.35)
             .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .animation(reduceMotion ? nil : .easeOut(duration: 0.13), value: configuration.isPressed)
@@ -44,12 +44,12 @@ private struct IslandButtonSurface: View {
     }
     @ViewBuilder private var label: some View {
         if kind == .bare { configuration.label }
-        else { configuration.label.foregroundStyle(kind == .filled ? Color.white : color) }
+        else { configuration.label.foregroundStyle(kind == .filled ? IslandPalette.foreground(on: color) : color) }
     }
-    private var background: [Color] {
-        if kind == .filled { return [color.opacity(configuration.isPressed ? 1 : 0.85), Color.purple.opacity(0.8)] }
-        if kind == .bare { return [color.opacity(hovered || configuration.isPressed ? 0.08 : 0), .clear] }
-        return [color.opacity(hovered || configuration.isPressed ? 0.2 : 0.12), Color.purple.opacity(0.08)]
+    private var background: Color {
+        if kind == .filled { return color }
+        if kind == .bare { return color.opacity(hovered || configuration.isPressed ? 0.08 : 0) }
+        return color.opacity(hovered || configuration.isPressed ? 0.17 : 0.09)
     }
 }
 
@@ -69,27 +69,26 @@ struct IslandSegments<Selection: Hashable>: View {
                 } label: {
                     Text(title(option)).font(.system(size: 11, weight: selection == option ? .semibold : .medium, design: .rounded))
                         .lineLimit(1).minimumScaleFactor(0.85)
-                        .foregroundStyle(selection == option ? Color.white : Color.white.opacity(0.48))
+                        .foregroundStyle(selection == option ? IslandPalette.text : IslandPalette.secondary)
                         .frame(maxWidth: .infinity).padding(.vertical, 9)
                         .background {
                             if selection == option {
                                 RoundedRectangle(cornerRadius: 11, style: .continuous)
-                                    .fill(LinearGradient(colors: [accent.opacity(0.32), .purple.opacity(0.22)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .fill(IslandPalette.raised)
                                     .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(accent.opacity(0.22), lineWidth: 1))
                             }
                         }
                 }.buttonStyle(IslandButtonStyle(.bare)).accessibilityAddTraits(selection == option ? .isSelected : [])
                     .recordingTarget(title(option))
             }
-        }.padding(4).background(Color.purple.opacity(0.055), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).strokeBorder(.purple.opacity(0.12), lineWidth: 1))
+        }.padding(4).background(IslandPalette.background.opacity(0.65), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
     }
 }
 struct IslandTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration.textFieldStyle(.plain).padding(11)
-            .background(Color.purple.opacity(0.07), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).strokeBorder(.purple.opacity(0.18), lineWidth: 1))
+            .background(IslandPalette.surface, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).strokeBorder(IslandPalette.separator, lineWidth: 0.8))
     }
 }
 
@@ -111,11 +110,11 @@ struct IslandSlider: View {
         GeometryReader { geometry in
             let width = max(1, geometry.size.width - 12)
             ZStack(alignment: .leading) {
-                Capsule().fill(accent.opacity(0.12)).frame(height: 4)
-                Capsule().fill(LinearGradient(colors: [accent, .purple], startPoint: .leading, endPoint: .trailing))
+                Capsule().fill(IslandPalette.raised).frame(height: 4)
+                Capsule().fill(accent)
                     .frame(width: 6 + width * fraction, height: 4)
-                Circle().fill(accent).frame(width: 10, height: 10)
-                    .shadow(color: accent.opacity(0.4), radius: dragging || hovered ? 7 : 3)
+                Circle().fill(IslandPalette.text).frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(accent, lineWidth: 2))
                     .scaleEffect(!reduceMotion && dragging ? 1.35 : 1)
                     .offset(x: 1 + width * fraction)
             }.frame(height: geometry.size.height)
@@ -159,17 +158,21 @@ extension EnvironmentValues {
 
 struct IslandToggleStyle: ToggleStyle {
     @Environment(\.islandAccent) private var accent
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 12) {
             configuration.label
             Spacer(minLength: 8)
             Button { configuration.isOn.toggle() } label: {
                 ZStack(alignment: configuration.isOn ? .trailing : .leading) {
-                    Capsule().fill(configuration.isOn ? accent.opacity(0.55) : Color.purple.opacity(0.18))
-                    Circle().fill(configuration.isOn ? accent : Color.white.opacity(0.5)).padding(3)
-                        .frame(width: 20, height: 20)
-                }.frame(width: 35, height: 20)
-            }.buttonStyle(IslandButtonStyle(.bare)).accessibilityLabel(configuration.isOn ? "Включено" : "Выключено")
-        }.contentShape(Rectangle())
+                    Capsule().fill(configuration.isOn ? accent : IslandPalette.raised)
+                    Circle().fill(configuration.isOn ? IslandPalette.foreground(on: accent) : IslandPalette.secondary).padding(3)
+                        .frame(width: 22, height: 22)
+                }.frame(width: 38, height: 22)
+                    .animation((motionOverride ?? systemReduceMotion) ? nil : .easeOut(duration: 0.16), value: configuration.isOn)
+            }.buttonStyle(IslandButtonStyle(.bare)).accessibilityLabel(configuration.isOn ? "Выключить" : "Включить")
+                .accessibilityValue(configuration.isOn ? "Включено" : "Выключено")
+        }.contentShape(Rectangle()).accessibilityElement(children: .combine)
     }
 }

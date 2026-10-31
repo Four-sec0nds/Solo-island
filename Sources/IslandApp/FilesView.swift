@@ -22,14 +22,14 @@ struct FilesView: View {
             } else {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Всё нужное — рядом").font(.system(size: 19, weight: .semibold, design: .rounded))
-                        Text("Файлы, текст и скриншоты из буфера обмена").font(.system(size: 11)).foregroundStyle(.secondary)
+                        Text("Твой буфер").font(.system(size: 21, weight: .semibold, design: .rounded))
+                        Text("Файлы, текст и скриншоты — под рукой").font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
                     }
                     Spacer(minLength: 4)
                     Button { store.captureClipboardNow() } label: { Image(systemName: "doc.on.clipboard").frame(width: 24, height: 26) }
-                        .buttonStyle(IslandButtonStyle(.bare)).help("Добавить текущий буфер обмена")
+                        .buttonStyle(IslandButtonStyle(.icon)).help("Добавить текущий буфер обмена").accessibilityLabel("Добавить текущий буфер обмена")
                     Button { store.pickFiles() } label: { Image(systemName: "plus").frame(width: 24, height: 26) }
-                        .buttonStyle(IslandButtonStyle(.bare)).help("Добавить файлы")
+                        .buttonStyle(IslandButtonStyle(.filled)).help("Добавить файлы").accessibilityLabel("Добавить файлы")
                 }
                 IslandSegments(options: ShelfFilter.allCases, selection: $filter, title: { $0.rawValue })
                 let entries = store.state.shelf.filter { filter.kind == nil || $0.kind == filter.kind }
@@ -41,8 +41,14 @@ struct FilesView: View {
                         .padding(1)
                     }
                 }
-                Label("Скриншоты закреплены и хранятся до удаления", systemImage: "pin.fill")
-                    .font(.system(size: 10)).foregroundStyle(.secondary)
+                HStack(spacing: 7) {
+                    Image(systemName: "arrow.down.doc").foregroundStyle(accent)
+                    Text("Перетащи файлы сюда").font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
+                    Spacer(minLength: 5)
+                    Image(systemName: "pin.fill").font(.system(size: 9)).foregroundStyle(IslandPalette.muted)
+                    Text("Скриншоты сохраняются").font(.system(size: 10)).foregroundStyle(IslandPalette.muted).lineLimit(1)
+                }.padding(.horizontal, 11).padding(.vertical, 10)
+                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(IslandPalette.separator, style: StrokeStyle(lineWidth: 0.8, dash: [4, 4])))
             }
         }
     }
@@ -55,16 +61,17 @@ struct FilesView: View {
                 HStack(spacing: 5) {
                     Text(subtitle(entry, exists: exists)).lineLimit(1)
                     if entry.isPinned { Image(systemName: "pin.fill").font(.system(size: 8)).foregroundStyle(accent) }
-                }.font(.system(size: 10)).foregroundStyle(exists ? Color.secondary : Color.orange)
+                }.font(.system(size: 10)).foregroundStyle(exists ? IslandPalette.secondary : Color.orange)
             }.frame(maxWidth: .infinity, alignment: .leading)
-            VStack(spacing: 10) {
+            HStack(spacing: 10) {
                 Button { store.copyEntry(entry) } label: { Image(systemName: "doc.on.doc").frame(width: 23) }.disabled(!exists).help("Скопировать").recordingTarget("Копировать:" + entry.id.uuidString)
                 Button { store.toggleShelfPin(entry.id) } label: {
-                    Image(systemName: entry.isPinned ? "pin.fill" : "pin").frame(width: 23).foregroundStyle(entry.isPinned ? accent : Color.secondary)
+                    Image(systemName: entry.isPinned ? "pin.fill" : "pin").frame(width: 23).foregroundStyle(entry.isPinned ? accent : IslandPalette.muted)
                 }.help(entry.isPinned ? "Открепить" : "Хранить до удаления").recordingTarget("Закрепить:" + entry.id.uuidString)
             }
         }
-        .buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard(tint: entry.kind == .text ? .cyan : entry.kind == .image ? .pink : .purple)
+        .buttonStyle(IslandButtonStyle(.bare)).padding(.horizontal, 12).padding(.vertical, 10)
+        .islandCard(tint: entry.kind == .text ? IslandPalette.lavender : entry.kind == .image ? IslandPalette.pink : accent)
         .onDrag {
             if entry.kind == .text { return NSItemProvider(object: (entry.text ?? "") as NSString) }
             return exists ? NSItemProvider(contentsOf: entry.url) ?? NSItemProvider() : NSItemProvider()
@@ -95,7 +102,7 @@ struct FilesView: View {
         switch entry.kind {
         case .text: return "Текст · \(entry.text?.count ?? 0) символов"
         case .image: return entry.addedAt.formatted(date: .abbreviated, time: .shortened)
-        case .file: return entry.url.deletingLastPathComponent().lastPathComponent
+        case .file: return entry.url.pathExtension.isEmpty ? "Файл" : "\(entry.url.pathExtension.uppercased()) · файл"
         }
     }
 }
@@ -115,8 +122,8 @@ private struct ShelfPreview: View {
         Group {
             if entry.kind == .text {
                 ZStack {
-                    LinearGradient(colors: [.cyan.opacity(0.16), .blue.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    Image(systemName: "text.alignleft").font(.system(size: 22)).foregroundStyle(.cyan)
+                    IslandPalette.lavender.opacity(0.1)
+                    Image(systemName: "text.alignleft").font(.system(size: 22)).foregroundStyle(IslandPalette.lavender)
                 }
             } else if let image {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: entry.kind == .image ? .fill : .fit)

@@ -43,7 +43,7 @@ if [[ "${BUILD_RESULT:-}" == success ]]; then
     add_file dist/SoloIsland.dmg SoloIsland.dmg
     if [[ -f dist/SoloIsland-preview.png ]]; then add_file dist/SoloIsland-preview.png preview.png; fi
     # Publish only the installer and named still images; recording output stays local.
-    for preview in SoloIsland-tasks.png SoloIsland-actions.png SoloIsland-focus.png SoloIsland-files.png SoloIsland-onboarding.png SoloIsland-custom-focus.png SoloIsland-deadline.png SoloIsland-reminder.png SoloIsland-settings.png SoloIsland-web-demo.png SoloIsland-icon.png; do
+    for preview in SoloIsland-tasks.png SoloIsland-actions.png SoloIsland-focus.png SoloIsland-files.png SoloIsland-onboarding.png SoloIsland-custom-focus.png SoloIsland-deadline.png SoloIsland-reminder.png SoloIsland-settings.png SoloIsland-web-demo.png SoloIsland-icon.png SoloIsland-music-compact.png SoloIsland-tasks-compact.png SoloIsland-focus-compact.png SoloIsland-settings-compact.png SoloIsland-settings-appearance.png SoloIsland-music-empty.png SoloIsland-tasks-empty.png SoloIsland-music-error.png SoloIsland-notch-music.png SoloIsland-notch-paused.png SoloIsland-notch-focus.png SoloIsland-notch-focus-paused.png SoloIsland-notch-combined.png; do
         if [[ -f "dist/$preview" ]]; then add_file "dist/$preview" "$preview"; fi
     done
     # A relative filename makes the checksum file usable after downloading.

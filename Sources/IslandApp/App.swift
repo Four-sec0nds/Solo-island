@@ -161,16 +161,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 try "Идея → дизайн → готовый проект".write(to: briefURL, atomically: true, encoding: .utf8)
                 let stills: [(String, IslandTab)] = [
                     ("preview", .music), ("tasks", .tasks), ("focus", .focus), ("files", .files), ("actions", .actions),
-                    ("onboarding", .music), ("custom-focus", .focus), ("deadline", .tasks), ("reminder", .tasks), ("settings", .settings)
+                    ("onboarding", .music), ("custom-focus", .focus), ("deadline", .tasks), ("reminder", .tasks), ("settings", .settings),
+                    ("music-compact", .music), ("tasks-compact", .tasks), ("focus-compact", .focus),
+                    ("settings-compact", .settings), ("settings-appearance", .settings),
+                    ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music)
                 ]
                 for (name, tab) in stills {
                     let destination = name == "preview" ? output : directory.appendingPathComponent("SoloIsland-" + name + ".png")
                     let stillFolder = folder.appendingPathComponent("still-" + name)
                     var stillFixture = fixture
-                    if name == "focus" {
-                        stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id, minutes: 90,
-                                                          now: Date().addingTimeInterval(-60))
+                    if name.hasSuffix("-compact") { stillFixture.settings.expandedWidth = 640 }
+                    if name == "focus" || name == "focus-compact" {
+                        stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id,
+                            minutes: name == "focus-compact" ? 5999 : 90,
+                            now: name == "focus-compact" ? Date() : Date().addingTimeInterval(-60))
                     }
+                    if name == "tasks-empty" { stillFixture.tasks = [] }
                     if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 37 * 60 }
                     if name == "onboarding" { stillFixture.settings.musicOnboardingComplete = false }
                     if tab == .files {
@@ -179,7 +185,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     try StateRepository(url: stillFolder.appendingPathComponent("state.json")).save(stillFixture)
                     let stillStore = IslandStore(dataFolder: stillFolder)
-                    stillStore.media.setPreview(previewTrack)
+                    var stillTrack = previewTrack
+                    if name == "music-compact" {
+                        stillTrack.title = "Город засыпает, а мы заканчиваем большой проект"
+                        stillTrack.artist = "Демонстрационный исполнитель · длинное имя для предпросмотра"
+                    }
+                    stillStore.media.setPreview(name == "music-empty" ? NowPlaying() : stillTrack)
+                    if name == "music-error" { stillStore.media.error = "Источник временно недоступен. Переподключи плеер в настройках." }
                     stillStore.tab = tab; stillStore.pinned = true
                     if name == "deadline" || name == "reminder" {
                         var draft = fixture.tasks[1]
@@ -191,10 +203,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     stillStore.reveal(tab)
                     try? await Task.sleep(nanoseconds: 850_000_000)
                     guard let stillWindow = stillController.window else { throw CocoaError(.fileWriteUnknown) }
-                    try PreviewRecorder.png(stillWindow, to: destination)
+                    if name == "settings-appearance" {
+                        guard PreviewRecorder.revealControl("Ширина", in: stillWindow) else { throw CocoaError(.fileWriteUnknown) }
+                        try? await Task.sleep(nanoseconds: 200_000_000)
+                    }
+                    try PreviewRecorder.png(stillWindow, to: destination, overlay: stillController.activityWindow)
                     if name == "preview" { try FileManager.default.copyItem(at: destination, to: imageURL) }
-                    stillWindow.orderOut(nil)
+                    stillController.close()
                 }
+                try await verifyNotchActivity(folder: folder.appendingPathComponent("notch-activity"), directory: directory, fixture: fixture)
                 try await recordFocusMotion(folder: folder.appendingPathComponent("focus-motion"), directory: directory, fixture: fixture)
                 try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
                 try await InteractionRecorder.record(in: directory.appendingPathComponent("interactions"))
@@ -283,6 +300,61 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.postEvent(events[1], atStart: false)
         window.sendEvent(events[0])
     }
+    private func verifyNotchActivity(folder: URL, directory: URL, fixture: IslandState) async throws {
+        var fixture = fixture; fixture.focus = nil
+        try StateRepository(url: folder.appendingPathComponent("state.json")).save(fixture)
+        let demo = IslandStore(dataFolder: folder)
+        let controller = IslandWindowController(store: demo, trackPointer: false, reducedMotionOverride: true)
+        defer { controller.close() }
+        guard let main = controller.window, let hud = controller.activityWindow, let screen = NSScreen.screens.first else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        func require(_ condition: Bool, _ reason: String) throws {
+            guard condition else {
+                throw NSError(domain: "SoloIsland.Notch", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
+            }
+        }
+        try require(!main.isVisible && !hud.isVisible, "Idle notch must be completely hidden")
+        var track = NowPlaying(); track.title = "Демонстрационный трек"; track.artist = "Предпросмотр"
+        track.playing = true; track.elapsedTime = 30; track.duration = 240
+        demo.media.setPreview(track)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(hud.isVisible && !main.isVisible && !hud.canBecomeKey && hud.ignoresMouseEvents,
+                    "Playback wings must stay passive without expanding the main window")
+        try require(abs(hud.frame.maxY - screen.frame.maxY) < 1 && hud.frame.height == demo.compactHeight
+                    && hud.frame.width > demo.cameraWidth + 100, "Camera clearance or wing placement is invalid")
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-music.png"))
+        track.playing = false; demo.media.setPreview(track)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(hud.isVisible && !main.isVisible, "Pause must retain the cover without opening the panel")
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-paused.png"))
+        let date = Date()
+        var focus = FocusSession(taskID: fixture.tasks[0].id, minutes: 5999, now: date)
+        demo.previewFocus(focus, at: date)
+        track.playing = true; demo.media.setPreview(track)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(demo.focusedTime == "99:59" && hud.isVisible, "Combined focus must retain HH:MM")
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-combined.png"))
+        demo.media.setPreview(NowPlaying())
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-focus.png"))
+        focus.pause(at: date); demo.previewFocus(focus, at: date)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(hud.isVisible && demo.focusedTime == "99:59", "Paused focus must retain remaining time")
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-focus-paused.png"))
+        let outside = NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5)
+        controller.screenContextDidChange(at: outside)
+        controller.checkPointer(at: NSPoint(x: hud.frame.minX + 18, y: hud.frame.midY))
+        try require(demo.expanded && main.isVisible, "Hovering a wing after a Space switch must reveal immediately")
+        controller.checkPointer(at: outside)
+        try? await Task.sleep(nanoseconds: 650_000_000)
+        try require(!demo.expanded && !main.isVisible && hud.isVisible && hud.ignoresMouseEvents,
+                    "Leaving the island must collapse the body while retaining the focus wings")
+        demo.previewFocus(nil, at: date)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(!hud.isVisible && !main.isVisible, "Ending all activity must hide both windows")
+        fputs("Notch activity: idle hidden, playback, pause, combined focus, wing hover and camera clearance passed\n", stderr)
+    }
     private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
         var fixture = fixture; fixture.settings.customFocusSeconds = 12
         let beginning = Date()
@@ -294,7 +366,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let controller = IslandWindowController(store: demo, trackPointer: false, reducedMotionOverride: true)
         demo.reveal(.focus)
         guard let window = controller.window else { throw CocoaError(.fileWriteUnknown) }
-        defer { window.orderOut(nil) }
+        defer { controller.close() }
         struct Sample: Encodable { let seconds: Double; let remaining: Int; let paused: Bool }
         var samples: [Sample] = [], frames: [PreviewRecorder.Frame] = []
         var paused = false, resumed = false
@@ -346,7 +418,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard await until({ !webStore.media.track.isPlaying }) else { fputs("Embedded web pause failed\n", stderr); exit(1) }
         webStore.musicWebsiteVisible = false
         try? await Task.sleep(nanoseconds: 250_000_000)
-        if let window = controller.window { try PreviewRecorder.png(window, to: output); window.orderOut(nil) }
+        if let window = controller.window { try PreviewRecorder.png(window, to: output, overlay: controller.activityWindow) }
+        controller.close()
         webStore.webMusic.stop()
         fputs("Embedded WKWebView smoke: metadata, play, seek, next and pause passed\n", stderr)
     }
@@ -372,6 +445,8 @@ final class IslandWindowController: NSWindowController {
     private var hoverTracker = NotchHoverTracker()
     private var pointerDisplay: NSNumber?
     private let tracksPointer: Bool
+    private var activity: NotchActivityController!
+    var activityWindow: NSWindow? { activity?.window }
     private var motion: Task<Void, Never>?
     private var animationTarget: NSRect?
     private let reducedMotionOverride: Bool?
@@ -394,6 +469,7 @@ final class IslandWindowController: NSWindowController {
         let hosting = NSHostingView(rootView: view)
         hosting.sizingOptions = []
         panel.contentView = hosting
+        activity = NotchActivityController(store: store, reducedMotionOverride: reducedMotionOverride)
         panel.minSize = .zero; panel.contentMinSize = .zero
         store.$expanded.removeDuplicates().sink { [weak self] value in self?.layout(expanded: value, transitioning: true) }.store(in: &subscriptions)
         store.$state.map(\.settings).removeDuplicates().sink { [weak self] settings in
@@ -412,6 +488,10 @@ final class IslandWindowController: NSWindowController {
         }
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+    override func close() {
+        activity?.close()
+        super.close()
+    }
     func screenContextDidChange(at location: NSPoint? = nil) {
         store.cancelPendingHover()
         hoverTracker.screenDidChange()
@@ -435,7 +515,8 @@ final class IslandWindowController: NSWindowController {
         let onBody = store.expanded && window.frame.contains(point) && (!inNeckBand || onNeck)
         // Transparent shoulders must never block clicks on the menu bar.
         if store.expanded { window.ignoresMouseEvents = !onBody }
-        let inside = hotspot.contains(point) || onBody
+        let activityHotspot = activity.isPresented ? activity.window?.frame.insetBy(dx: -8, dy: -6) : nil
+        let inside = hotspot.contains(point) || onBody || activityHotspot?.contains(point) == true
         switch hoverTracker.update(isInside: inside) {
         case .entered(let immediately):
             store.hover(true, immediately: immediately)
@@ -461,6 +542,7 @@ final class IslandWindowController: NSWindowController {
         let bodyHeight = min(CGFloat(520), screen.frame.height - top - 36)
         let target = NSRect(x: screen.frame.midX - width / 2, y: screen.frame.maxY - top - bodyHeight, width: width, height: top + bodyHeight)
         let neck = NSRect(x: screen.frame.midX - (cameraWidth + 16) / 2, y: screen.frame.maxY - top, width: cameraWidth + 16, height: top)
+        activity.layout(on: screen, cameraWidth: cameraWidth, height: top)
         store.cameraWidth = cameraWidth; store.compactHeight = top
         store.presentationWidth = width; store.presentationHeight = top + bodyHeight
         if CommandLine.arguments.contains("--render-preview") {

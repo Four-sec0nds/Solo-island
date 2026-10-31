@@ -14,9 +14,8 @@ struct IslandRootView: View {
         GeometryReader { geometry in
             let shape = NotchAttachmentShape(neckWidth: store.cameraWidth + 16, neckHeight: store.compactHeight, radius: store.state.settings.cornerRadius)
             ZStack(alignment: .top) {
-                Color(red: 0.055, green: 0.035, blue: 0.085)
-                RadialGradient(colors: [Color.purple.opacity(0.13), .clear], center: .topLeading, startRadius: 0, endRadius: 500)
-                RadialGradient(colors: [Color.blue.opacity(0.08), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 400)
+                IslandPalette.background
+                RadialGradient(colors: [IslandPalette.lavender.opacity(0.065), .clear], center: .topTrailing, startRadius: 0, endRadius: 500)
                 Color.black.frame(height: store.compactHeight)
                 expandedBody
                     .frame(width: store.presentationWidth, height: store.presentationHeight - store.compactHeight)
@@ -26,10 +25,10 @@ struct IslandRootView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .clipShape(shape)
-            .overlay(shape.stroke(dropTargeted ? accent.opacity(0.8) : .white.opacity(0.09), lineWidth: dropTargeted ? 2 : 1))
+            .overlay(shape.stroke(dropTargeted ? accent.opacity(0.8) : IslandPalette.separator.opacity(0.7), lineWidth: dropTargeted ? 2 : 0.8))
         }
         .ignoresSafeArea()
-        .foregroundStyle(Color(red: 0.94, green: 0.92, blue: 0.98))
+        .foregroundStyle(IslandPalette.text)
         .tint(accent).environment(\.islandAccent, accent)
         .environment(\.locale, Locale(identifier: "ru_RU"))
         .preferredColorScheme(.dark)
@@ -45,26 +44,23 @@ struct IslandRootView: View {
     }
     private var expandedBody: some View {
         VStack(spacing: 0) {
-            header.padding(.horizontal, 22).padding(.top, 21).padding(.bottom, 14)
-            Rectangle().fill(.white.opacity(0.06)).frame(height: 1)
-            HStack(spacing: 0) {
-                sidebar.frame(width: 150)
-                Rectangle().fill(.white.opacity(0.06)).frame(width: 1)
-                VStack(alignment: .leading, spacing: 13) {
-                    if let error = store.error {
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-                            Text(error).font(.caption).lineLimit(3).textSelection(.enabled)
-                            Spacer(minLength: 0)
-                            Button { store.error = nil } label: { Image(systemName: "checkmark") }.buttonStyle(IslandButtonStyle(.icon))
-                        }.padding(11).islandCard(tint: .orange)
-                    }
-                    Group {
-                        if !store.state.settings.musicOnboardingComplete { MusicOnboardingView(store: store) }
-                        else { content }
-                    }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                }.padding(20)
-            }
+            topBar.padding(.horizontal, 24).padding(.top, 14).padding(.bottom, 8)
+            VStack(alignment: .leading, spacing: 10) {
+                if let error = store.error {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                        Text(error).font(.system(size: 11)).lineLimit(3).textSelection(.enabled)
+                        Spacer(minLength: 0)
+                        Button { store.error = nil } label: { Image(systemName: "checkmark") }
+                            .buttonStyle(IslandButtonStyle(.icon)).accessibilityLabel("Скрыть сообщение")
+                    }.padding(10).islandCard(tint: .orange)
+                }
+                Group {
+                    if !store.state.settings.musicOnboardingComplete { MusicOnboardingView(store: store) }
+                    else { content }
+                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }.padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 16)
+            bottomBar
         }
     }
     @ViewBuilder private var content: some View {
@@ -80,71 +76,83 @@ struct IslandRootView: View {
     private var accent: Color {
         if store.state.settings.coverAccent, store.media.artwork != nil { return Color(nsColor: store.media.artworkColor) }
         switch store.state.settings.accent {
-        case "mint": return Color(red: 0.25, green: 0.86, blue: 0.78)
-        case "orange": return .orange
-        case "blue": return .cyan
-        default: return Color(red: 0.67, green: 0.5, blue: 1)
+        case "mint": return IslandPalette.mint
+        case "orange": return Color(islandHex: 0xF5BA88)
+        case "blue": return Color(islandHex: 0x8BCBEF)
+        default: return IslandPalette.lavender
         }
     }
-    private var header: some View {
-        HStack(spacing: 12) {
-            IslandBrandMark(size: 42)
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Solo Island").font(.system(size: 17, weight: .semibold, design: .rounded))
-                Text(store.tab.rawValue).font(.system(size: 11)).foregroundStyle(.secondary)
-            }
+    private var topBar: some View {
+        HStack(spacing: 8) {
+            IslandBrandMark(size: 22).accessibilityHidden(true)
+            Text("Solo Island").font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(IslandPalette.secondary)
             Spacer(minLength: 8)
             if let toast = store.toast {
-                Label(toast.message, systemImage: toast.symbol).font(.system(size: 11, weight: .medium)).lineLimit(1)
-                    .foregroundStyle(accent).padding(.horizontal, 10).padding(.vertical, 8).background(accent.opacity(0.1), in: Capsule())
-            } else if store.state.focus != nil {
-                Button { store.tab = .focus } label: { Label(store.focusedTime, systemImage: "timer").monospacedDigit() }
-                    .buttonStyle(IslandButtonStyle(.bare)).font(.system(size: 12, weight: .medium)).foregroundStyle(accent)
+                Label(toast.message, systemImage: toast.symbol)
+                    .font(.system(size: 11)).foregroundStyle(accent).lineLimit(1)
+                    .frame(maxWidth: 280, alignment: .trailing)
+            } else if store.state.focus != nil && store.tab != .focus {
+                Button { store.tab = .focus } label: {
+                    Label(store.focusedTime, systemImage: "timer").monospacedDigit()
+                        .font(.system(size: 11, weight: .medium))
+                }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(accent)
+                    .accessibilityLabel("Открыть фокус, осталось " + store.focusedTime)
             }
-            Button { store.pinned.toggle() } label: {
-                Label(store.pinned ? "Закреплено" : "Закрепить", systemImage: store.pinned ? "pin.fill" : "pin")
-                    .font(.system(size: 11, weight: .medium)).frame(height: 22)
-            }.buttonStyle(IslandButtonStyle(store.pinned ? .filled : .soft))
-                .recordingTarget(store.pinned ? "Закреплено" : "Закрепить")
-                .help("Удерживать островок открытым поверх остальных окон")
-            Button(role: .destructive) { NSApp.terminate(nil) } label: {
-                Image(systemName: "power").font(.system(size: 14, weight: .semibold)).frame(width: 22, height: 22)
-            }.buttonStyle(IslandButtonStyle(.icon))
-                .accessibilityLabel("Завершить Solo Island")
-                .help("Завершить Solo Island полностью (⌘Q)")
-                .keyboardShortcut("q", modifiers: .command)
-                .recordingTarget("Завершить Solo Island:\(ObjectIdentifier(store))")
-        }
+        }.frame(height: 24)
     }
-    private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text("ПРОСТРАНСТВО").font(.system(size: 8, weight: .semibold)).tracking(1.7).foregroundStyle(.white.opacity(0.3)).padding(.horizontal, 11).padding(.bottom, 6)
-            ForEach(IslandTab.allCases) { tab in
-                Button { store.tab = tab } label: {
-                    HStack(spacing: 11) {
-                        SidebarIcon(tab: tab, color: tab.color).frame(width: 20, height: 18)
-                        Text(tab.rawValue).font(.system(size: 12, weight: store.tab == tab ? .semibold : .regular))
-                        Spacer(minLength: 0)
-                        if tab == .files && !store.state.shelf.isEmpty {
-                            Text("\(store.state.shelf.count)").font(.system(size: 9, weight: .medium)).foregroundStyle(.white.opacity(0.5))
-                        }
-                    }.padding(.horizontal, 11).padding(.vertical, 11)
-                        .background {
-                            if store.tab == tab {
-                                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                                    .fill(LinearGradient(colors: [tab.color.opacity(0.18), tab.color.opacity(0.06)], startPoint: .leading, endPoint: .trailing))
-                            }
-                        }
-                        .contentShape(RoundedRectangle(cornerRadius: 13))
-                }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(store.tab == tab ? .white : .white.opacity(0.65)).recordingTarget("Вкладка:" + tab.rawValue)
-            }
-            Spacer()
+    private var bottomBar: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 4) {
+                ForEach(Array(IslandTab.allCases.prefix(5).enumerated()), id: \.element.id) { index, tab in
+                    Button { store.tab = tab } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: tab.icon).font(.system(size: 16, weight: .medium))
+                                .frame(height: 18)
+                            Text(tab.rawValue).font(.system(size: 10, weight: store.tab == tab ? .semibold : .medium))
+                                .lineLimit(1).minimumScaleFactor(0.85)
+                        }.frame(maxWidth: .infinity).frame(height: 44)
+                            .background(store.tab == tab ? accent.opacity(0.12) : .clear,
+                                        in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .contentShape(RoundedRectangle(cornerRadius: 12))
+                    }.buttonStyle(IslandButtonStyle(.bare))
+                        .foregroundStyle(store.tab == tab ? accent : IslandPalette.secondary)
+                        .accessibilityLabel(tab.rawValue)
+                        .accessibilityAddTraits(store.tab == tab ? .isSelected : [])
+                        .help(tab.rawValue + " (⌘" + String(index + 1) + ")")
+                        .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
+                        .recordingTarget("Вкладка:" + tab.rawValue)
+                }
+            }.frame(maxWidth: 420)
+            Spacer(minLength: 0)
+            Rectangle().fill(IslandPalette.separator).frame(width: 0.5, height: 24)
             HStack(spacing: 6) {
-                Circle().fill(.green.opacity(0.8)).frame(width: 5, height: 5)
-                Text("Только на этом Mac").font(.system(size: 9)).foregroundStyle(.secondary)
-            }.padding(.horizontal, 10)
-        }.padding(.horizontal, 10).padding(.vertical, 20)
-            .background(Color(red: 0.065, green: 0.04, blue: 0.095).opacity(0.65))
+                Button { store.tab = .settings } label: {
+                    Image(systemName: "gearshape").font(.system(size: 15)).frame(width: 20, height: 22)
+                }.buttonStyle(IslandButtonStyle(.icon))
+                    .background(store.tab == .settings ? accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(store.tab == .settings ? accent : IslandPalette.secondary)
+                    .accessibilityLabel("Настройки").help("Настройки (⌘,)")
+                    .accessibilityAddTraits(store.tab == .settings ? .isSelected : [])
+                    .keyboardShortcut(",", modifiers: .command).recordingTarget("Вкладка:" + IslandTab.settings.rawValue)
+                Button { store.pinned.toggle() } label: {
+                    Image(systemName: store.pinned ? "pin.fill" : "pin").font(.system(size: 14)).frame(width: 20, height: 22)
+                }.buttonStyle(IslandButtonStyle(.icon))
+                    .background(store.pinned ? accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 12))
+                    .accessibilityLabel(store.pinned ? "Закреплено" : "Закрепить")
+                    .accessibilityValue(store.pinned ? "Включено" : "Выключено")
+                    .help("Удерживать островок открытым поверх остальных окон")
+                    .recordingTarget(store.pinned ? "Закреплено" : "Закрепить")
+                Button(role: .destructive) { NSApp.terminate(nil) } label: {
+                    Image(systemName: "power").font(.system(size: 14, weight: .medium)).frame(width: 20, height: 22)
+                }.buttonStyle(IslandButtonStyle(.icon))
+                    .accessibilityLabel("Завершить Solo Island").help("Завершить Solo Island полностью (⌘Q)")
+                    .keyboardShortcut("q", modifiers: .command)
+                    .recordingTarget("Завершить Solo Island:\(ObjectIdentifier(store))")
+            }.fixedSize()
+        }.padding(.horizontal, 18).padding(.top, 8).padding(.bottom, 12)
+            .background(IslandPalette.navigation.opacity(0.85))
+            .overlay(alignment: .top) { Rectangle().fill(IslandPalette.separator.opacity(0.45)).frame(height: 0.5) }
     }
     private func receive(_ providers: [NSItemProvider]) -> Bool {
         guard !providers.isEmpty else { return false }
@@ -183,16 +191,34 @@ struct IslandRootView: View {
 struct CoverView: View {
     var image: NSImage?
     var size: CGFloat
+    var isPlaying = false
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.islandReducedMotionOverride) private var motionOverride
     var body: some View {
         Group {
             if let image { Image(nsImage: image).resizable().aspectRatio(contentMode: .fill) }
             else {
-                ZStack {
-                    LinearGradient(colors: [.purple.opacity(0.6), .indigo.opacity(0.65)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    Image(systemName: "music.note").font(.system(size: size * 0.36))
+                TimelineView(.animation(minimumInterval: 1.0 / 24, paused: !isPlaying || (motionOverride ?? systemReduceMotion))) { timeline in
+                    ZStack {
+                        IslandPalette.surface
+                        ZStack {
+                            Circle().fill(Color(islandHex: 0x0C0A10))
+                            ForEach(0..<5) { index in
+                                Circle().stroke(IslandPalette.lavender.opacity(0.08), lineWidth: 0.7)
+                                    .padding(CGFloat(index + 1) * size * 0.04)
+                            }
+                            Circle().fill(IslandPalette.lavender).frame(width: size * 0.34, height: size * 0.34)
+                            Capsule().fill(IslandPalette.background).frame(width: size * 0.24, height: size * 0.105)
+                                .rotationEffect(.degrees(-24))
+                            Circle().fill(IslandPalette.mint).frame(width: size * 0.05, height: size * 0.05)
+                                .offset(x: size * 0.11, y: -size * 0.045)
+                        }.padding(size * 0.075)
+                            .rotationEffect(.degrees(isPlaying && !(motionOverride ?? systemReduceMotion) ? timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 45) * 8 : 0))
+                    }
                 }
             }
-        }.frame(width: size, height: size).clipShape(RoundedRectangle(cornerRadius: size * 0.2, style: .continuous))
+        }.frame(width: size, height: size).clipShape(RoundedRectangle(cornerRadius: size * 0.16, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: size * 0.16).strokeBorder(.white.opacity(0.06), lineWidth: 0.8))
     }
 }
 
@@ -204,15 +230,15 @@ struct EmptyState: View {
     var detail: String
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: icon).font(.system(size: 32, weight: .light)).foregroundStyle(accent)
-                .frame(width: 72, height: 72).background(accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            Text(title).font(.system(size: 15, weight: .semibold, design: .rounded))
-            Text(detail).font(.system(size: 12)).foregroundStyle(.secondary).multilineTextAlignment(.center).lineSpacing(3)
+            Image(systemName: icon).font(.system(size: 27, weight: .light)).foregroundStyle(accent)
+                .frame(width: 64, height: 64).background(IslandPalette.surface, in: RoundedRectangle(cornerRadius: 21, style: .continuous))
+            Text(title).font(.system(size: 17, weight: .semibold, design: .rounded))
+            Text(detail).font(.system(size: 12)).foregroundStyle(IslandPalette.secondary).multilineTextAlignment(.center).lineSpacing(3)
         }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(20)
     }
 }
 
-private struct IslandAccentKey: EnvironmentKey { static let defaultValue = Color.purple }
+private struct IslandAccentKey: EnvironmentKey { static let defaultValue = IslandPalette.mint }
 extension EnvironmentValues {
     var islandAccent: Color {
         get { self[IslandAccentKey.self] }
@@ -220,25 +246,13 @@ extension EnvironmentValues {
     }
 }
 extension View {
-    func islandCard(tint: Color = .purple, radius: CGFloat = 18) -> some View {
-        background(LinearGradient(colors: [tint.opacity(0.07), Color.white.opacity(0.025)], startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: radius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(.white.opacity(0.06), lineWidth: 1))
+    func islandCard(tint: Color = IslandPalette.lavender, radius: CGFloat = 16) -> some View {
+        background {
+            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(IslandPalette.surface)
+                .overlay(RoundedRectangle(cornerRadius: radius).fill(tint.opacity(0.025)))
+        }.overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(IslandPalette.separator.opacity(0.65), lineWidth: 0.7))
     }
 }
-private extension IslandTab {
-    var color: Color {
-        switch self {
-        case .music: return .purple
-        case .tasks: return Color(red: 0.25, green: 0.84, blue: 0.97)
-        case .focus: return Color(red: 1, green: 0.66, blue: 0.25)
-        case .files: return .pink
-        case .actions: return .yellow
-        case .settings: return .indigo
-        }
-    }
-}
-
 /// A narrow black neck touches the screen edge; the body grows from the hardware notch.
 struct NotchAttachmentShape: Shape {
     var neckWidth: CGFloat
@@ -269,36 +283,5 @@ struct NotchAttachmentShape: Shape {
         p.addQuadCurve(to: CGPoint(x: left, y: bodyY - shoulder), control: CGPoint(x: left, y: bodyY))
         p.addLine(to: CGPoint(x: left, y: 0)); p.closeSubpath()
         return p
-    }
-}
-
-@MainActor
-private struct SidebarIcon: View {
-    let tab: IslandTab
-    let color: Color
-    var body: some View {
-        Group {
-            if tab == .tasks {
-                VStack(spacing: 3) {
-                    ForEach(0..<3) { _ in
-                        HStack(spacing: 3) {
-                            Circle().fill(color).frame(width: 3, height: 3)
-                            Capsule().fill(color).frame(width: 11, height: 1.6)
-                        }
-                    }
-                }
-            } else if tab == .focus {
-                ZStack {
-                    Circle().stroke(color, lineWidth: 1.4).frame(width: 12, height: 12)
-                    Circle().fill(color).frame(width: 3, height: 3)
-                    Capsule().fill(color).frame(width: 1.4, height: 3).offset(y: -8)
-                    Capsule().fill(color).frame(width: 1.4, height: 3).offset(y: 8)
-                    Capsule().fill(color).frame(width: 3, height: 1.4).offset(x: -8)
-                    Capsule().fill(color).frame(width: 3, height: 1.4).offset(x: 8)
-                }
-            } else {
-                Image(systemName: tab.icon).font(.system(size: 14, weight: .medium)).foregroundStyle(color)
-            }
-        }
     }
 }

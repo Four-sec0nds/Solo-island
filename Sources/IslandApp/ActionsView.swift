@@ -14,9 +14,13 @@ struct ActionsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text(adding ? "Новое действие" : "Быстрые действия").font(.headline)
+                IslandSectionHeading(title: adding ? "Новое действие" : "Быстрый запуск",
+                                     subtitle: adding ? nil : "Приложения, папки и команды")
                 Spacer()
-                if !adding { Button { adding = true } label: { Image(systemName: "plus") }.recordingTarget("Добавить действие") }
+                if !adding {
+                    Button { adding = true } label: { Image(systemName: "plus").frame(width: 20, height: 20) }
+                        .buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel("Добавить действие").recordingTarget("Добавить действие")
+                }
             }
             if adding {
                 TextField("Название кнопки", text: $title).textFieldStyle(IslandTextFieldStyle())
@@ -44,17 +48,22 @@ struct ActionsView: View {
                 EmptyState(icon: "bolt.fill", title: "Ваши частые действия", detail: "Добавьте приложения, папки и команды — они будут доступны в одном месте.")
             } else {
                 ScrollView {
-                    LazyVGrid(columns: [.init(.adaptive(minimum: 120), spacing: 12)], spacing: 12) {
+                    LazyVGrid(columns: [.init(.adaptive(minimum: 145), spacing: 12)], spacing: 12) {
                         ForEach(store.state.actions) { action in
                             Button { store.runAction(action) } label: {
-                                VStack(spacing: 12) {
-                                    QuickActionIcon(action: action).frame(width: 44, height: 44)
-                                    Text(action.title).font(.system(size: 12, weight: .medium, design: .rounded)).lineLimit(2).multilineTextAlignment(.center)
-                                }.frame(maxWidth: .infinity, minHeight: 96).padding(16)
+                                VStack(alignment: .leading, spacing: 9) {
+                                    HStack {
+                                        QuickActionIcon(action: action).frame(width: 36, height: 36)
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right").font(.system(size: 10, weight: .medium)).foregroundStyle(IslandPalette.muted)
+                                    }
+                                    Text(action.title).font(.system(size: 13, weight: .semibold, design: .rounded)).lineLimit(1)
+                                    Text(action.kind.rawValue).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
+                                }.frame(maxWidth: .infinity, minHeight: 84, alignment: .leading).padding(14)
                                     .islandCard()
                             }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(action.title).contextMenu { Button("Удалить действие", role: .destructive) { store.removeAction(action.id) } }
                         }
-                    }
+                    }.padding(1)
                 }
             }
         }.onChange(of: kind) { _, _ in target = "" }

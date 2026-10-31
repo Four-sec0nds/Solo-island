@@ -12,9 +12,43 @@ enum PreviewRecorder {
         guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return nil }
         view.cacheDisplay(in: view.bounds, to: bitmap); return bitmap
     }
-    static func png(_ window: NSWindow, to url: URL) throws {
-        guard let data = snapshot(window)?.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+    static func png(_ window: NSWindow, to url: URL, overlay: NSWindow? = nil) throws {
+        guard var bitmap = snapshot(window) else { throw CocoaError(.fileWriteUnknown) }
+        // Composite only our own two native windows, never the desktop or camera.
+        if let overlay, overlay.isVisible, let foreground = snapshot(overlay) {
+            let size = window.frame.size
+            guard let canvas = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                bytesPerRow: Int(size.width) * 4, bitsPerPixel: 32), let context = NSGraphicsContext(bitmapImageRep: canvas) else { throw CocoaError(.fileWriteUnknown) }
+            NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = context
+            context.cgContext.clear(NSRect(origin: .zero, size: size))
+            let background = NSImage(size: size); background.addRepresentation(bitmap)
+            background.draw(in: NSRect(origin: .zero, size: size))
+            let image = NSImage(size: overlay.frame.size); image.addRepresentation(foreground)
+            image.draw(in: NSRect(x: overlay.frame.minX - window.frame.minX, y: overlay.frame.minY - window.frame.minY,
+                                 width: overlay.frame.width, height: overlay.frame.height))
+            NSGraphicsContext.restoreGraphicsState(); bitmap = canvas
+        }
+        guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
         try data.write(to: url, options: .atomic)
+    }
+    /// Native test navigation follows a real control, independent of section height.
+    static func revealControl(_ name: String, in window: NSWindow, topMargin: CGFloat = 45) -> Bool {
+        guard CommandLine.arguments.contains("--render-preview"), let view = window.contentView,
+              let target = RecordingTargets.frames[name] else { return false }
+        func scrollViews(_ root: NSView) -> [NSScrollView] {
+            (root as? NSScrollView).map { [$0] } ?? root.subviews.flatMap(scrollViews)
+        }
+        guard let scroll = scrollViews(view).filter({ !$0.isHidden && $0.bounds.height > 70 })
+            .max(by: { $0.bounds.height < $1.bounds.height }), let document = scroll.documentView else { return false }
+        let viewport = scroll.convert(scroll.bounds, to: nil)
+        let viewportTop = window.frame.height - viewport.maxY
+        let current = scroll.contentView.bounds.origin
+        let maximum = max(0, document.bounds.height - scroll.contentView.bounds.height)
+        let y = min(maximum, max(0, current.y + target.midY - viewportTop - topMargin))
+        scroll.contentView.scroll(to: NSPoint(x: current.x, y: y))
+        scroll.reflectScrolledClipView(scroll.contentView)
+        return true
     }
     static func animationFrame(_ window: NSWindow, canvas: NSSize, neckWidth: CGFloat, neckHeight: CGFloat) -> CGImage? {
         guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(canvas.width), pixelsHigh: Int(canvas.height),

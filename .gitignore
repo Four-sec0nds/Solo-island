@@ -20,3 +20,6 @@ __pycache__/
 /credentials.json
 /state.json
 /Clipboard/
+
+# Generated output from a temporary preview workflow.
+.preview-build/

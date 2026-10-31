@@ -6,17 +6,17 @@ struct IslandBrandMark: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: size * 0.27, style: .continuous)
-                .fill(LinearGradient(colors: [Color(red: 0.24, green: 0.12, blue: 0.4), Color(red: 0.09, green: 0.06, blue: 0.17)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            Ellipse().stroke(Color.purple.opacity(0.65), lineWidth: max(1, size * 0.025))
+                .fill(IslandPalette.raised)
+            Ellipse().stroke(IslandPalette.lavender.opacity(0.8), lineWidth: max(1, size * 0.025))
                 .frame(width: size * 0.84, height: size * 0.37).rotationEffect(.degrees(-28))
             Capsule().fill(Color.black).frame(width: size * 0.64, height: size * 0.28)
             HStack(spacing: size * 0.035) {
                 ForEach(0..<3) { index in
-                    Capsule().fill(Color(red: 0.35, green: 0.94, blue: 0.79))
+                    Capsule().fill(IslandPalette.mint)
                         .frame(width: size * 0.035, height: size * [0.10, 0.19, 0.13][index])
                 }
             }
-            Circle().fill(Color(red: 0.35, green: 0.94, blue: 0.79)).frame(width: size * 0.075, height: size * 0.075)
+            Circle().fill(IslandPalette.mint).frame(width: size * 0.075, height: size * 0.075)
                 .offset(x: size * 0.33, y: -size * 0.18)
         }.frame(width: size, height: size).accessibilityLabel("Solo Island")
     }
@@ -72,10 +72,11 @@ struct MusicProviderGrid: View {
                 Button { select(provider) } label: {
                     HStack(spacing: 10) {
                         MusicProviderIcon(provider: provider, size: 30)
-                        Text(provider.title).font(.system(size: 11, weight: .semibold)).lineLimit(1)
+                        Text(provider.title).font(.system(size: 12, weight: .medium)).lineLimit(1)
                         Spacer(minLength: 0)
-                        if selected == provider { Image(systemName: "checkmark.circle.fill").foregroundStyle(Color.mint) }
-                    }.padding(10).frame(maxWidth: .infinity).islandCard(tint: selected == provider ? .mint : .purple)
+                        if selected == provider { Image(systemName: "checkmark.circle.fill").foregroundStyle(IslandPalette.mint) }
+                    }.padding(12).frame(maxWidth: .infinity).islandCard(tint: selected == provider ? IslandPalette.mint : IslandPalette.lavender)
+                        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(selected == provider ? IslandPalette.mint.opacity(0.5) : .clear, lineWidth: 1))
                 }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(provider.title)
             }
         }
@@ -90,8 +91,8 @@ struct MusicOnboardingView: View {
             HStack(spacing: 12) {
                 IslandBrandMark(size: 48)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Что ты слушаешь?").font(.system(size: 22, weight: .semibold, design: .rounded))
-                    Text("Выбери сервис для своего островка.").font(.system(size: 11)).foregroundStyle(.secondary)
+                    Text("Что ты слушаешь?").font(.system(size: 24, weight: .semibold, design: .rounded))
+                    Text("Выбери сервис для своего островка.").font(.system(size: 12)).foregroundStyle(IslandPalette.secondary)
                 }
             }
             MusicProviderGrid(selected: store.state.settings.musicProvider) { store.selectMusicProvider($0) }

@@ -82,7 +82,7 @@ final class IslandStore: ObservableObject {
         // Focus reminders remain scheduled; no assumptions about a surviving process.
     }
     /// Development recording updates synthetic state without notifications or persistence.
-    func previewFocus(_ session: FocusSession, at date: Date) {
+    func previewFocus(_ session: FocusSession?, at date: Date) {
         guard CommandLine.arguments.contains("--render-preview") else { return }
         state.focus = session; now = date
     }

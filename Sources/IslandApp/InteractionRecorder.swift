@@ -278,7 +278,7 @@ final class InteractionRecorder {
     }
 
     private func run() async throws {
-        defer { store.webMusic.stop(); window.orderOut(nil) }
+        defer { store.webMusic.stop(); controller.close() }
         try await Task.sleep(nanoseconds: 900_000_000)
         store.webMusic.loadPreviewFixture(duration: 228)
         for _ in 0..<100 {
@@ -389,7 +389,8 @@ final class InteractionRecorder {
         try await press("Отмена", fallback: NSPoint(x:215,y:499)); try await capture(6)
 
         try begin("settings"); try await tab(.settings)
-        try await scroll(to: 0.40)
+        guard PreviewRecorder.revealControl("Ширина", in: window) else { throw failure("Appearance controls were not found") }
+        events.append(Event(frame: frames.count, kind: "scroll", label: name)); try await capture(8)
         let before = store.state.settings
         try await drag("Ширина", fractions: [(720.0-640)/260,0.65,0.18,(720.0-640)/260], fallback: NSRect(x:180,y:240,width:510,height:22))
         guard let widths = sliderValues["Ширина"], (widths.max()! - widths.min()!) > 100,
@@ -398,7 +399,8 @@ final class InteractionRecorder {
         try await drag("Скорость анимации", fractions: [(before.animationDuration-0.12)/0.48,1,0,0.42], fallback: NSRect(x:180,y:350,width:510,height:22))
         guard let radii = sliderValues["Скругление"], radii.max()! - radii.min()! > 10,
               let speeds = sliderValues["Скорость анимации"], speeds.max()! - speeds.min()! > 0.3 else { throw failure("Native appearance sliders did not change settings") }
-        try await scroll(to: 0.56)
+        guard PreviewRecorder.revealControl("Алерт:акцент", in: window, topMargin: 75) else { throw failure("Accent control was not found") }
+        events.append(Event(frame: frames.count, kind: "scroll", label: name)); try await capture(8)
         if store.state.settings.coverAccent { try await press("Алерт:акцент", fallback: NSPoint(x:680,y:230)) }
         try await press("Фиолетовый", fallback: NSPoint(x:510,y:270)); try await capture(6)
         try await press("Мятный", fallback: NSPoint(x:230,y:270)); try await capture(6)
