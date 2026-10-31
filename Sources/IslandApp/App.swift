@@ -167,6 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music)
                 ]
                 for (name, tab) in stills {
+                    fputs("Native snapshot: \(name)\n", stderr)
                     let destination = name == "preview" ? output : directory.appendingPathComponent("SoloIsland-" + name + ".png")
                     let stillFolder = folder.appendingPathComponent("still-" + name)
                     var stillFixture = fixture

@@ -37,11 +37,12 @@ if [[ "${BUILD_RESULT:-}" == success ]]; then
     add_file dist/SoloIsland.dmg SoloIsland.dmg
     (cd dist && shasum -a 256 SoloIsland.dmg) > "$work_dir/SoloIsland.dmg.sha256"
     add_file "$work_dir/SoloIsland.dmg.sha256" SoloIsland.dmg.sha256
+fi
+# Keep named synthetic captures available to diagnose a failed native check.
     if [[ -f dist/SoloIsland-preview.png ]]; then add_file dist/SoloIsland-preview.png preview.png; fi
     for preview in SoloIsland-tasks.png SoloIsland-actions.png SoloIsland-focus.png SoloIsland-files.png SoloIsland-onboarding.png SoloIsland-custom-focus.png SoloIsland-deadline.png SoloIsland-reminder.png SoloIsland-settings.png SoloIsland-web-demo.png SoloIsland-icon.png SoloIsland-music-compact.png SoloIsland-tasks-compact.png SoloIsland-focus-compact.png SoloIsland-settings-compact.png SoloIsland-settings-appearance.png SoloIsland-music-empty.png SoloIsland-tasks-empty.png SoloIsland-music-error.png SoloIsland-notch-music.png SoloIsland-notch-paused.png SoloIsland-notch-focus.png SoloIsland-notch-focus-paused.png SoloIsland-notch-combined.png; do
         if [[ -f "dist/$preview" ]]; then add_file "dist/$preview" "$preview"; fi
     done
-fi
 tree_id="$(git write-tree)"
 commit_id="$(git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
     commit-tree "$tree_id" -p "$GITHUB_SHA" -m "Save preview installer for ${GITHUB_SHA:0:7} [skip ci]")"

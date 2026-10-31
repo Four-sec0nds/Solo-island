@@ -118,6 +118,7 @@ final class InteractionRecorder {
     }
 
     private func begin(_ value: String) throws {
+        fputs("Native validation phase: \(value)\n", stderr)
         if !frames.isEmpty { clips.append(Clip(name: name, fps: 20, frames: frames, events: events)) }
         name = value; frames = []; events = []
         try FileManager.default.createDirectory(at: folder.appendingPathComponent(name), withIntermediateDirectories: true)
@@ -191,16 +192,31 @@ final class InteractionRecorder {
         }
     }
     private func press(_ query: String, fallback: NSPoint, after: () -> Void = {}) async throws {
+        fputs("Native input: click \(query)\n", stderr)
+        let deadline = inputDeadline("click " + query)
+        defer { deadline.cancel() }
         let object = control(query, role: "AXButton")
         let rect = RecordingTargets.frames[query] ?? object.flatMap(rectangle)
         let point = rect.map { NSPoint(x: query.hasPrefix("Алерт:") ? $0.maxX - 18 : $0.midX, y: $0.midY) } ?? fallback
         try await move(to: point)
         events.append(Event(frame: frames.count, kind: "click", label: query))
-        // AppKit text fields track the mouse synchronously. Supply their release
-        // in the event queue before entering that loop, so the recorder can resume.
-        if ["Название задачи", "Часы", "Минуты"].contains(query) { mouse(.leftMouseUp, at: point, queued: true) }
+        try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
+        // Any AppKit-backed button can track synchronously, especially when its
+        // action replaces the onboarding view with a WKWebView. Queue the real
+        // release before mouse-down instead of waiting for the tracking loop.
+        mouse(.leftMouseUp, at: point, queued: true)
         pressed = true; mouse(.leftMouseDown, at: point); try await capture(2)
-        pressed = false; mouse(.leftMouseUp, at: point); after(); try await capture(5)
+        pressed = false; after(); try await capture(5)
+    }
+    private func inputDeadline(_ label: String, seconds: Double = 20) -> DispatchSourceTimer {
+        let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
+        timer.schedule(deadline: .now() + seconds)
+        timer.setEventHandler {
+            fputs("Native input timed out: \(label)\n", stderr)
+            exit(1)
+        }
+        timer.resume()
+        return timer
     }
     private func tab(_ target: IslandTab) async throws {
         let index = IslandTab.allCases.firstIndex(of: target)!
@@ -238,6 +254,9 @@ final class InteractionRecorder {
         guard maxY > 1 else { throw failure("Fixture does not overflow in \(name)") }
     }
     private func drag(_ label: String, fractions: [Double], fallback: NSRect) async throws {
+        fputs("Native input: drag \(label)\n", stderr)
+        let deadline = inputDeadline("drag " + label)
+        defer { deadline.cancel() }
         func slider() -> NSObject? {
             control(label, role: "AXSlider") ?? objects().first {
                 guard attributes($0).contains(label), let r = rectangle($0) else { return false }
@@ -278,6 +297,8 @@ final class InteractionRecorder {
     }
 
     private func run() async throws {
+        let deadline = inputDeadline("complete interaction validation", seconds: 480)
+        defer { deadline.cancel() }
         defer { store.webMusic.stop(); controller.close() }
         try await Task.sleep(nanoseconds: 900_000_000)
         store.webMusic.loadPreviewFixture(duration: 228)
@@ -414,6 +435,7 @@ final class InteractionRecorder {
         try encoder.encode(clips).write(to: folder.appendingPathComponent("manifest.json"))
         try encoder.encode(sliderValues).write(to: folder.appendingPathComponent("slider-values.json"))
         try FileManager.default.removeItem(at: folder.appendingPathComponent("fixture"))
+        try? FileManager.default.removeItem(at: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
         fputs("Interactive native footage: \(clips.count) clips, \(clips.reduce(0) { $0 + $1.frames.count }) frames; music, all five sliders, calendars, lists, focus and buttons recorded\n", stderr)
     }
 }
