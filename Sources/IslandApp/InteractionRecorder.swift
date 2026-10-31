@@ -2,6 +2,7 @@ import AppKit
 import IslandCore
 import CryptoKit
 import SwiftUI
+import IslandAccessibility
 
 @MainActor
 enum RecordingTargets { static var frames: [String: CGRect] = [:] }
@@ -163,21 +164,36 @@ final class InteractionRecorder {
         }
     }
     private func attributes(_ object: NSObject) -> String {
-        [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
+        let legacy = [NSAccessibility.Attribute.title, .description, .help, .value, .placeholderValue].compactMap {
             object.accessibilityAttributeValue($0) as? String
         }.joined(separator: " | ")
+        return SIAXText(object) + " | " + legacy
     }
     private func objects() -> [NSObject] {
         var result: [NSObject] = [], seen = Set<ObjectIdentifier>()
         func visit(_ object: NSObject, depth: Int) {
             guard depth < 35, seen.insert(ObjectIdentifier(object)).inserted else { return }
             result.append(object)
-            for child in object.accessibilityAttributeValue(.children) as? [NSObject] ?? [] { visit(child, depth: depth + 1) }
+            let modern = SIAXChildren(object).compactMap { $0 as? NSObject }
+            let legacy = object.accessibilityAttributeValue(.children) as? [NSObject] ?? []
+            for child in modern + legacy { visit(child, depth: depth + 1) }
         }
         visit(window, depth: 0)
         return result
     }
+    private func role(_ object: NSObject) -> String? {
+        SIAXRole(object) ?? (object.accessibilityAttributeValue(.role) as? String)
+    }
     private func rectangle(_ object: NSObject) -> NSRect? {
+        var frame = SIAXFrame(object)
+        if frame.width > 0 && frame.height > 0 {
+            if !window.frame.intersects(frame), let screen = window.screen {
+                let flipped = NSRect(x: frame.minX, y: screen.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
+                if window.frame.intersects(flipped) { frame = flipped }
+            }
+            return NSRect(x: frame.minX - window.frame.minX, y: window.frame.maxY - frame.maxY,
+                          width: frame.width, height: frame.height)
+        }
         guard let pos = object.accessibilityAttributeValue(.position) as? NSValue,
               let size = object.accessibilityAttributeValue(.size) as? NSValue else { return nil }
         let p = pos.pointValue, s = size.sizeValue
@@ -185,8 +201,9 @@ final class InteractionRecorder {
     }
     private func control(_ query: String, role: String? = nil) -> NSObject? {
         objects().first { object in
-            let match = attributes(object).contains(query)
-            let validRole = role == nil || object.accessibilityAttributeValue(.role) as? String == role
+            let label = query.hasPrefix("Вкладка:") ? String(query.dropFirst("Вкладка:".count)) : query
+            let match = attributes(object).contains(label)
+            let validRole = role == nil || self.role(object) == role
             guard match, validRole, let r = rectangle(object) else { return false }
             return r.width > 2 && r.height > 2 && r.midY > 30 && r.midY < window.frame.height - 10
         }
@@ -205,19 +222,19 @@ final class InteractionRecorder {
         // Activate the actual native button's accessibility action. This also
         // verifies keyboard/VoiceOver semantics without AppKit's mouse tracking
         // consuming a synthetic release while the button replaces its own view.
-        var button: NSObject? = object
+        var button: NSObject?
+        if let object, rectangle(object)?.contains(point) == true { button = object }
         if button == nil {
             var smallest: CGFloat = .greatestFiniteMagnitude
             for candidate in objects() {
-                guard candidate.accessibilityAttributeValue(.role) as? String == "AXButton",
+                guard ["AXButton", "AXCheckBox", "AXRadioButton", "AXSwitch"].contains(role(candidate) ?? ""),
                       let frame = rectangle(candidate), frame.contains(point) else { continue }
                 let area: CGFloat = frame.width * frame.height
                 if area < smallest { button = candidate; smallest = area }
             }
         }
         pressed = true
-        if let button, button.accessibilityActionNames().contains(NSAccessibility.Action.press) {
-            button.accessibilityPerformAction(NSAccessibility.Action.press)
+        if let button, SIAXPress(button) {
             try await capture(2)
         } else {
             mouse(.leftMouseUp, at: point, queued: true)
@@ -308,11 +325,21 @@ final class InteractionRecorder {
         fputs("Native input: type \(field)\n", stderr)
         let deadline = inputDeadline("type " + field)
         defer { deadline.cancel() }
-        guard let control = control(field, role: "AXTextField") else { throw failure("Text field is not visible: " + field) }
-        if let rect = rectangle(control) { try await move(to: NSPoint(x: rect.midX, y: rect.midY)) }
+        let control = control(field, role: "AXTextField")
+        guard let target = RecordingTargets.frames[field] ?? control.flatMap(rectangle) else { throw failure("Text field is not visible: " + field) }
+        try await move(to: NSPoint(x: target.midX, y: target.midY))
         window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
-        control.accessibilitySetValue(true, forAttribute: .focused)
+        if let control { _ = SIAXFocus(control) }
         try await capture(2)
+        if !(window.firstResponder is NSTextView), let root = window.contentView {
+            let point = NSPoint(x: target.midX, y: window.frame.height - target.midY)
+            func fieldView(_ view: NSView) -> NSTextField? {
+                if let field = view as? NSTextField, field.isEditable,
+                   field.convert(field.bounds, to: nil).contains(point) { return field }
+                return view.subviews.lazy.compactMap(fieldView).first
+            }
+            if let field = fieldView(root) { window.makeFirstResponder(field) }
+        }
         guard let editor = window.firstResponder as? NSTextView else { throw failure("Text field did not acquire its native editor: " + field) }
         editor.setSelectedRange(NSRange(location: 0, length: editor.string.utf16.count))
         events.append(Event(frame: frames.count, kind: "type", label: value))
