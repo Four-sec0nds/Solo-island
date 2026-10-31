@@ -19,19 +19,22 @@ struct TasksView: View {
                         .font(.system(size: 21, weight: .semibold, design: .rounded))
                     Spacer()
                     IslandStateBadge(title: "В списке: \(TaskQuery.tasks(store.state.tasks, in: list, now: store.now).count)", color: accent)
+                    Button {
+                        store.editingReminder = false; store.taskDraft = IslandTask(title: title)
+                        if CommandLine.arguments.contains("--render-preview") { fputs("Task editor: new task button activated\n", stderr) }
+                    } label: { Label("Новая", systemImage: "plus") }
+                        .buttonStyle(IslandButtonStyle(.filled)).help("Добавить срок и напоминание")
+                        .accessibilityLabel("Добавить срок и напоминание").recordingTarget("Добавить срок и напоминание")
                 }
                 IslandSegments(options: TaskList.allCases, selection: $list, title: { $0.rawValue })
-                HStack {
-                    TextField("Новая задача…", text: $title).textFieldStyle(.plain)
+                HStack(spacing: 10) {
+                    TextField("Новая задача…", text: $title).textFieldStyle(IslandTextFieldStyle())
                         .font(.system(size: 13)).accessibilityLabel("Новая задача")
                         .onSubmit { addQuickTask() }
-                    Button { store.editingReminder = false; store.taskDraft = IslandTask(title: title) } label: { Image(systemName: "calendar.badge.clock").frame(width: 20, height: 20) }
-                        .buttonStyle(IslandButtonStyle(.icon)).help("Добавить срок и напоминание")
-                        .accessibilityLabel("Добавить срок и напоминание").recordingTarget("Добавить срок и напоминание")
                     Button { addQuickTask() } label: { Image(systemName: "plus").frame(width: 18, height: 18) }
                         .buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel("Добавить задачу")
                         .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).help("Добавить задачу")
-                }.padding(.leading, 14).padding(.trailing, 6).padding(.vertical, 6).islandCard()
+                }
                 let tasks = TaskQuery.tasks(store.state.tasks, in: list, now: store.now)
                 if tasks.isEmpty {
                     EmptyState(icon: "checklist", title: "Здесь пока пусто", detail: list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
@@ -112,9 +115,10 @@ struct TaskEditor: View {
     private var invalidReminder: Bool { reminderEnabled && reminderDate <= Date() }
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle())
-                    .accessibilityLabel("Название задачи").recordingTarget("Название задачи")
+            TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle())
+                .accessibilityLabel("Название задачи").recordingTarget("Название задачи")
+            HStack(spacing: 10) {
+                IslandSegments(options: ["Срок", "Напоминание"], selection: $section, title: { $0 })
                 Button(action: cancel) { Image(systemName: "arrow.uturn.backward") }.help("Отмена")
                 Button {
                     task.dueAt = dueEnabled ? dueDate : nil; task.reminderAt = reminderEnabled ? reminderDate : nil
@@ -124,7 +128,6 @@ struct TaskEditor: View {
                     .accessibilityLabel("Сохранить задачу")
                     .disabled(task.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || invalidReminder)
             }
-            IslandSegments(options: ["Срок", "Напоминание"], selection: $section, title: { $0 })
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     if section == "Срок" {
