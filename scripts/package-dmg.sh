@@ -9,7 +9,9 @@ dmg_path="$PWD/dist/SoloIsland.dmg"
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-dmg.XXXXXX")"
 mounted=false
 cleanup() {
-    if [[ "$mounted" == true ]]; then hdiutil detach "$work_dir/mount" -quiet || true; fi
+    if [[ "$mounted" == true ]]; then
+        hdiutil detach "$work_dir/mount" -quiet || hdiutil detach -force "$work_dir/mount" -quiet || true
+    fi
     rm -rf "$work_dir"
 }
 trap cleanup EXIT
@@ -39,7 +41,15 @@ codesign --verify --deep --strict "$work_dir/mount/SoloIsland.app"
 "$work_dir/mount/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control" version
 # Exercise the relocated helper without a Homebrew layout. null is valid with no media session.
 "$work_dir/mount/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control" get --no-artwork
-hdiutil detach "$work_dir/mount"
-mounted=false
+# Framework loading and macOS indexing can briefly retain a read-only volume.
+# Only this script's private validation mount is eligible for a forced detach.
+for attempt in 1 2 3; do
+    if hdiutil detach "$work_dir/mount"; then mounted=false; break; fi
+    sleep 1
+done
+if [[ "$mounted" == true ]]; then
+    hdiutil detach -force "$work_dir/mount"
+    mounted=false
+fi
 (cd dist && shasum -a 256 SoloIsland.dmg) > "$PWD/dist/SoloIsland.dmg.sha256"
 echo "Installer: $dmg_path"
