@@ -216,7 +216,7 @@ final class InteractionRecorder {
             }
         }
         pressed = true
-        if let button, button.accessibilityActionNames()?.contains(NSAccessibility.Action.press) == true {
+        if let button, button.accessibilityActionNames().contains(NSAccessibility.Action.press) {
             button.accessibilityPerformAction(NSAccessibility.Action.press)
             try await capture(2)
         } else {
