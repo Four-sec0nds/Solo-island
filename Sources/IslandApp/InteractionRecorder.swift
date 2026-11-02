@@ -408,6 +408,36 @@ final class InteractionRecorder {
         try await scroll(to: 1); try await scroll(to: 0)
         store.setSettings { $0.expandedWidth = 720; $0.cornerRadius = 30; $0.animationDuration = 0.32; $0.accent = "mint" }
         try await capture(8)
+        try begin("agents")
+        store.agents.start()
+        defer { store.agents.stop() }
+        let mailbox = AgentMailbox(root: folder.appendingPathComponent("fixture/AgentBridge/runtime"))
+        let heartbeat = try mailbox.read(AgentHeartbeat.self, from: mailbox.heartbeatURL)
+        for (provider, decision) in [(AgentProvider.codex, AgentDecision.allow), (.claude, .deny), (.codex, .client)] {
+            let payload = try JSONSerialization.data(withJSONObject: ["session_id": UUID().uuidString,
+                "hook_event_name": "PermissionRequest", "cwd": "/Projects/SoloIsland", "tool_name": "Bash",
+                "tool_input": ["command": "swift test", "description": "Запустить тесты проекта"]])
+            let request = try AgentEvent(data: payload, provider: provider, instance: heartbeat.instance,
+                helperPID: ProcessInfo.processInfo.processIdentifier, lifetime: 30)
+            let runner = Task.detached { try AgentHookRunner.run(request, mailbox: mailbox) }
+            for _ in 0..<30 {
+                if store.agents.pending.contains(where: { $0.id == request.id }) { break }
+                try await Task.sleep(nanoseconds: 100_000_000)
+            }
+            guard store.agents.pending.contains(where: { $0.id == request.id }) else { throw failure("Agent hook did not reach Island") }
+            try await tab(.agents)
+            if decision == .allow {
+                try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-agents-approval.png"))
+            }
+            let target = decision == .allow ? "Разрешить агенту:" + request.id.uuidString
+                       : decision == .deny ? "Отклонить агенту:" + request.id.uuidString : "Вернуть в клиент:" + request.id.uuidString
+            try await press(target, fallback: .zero)
+            let output = try await runner.value
+            guard output == (try decision.hookOutput()), !store.agents.pending.contains(where: { $0.id == request.id }) else {
+                throw failure("Native agent approval did not return the exact one-shot hook verdict")
+            }
+        }
+        fputs("Agent bridge: real mailbox, native allow/deny/client clicks and exact one-shot protocol replies passed\n", stderr)
         try await press("Закреплено", fallback: NSPoint(x: 640,y: 70))
 
         clips.append(Clip(name: name, fps: 20, frames: frames, events: events))

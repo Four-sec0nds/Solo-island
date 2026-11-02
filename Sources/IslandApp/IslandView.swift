@@ -12,11 +12,12 @@ struct IslandRootView: View {
     private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     var body: some View {
         GeometryReader { geometry in
-            let shape = NotchAttachmentShape(neckWidth: store.cameraWidth + 16, neckHeight: store.compactHeight, radius: store.state.settings.cornerRadius)
+            let shape = UnevenRoundedRectangle(topLeadingRadius: 0, bottomLeadingRadius: store.state.settings.cornerRadius,
+                                                bottomTrailingRadius: store.state.settings.cornerRadius, topTrailingRadius: 0)
             ZStack(alignment: .top) {
                 IslandPalette.background
                 RadialGradient(colors: [IslandPalette.lavender.opacity(0.065), .clear], center: .topTrailing, startRadius: 0, endRadius: 500)
-                Color.black.frame(height: store.compactHeight)
+                Color.black.frame(width: store.cameraWidth, height: store.compactHeight)
                 expandedBody
                     .frame(width: store.presentationWidth, height: store.presentationHeight - store.compactHeight)
                     .opacity(store.contentVisible ? 1 : 0)
@@ -70,6 +71,7 @@ struct IslandRootView: View {
         case .focus: FocusView(store: store)
         case .files: FilesView(store: store)
         case .actions: ActionsView(store: store)
+        case .agents: AgentsView(agents: store.agents, now: store.now)
         case .settings: IslandSettingsView(store: store, media: store.media)
         }
     }
@@ -87,6 +89,7 @@ struct IslandRootView: View {
             IslandBrandMark(size: 22).accessibilityHidden(true)
             Text("Solo Island").font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(IslandPalette.secondary)
+            AgentStatusButton(agents: store.agents) { store.tab = .agents }
             Spacer(minLength: 8)
             if let toast = store.toast {
                 Label(toast.message, systemImage: toast.symbol)
@@ -251,37 +254,5 @@ extension View {
             RoundedRectangle(cornerRadius: radius, style: .continuous).fill(IslandPalette.surface)
                 .overlay(RoundedRectangle(cornerRadius: radius).fill(tint.opacity(0.025)))
         }.overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(IslandPalette.separator.opacity(0.65), lineWidth: 0.7))
-    }
-}
-/// A narrow black neck touches the screen edge; the body grows from the hardware notch.
-struct NotchAttachmentShape: Shape {
-    var neckWidth: CGFloat
-    var neckHeight: CGFloat
-    var radius: Double
-    func path(in rect: CGRect) -> Path {
-        guard rect.height > neckHeight + 1 else {
-            return RoundedRectangle(cornerRadius: min(12, rect.height / 2), style: .continuous).path(in: rect)
-        }
-        let bodyY = neckHeight
-        let r = min(CGFloat(radius), max(0, (rect.height - bodyY) / 2), rect.width / 3)
-        let neck = min(neckWidth, max(1, rect.width - 2 * r))
-        let left = (rect.width - neck) / 2, right = left + neck
-        let shoulder = min(8, max(0, left - r))
-        var p = Path()
-        p.move(to: CGPoint(x: left, y: 0)); p.addLine(to: CGPoint(x: right, y: 0))
-        p.addLine(to: CGPoint(x: right, y: bodyY - shoulder))
-        p.addQuadCurve(to: CGPoint(x: right + shoulder, y: bodyY), control: CGPoint(x: right, y: bodyY))
-        p.addLine(to: CGPoint(x: rect.width - r, y: bodyY))
-        p.addQuadCurve(to: CGPoint(x: rect.width, y: bodyY + r), control: CGPoint(x: rect.width, y: bodyY))
-        p.addLine(to: CGPoint(x: rect.width, y: rect.height - r))
-        p.addQuadCurve(to: CGPoint(x: rect.width - r, y: rect.height), control: CGPoint(x: rect.width, y: rect.height))
-        p.addLine(to: CGPoint(x: r, y: rect.height))
-        p.addQuadCurve(to: CGPoint(x: 0, y: rect.height - r), control: CGPoint(x: 0, y: rect.height))
-        p.addLine(to: CGPoint(x: 0, y: bodyY + r))
-        p.addQuadCurve(to: CGPoint(x: r, y: bodyY), control: CGPoint(x: 0, y: bodyY))
-        p.addLine(to: CGPoint(x: left - shoulder, y: bodyY))
-        p.addQuadCurve(to: CGPoint(x: left, y: bodyY - shoulder), control: CGPoint(x: left, y: bodyY))
-        p.addLine(to: CGPoint(x: left, y: 0)); p.closeSubpath()
-        return p
     }
 }

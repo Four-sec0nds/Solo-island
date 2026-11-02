@@ -28,6 +28,7 @@ final class IslandStore: ObservableObject {
     let media = MediaService()
     let webMusic = WebMusicService()
     let notifications = NotificationService()
+    let agents: AgentService
     private let repository: StateRepository
     private var canPersist = true
     private var timer: Timer?
@@ -43,6 +44,7 @@ final class IslandStore: ObservableObject {
             .appendingPathComponent("SoloIsland", isDirectory: true)
         repository = StateRepository(url: folder.appendingPathComponent("state.json"))
         clipboard = ClipboardService(folder: folder)
+        agents = AgentService(dataFolder: folder)
         var loadingError: String?
         do { state = try repository.load() }
         catch {
@@ -66,6 +68,7 @@ final class IslandStore: ObservableObject {
         media.onOpenWeb = { [weak self] in self?.musicWebsiteVisible = true; self?.reveal(.music) }
     }
     func start() {
+        agents.start()
         media.start()
         if let provider = state.settings.musicProvider { webMusic.configure(provider) }
         notifications.sync(tasks: state.tasks)
@@ -76,6 +79,7 @@ final class IslandStore: ObservableObject {
         }
     }
     func stop() {
+        agents.stop()
         cancelPendingHover()
         timer?.invalidate(); timer = nil
         media.stop(); webMusic.stop(); save()
@@ -343,7 +347,7 @@ final class IslandStore: ObservableObject {
 }
 
 enum IslandTab: String, CaseIterable, Identifiable {
-    case music = "Музыка", tasks = "Задачи", focus = "Фокус", files = "Буфер", actions = "Действия", settings = "Настройки"
+    case music = "Музыка", tasks = "Задачи", focus = "Фокус", files = "Буфер", actions = "Действия", agents = "Агенты", settings = "Настройки"
     var id: String { rawValue }
     var icon: String {
         switch self {
@@ -352,6 +356,7 @@ enum IslandTab: String, CaseIterable, Identifiable {
         case .focus: return "timer"
         case .files: return "tray.full"
         case .actions: return "bolt.fill"
+        case .agents: return "terminal"
         case .settings: return "slider.horizontal.3"
         }
     }

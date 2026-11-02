@@ -61,6 +61,11 @@ jobs:
             dist/SoloIsland-notch-focus.png
             dist/SoloIsland-notch-focus-paused.png
             dist/SoloIsland-notch-combined.png
+            dist/SoloIsland-notch-agent.png
+            dist/SoloIsland-agents.png
+            dist/SoloIsland-agents-working.png
+            dist/SoloIsland-agents-compact.png
+            dist/SoloIsland-agents-approval.png
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'

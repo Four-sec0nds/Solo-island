@@ -26,6 +26,7 @@ final class NotchActivityController: NSWindowController {
     private let presentation = NotchPresentation()
     private var subscriptions = Set<AnyCancellable>()
     private var sleeping = false
+    private var mainPanelVisible = false
     var isPresented: Bool { presentation.visible }
 
     init(store: IslandStore, reducedMotionOverride: Bool?) {
@@ -44,10 +45,14 @@ final class NotchActivityController: NSWindowController {
         let hosting = NSHostingView(rootView: view); hosting.sizingOptions = []
         panel.contentView = hosting; panel.minSize = .zero; panel.contentMinSize = .zero
         store.$state.map(\.focus).removeDuplicates().sink { [weak self] focus in
-            guard let self else { return }; self.update(track: self.store.media.track, focus: focus)
+            guard let self else { return }; self.update(track: self.store.media.track, focus: focus, agent: self.store.agents.activity.current)
         }.store(in: &subscriptions)
         store.media.$track.sink { [weak self] track in
-            guard let self else { return }; self.update(track: track, focus: self.store.state.focus)
+            guard let self else { return }; self.update(track: track, focus: self.store.state.focus, agent: self.store.agents.activity.current)
+        }.store(in: &subscriptions)
+        store.agents.$activity.sink { [weak self] activity in
+            guard let self else { return }
+            self.update(track: self.store.media.track, focus: self.store.state.focus, agent: activity.current)
         }.store(in: &subscriptions)
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.screensDidSleepNotification)
             .sink { [weak self] _ in
@@ -73,13 +78,19 @@ final class NotchActivityController: NSWindowController {
         if window?.frame != frame { window?.setFrame(frame, display: presentation.visible) }
         updateVisibility()
     }
-    private func update(track: NowPlaying, focus: FocusSession?) {
-        let next = NotchActivity(track: track, focus: focus)
+    /// Keep the wings hidden for the entire reveal/collapse, including an
+    /// interrupted animation. Media updates must not bring them back early.
+    func setMainPanelVisible(_ visible: Bool) {
+        mainPanelVisible = visible
+        updateVisibility()
+    }
+    private func update(track: NowPlaying, focus: FocusSession?, agent: AgentSession?) {
+        let next = NotchActivity(track: track, focus: focus, agent: agent)
         guard presentation.activity != next else { return }
         presentation.activity = next; updateVisibility()
     }
     private func updateVisibility() {
-        let visible = presentation.activity.isVisible && !sleeping && (window?.frame.height ?? 0) > 0
+        let visible = presentation.activity.isVisible && !mainPanelVisible && !sleeping && (window?.frame.height ?? 0) > 0
         presentation.visible = visible
         if visible {
             if window?.isVisible != true { window?.orderFrontRegardless() }
@@ -125,11 +136,20 @@ private struct NotchActivityView: View {
                             style: StrokeStyle(lineWidth: 2, lineCap: .round)).rotationEffect(.degrees(-90))
                 Image(systemName: paused ? "pause.fill" : "timer").font(.system(size: 10, weight: .medium))
             }.frame(width: 22, height: 22).foregroundStyle(paused ? IslandPalette.lavender : IslandPalette.mint)
+        case .agent(_, let waiting):
+            Image(systemName: waiting ? "hand.raised.fill" : "terminal")
+                .font(.system(size: 17, weight: .medium))
         }
     }
     @ViewBuilder private var trailing: some View {
         switch presentation.activity {
         case .hidden: EmptyView()
+        case .agent(_, let waiting):
+            if waiting { Text("Решение").font(.system(size: 10, weight: .medium)) }
+            else {
+                Text(store.agents.activity.current?.clock(at: store.now) ?? "00:00")
+                    .font(.system(size: 11, weight: .medium, design: .rounded)).monospacedDigit()
+            }
         case .music(let playback):
             PlaybackBars(track: media.track, receivedAt: media.receivedAt,
                          playing: playback == .playing, visible: presentation.visible).frame(width: 19, height: 18)
@@ -151,6 +171,7 @@ private struct NotchActivityView: View {
     private var accessibleStatus: String {
         switch presentation.activity {
         case .hidden: return ""
+        case .agent(let provider, let waiting): return provider.title + (waiting ? ": нужно разрешение" : ": работает")
         case .music(let playback):
             return (playback == .playing ? "Играет: " : "Музыка на паузе: ") + (media.track.title ?? "")
         case .focus(let paused, let music):

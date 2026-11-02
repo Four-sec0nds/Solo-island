@@ -71,3 +71,17 @@ Impeccable's local Operate/craft guidance and UI/UX Pro Max's SwiftUI data infor
 the design. The remote Impeccable concept catalog was unavailable: its local seed
 `seed:3e2a7d757c773901` was degraded, not a catalog-backed selection or an approved
 image comp. User-confirmed palette and native constraints govern the work.
+
+## Top-edge reveal and agents (0.7.0)
+
+The full panel touches the top edge at its final width and reveals vertically.
+Content still starts below the physical camera clearance. The narrow-neck
+attachment is removed. Every compact activity indicator hides before reveal and
+stays hidden until collapse completes, including when an animation is interrupted.
+
+Agents have a header entry (⌘6), leaving the five bottom destinations intact.
+The operational view shows real project/session state and hours/minutes elapsed.
+Permission requests show their complete tool input and project path before an
+explicit one-shot allow, deny or return-to-client choice. Permission requests
+take priority over focus/music in compact mode; no spinning or false progress.
+The connection screen distinguishes installed hooks from actually received events.

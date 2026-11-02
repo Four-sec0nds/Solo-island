@@ -21,8 +21,8 @@ is presented as part of Planify; this is a brand relationship, not task syncing.
 
 ## Mechanism and Operating Context
 
-A compact panel grows from the physical camera cutout on hover. The full panel collapses after the cursor leaves. With no activity it is invisible;
-while music or focus exists, only small indicators beside the camera remain. Pinning keeps it open; an expanded
+Hovering the physical camera cutout reveals a full-width panel down from the top screen edge. The full panel collapses after the cursor leaves. With no activity it is invisible;
+while music, focus or a supported coding agent is active, only small indicators beside the camera remain. All compact indicators hide throughout opening and closing, returning after the main panel has fully collapsed. Pinning keeps it open; an expanded
 island remains above other windows, including fullscreen Spaces. A power button
 fully quits the app. Re-entering after changing Space/display must remain prompt.
 
@@ -39,6 +39,7 @@ fully quits the app. Re-entering after changing Space/display must remain prompt
 - Quick actions run actual apps, folders and Shortcuts and show their real icons.
 - Settings retain width, corner radius, reveal timing, artwork accent, providers,
   notification permission and explicit user-configured Focus Shortcuts.
+- Agents: real local lifecycle hooks from compatible Claude Code/Codex clients, per-turn elapsed hours/minutes and one-shot permission decisions. Connection is opt-in, backs up and merges the client configuration, and never changes existing permission rules. No browser-chat integration or guaranteed desktop support.
 - No account backend, fabricated player capabilities or new service credentials.
 - Normal dimensions stay compact; header content clears the physical camera.
   Preserve existing user data, key actions, keyboard behavior and Reduce Motion.

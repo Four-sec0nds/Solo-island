@@ -1,9 +1,11 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
-var products: [Product] = [.library(name: "IslandCore", targets: ["IslandCore"])]
+var products: [Product] = [.library(name: "IslandCore", targets: ["IslandCore"]),
+    .executable(name: "SoloBridge", targets: ["SoloBridge"])]
 var targets: [Target] = [
     .target(name: "IslandCore"),
+    .executableTarget(name: "SoloBridge", dependencies: ["IslandCore"]),
     .testTarget(name: "IslandCoreTests", dependencies: ["IslandCore"])
 ]
 #if os(macOS)

@@ -13,11 +13,15 @@ configuration="${CONFIGURATION:-release}"
 app_arch="${SOLO_ARCH:-arm64}"
 swift test
 swift build -c "$configuration" --arch "$app_arch" --product SoloIsland
+swift build -c "$configuration" --arch "$app_arch" --product SoloBridge
 binary_dir="$(swift build -c "$configuration" --arch "$app_arch" --show-bin-path)"
 app_dir="$PWD/dist/SoloIsland.app"
 # Only replace our generated bundle, never a user-selected path.
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$binary_dir/SoloIsland" "$app_dir/Contents/MacOS/SoloIsland"
+cp "$binary_dir/SoloBridge" "$app_dir/Contents/MacOS/SoloBridge"
+lipo "$app_dir/Contents/MacOS/SoloBridge" -verify_arch "$app_arch"
+codesign --force --sign - "$app_dir/Contents/MacOS/SoloBridge"
 lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "$app_arch"
 cp Resources/Info.plist "$app_dir/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app_dir/Contents/Info.plist" >/dev/null

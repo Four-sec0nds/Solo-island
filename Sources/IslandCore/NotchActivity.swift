@@ -7,10 +7,13 @@ public enum NotchActivity: Equatable, Sendable {
     case hidden
     case music(Playback)
     case focus(paused: Bool, music: Playback?)
+    case agent(AgentProvider, waiting: Bool)
 
-    public init(track: NowPlaying, focus: FocusSession?) {
+    public init(track: NowPlaying, focus: FocusSession?, agent: AgentSession? = nil) {
         let music: Playback? = track.hasTrack ? (track.isPlaying ? .playing : .paused) : nil
-        if let focus { self = .focus(paused: focus.isPaused, music: music) }
+        if let agent, agent.status == .waiting { self = .agent(agent.provider, waiting: true) }
+        else if let focus { self = .focus(paused: focus.isPaused, music: music) }
+        else if let agent, agent.status == .working { self = .agent(agent.provider, waiting: false) }
         else if let music { self = .music(music) }
         else { self = .hidden }
     }

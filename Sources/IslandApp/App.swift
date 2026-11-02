@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         status.button?.image = NSImage(systemSymbolName: "capsule.fill", accessibilityDescription: "Solo Island")
         let menu = NSMenu()
         menu.addItem(withTitle: "Открыть Solo Island", action: #selector(showIsland), keyEquivalent: "")
+        menu.addItem(withTitle: "Агенты", action: #selector(showAgents), keyEquivalent: "6")
         menu.addItem(withTitle: "Настройки", action: #selector(showSettings), keyEquivalent: ",")
         menu.addItem(withTitle: "Папка с данными", action: #selector(showData), keyEquivalent: "")
         menu.addItem(.separator())
@@ -38,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     @objc private func showIsland() { store.reveal(); island.window?.makeKey(); NSApp.activate(ignoringOtherApps: true) }
     @objc private func showSettings() { store.reveal(.settings); island.window?.makeKey(); NSApp.activate(ignoringOtherApps: true) }
+    @objc private func showAgents() { store.reveal(.agents); island.window?.makeKey(); NSApp.activate(ignoringOtherApps: true) }
     @objc private func showData() {
         let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SoloIsland")
@@ -98,7 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             let canvas = NSSize(width: store.presentationWidth, height: store.presentationHeight)
             var frames: [PreviewRecorder.Frame] = []
-            var openingWidths = Set<Int>()
+            var openingHeights = Set<Int>()
             @MainActor func record(_ delay: Double) {
                 if let image = PreviewRecorder.animationFrame(window, canvas: canvas, neckWidth: store.cameraWidth, neckHeight: store.compactHeight) {
                     frames.append(.init(image: image, delay: delay))
@@ -108,10 +110,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
             for _ in 0..<22 {
                 try? await Task.sleep(nanoseconds: 30_000_000)
-                if window.isVisible { openingWidths.insert(Int(window.frame.width)) }
+                if window.isVisible {
+                    openingHeights.insert(Int(window.frame.height))
+                    guard abs(window.frame.maxY - screen.frame.maxY) < 1,
+                          abs(window.frame.width - canvas.width) < 1 else {
+                        fputs("Top-edge reveal changed its width or top anchor\n", stderr); exit(1)
+                    }
+                }
                 record(0.03)
             }
-            guard openingWidths.count >= 3 else { fputs("Notch motion skipped intermediate widths: \(openingWidths.sorted()), min=\(window.minSize), frame=\(window.frame)\n", stderr); exit(1) }
+            guard openingHeights.count >= 3 else { fputs("Top-edge motion skipped intermediate heights: \(openingHeights.sorted()), min=\(window.minSize), frame=\(window.frame)\n", stderr); exit(1) }
             guard store.expanded, window.isVisible, abs(window.frame.maxY - screen.frame.maxY) < 1 else {
                 fputs("Notch reveal/attachment failed\n", stderr); exit(1)
             }
@@ -164,7 +172,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     ("onboarding", .music), ("custom-focus", .focus), ("deadline", .tasks), ("reminder", .tasks), ("settings", .settings),
                     ("music-compact", .music), ("tasks-compact", .tasks), ("focus-compact", .focus),
                     ("settings-compact", .settings), ("settings-appearance", .settings),
-                    ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music)
+                    ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music),
+                    ("agents", .agents), ("agents-working", .agents), ("agents-compact", .agents)
                 ]
                 for (name, tab) in stills {
                     fputs("Native snapshot: \(name)\n", stderr)
@@ -186,6 +195,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     try StateRepository(url: stillFolder.appendingPathComponent("state.json")).save(stillFixture)
                     let stillStore = IslandStore(dataFolder: stillFolder)
+                    if name == "agents-working" || name == "agents-compact" {
+                        let event = try AgentEvent(data: JSONSerialization.data(withJSONObject: ["session_id": "preview",
+                            "hook_event_name": "UserPromptSubmit", "cwd": "/Projects/Planify"]),
+                            provider: .codex, instance: UUID(), helperPID: ProcessInfo.processInfo.processIdentifier,
+                            now: Date().addingTimeInterval(-1320))
+                        stillStore.agents.preview([event])
+                    }
                     var stillTrack = previewTrack
                     if name == "music-compact" {
                         stillTrack.title = "Город засыпает, а мы заканчиваем большой проект"
@@ -346,6 +362,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller.screenContextDidChange(at: outside)
         controller.checkPointer(at: NSPoint(x: hud.frame.minX + 18, y: hud.frame.midY))
         try require(demo.expanded && main.isVisible, "Hovering a wing after a Space switch must reveal immediately")
+        try require(!hud.isVisible, "All compact wings must hide while the panel is open")
+        try require(abs(main.frame.maxY - screen.frame.maxY) < 1 && main.frame.width == demo.presentationWidth,
+                    "Expanded panel must attach to the top screen edge at its full width")
+        // A fresh media event must not restore wings over an expanded panel.
+        track.playing = true; demo.media.setPreview(track)
+        try require(!hud.isVisible, "Media updates must not restore wings while expanded")
         controller.checkPointer(at: outside)
         // Match production pointer polling while the CI compositor settles.
         for _ in 0..<30 {
@@ -357,8 +379,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         try require(!demo.expanded && !main.isVisible && hud.isVisible && hud.ignoresMouseEvents,
                     "Leaving the island must collapse the body while retaining the focus wings")
         demo.previewFocus(nil, at: date)
+        demo.media.setPreview(NowPlaying())
         try? await Task.sleep(nanoseconds: 100_000_000)
         try require(!hud.isVisible && !main.isVisible, "Ending all activity must hide both windows")
+        let event = try AgentEvent(data: JSONSerialization.data(withJSONObject: ["session_id": "preview-agent",
+            "hook_event_name": "PermissionRequest", "cwd": "/Projects/SoloIsland", "tool_name": "Bash",
+            "tool_input": ["command": "swift test"]]), provider: .codex, instance: UUID(),
+            helperPID: ProcessInfo.processInfo.processIdentifier)
+        demo.agents.preview([event])
+        try require(hud.isVisible && !main.isVisible, "A waiting agent must show passive compact indicators")
+        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-agent.png"))
+        demo.reveal(.agents)
+        try require(main.isVisible && !hud.isVisible, "Opening agents must hide their compact indicators")
+        demo.dismiss()
+        try require(!main.isVisible && hud.isVisible, "Collapsing agents must restore their compact indicators")
+        demo.agents.preview([])
+        try require(!hud.isVisible, "Ending the last agent must hide the compact panel")
         fputs("Notch activity: idle hidden, playback, pause, combined focus, wing hover and camera clearance passed\n", stderr)
     }
     private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
@@ -516,10 +552,7 @@ final class IslandWindowController: NSWindowController {
             hoverTracker.screenDidChange()
         }
         pointerDisplay = display
-        let inNeckBand = point.y > screen.frame.maxY - store.compactHeight
-        let onNeck = abs(point.x - screen.frame.midX) <= (store.cameraWidth + 16) / 2
-        let onBody = store.expanded && window.frame.contains(point) && (!inNeckBand || onNeck)
-        // Transparent shoulders must never block clicks on the menu bar.
+        let onBody = store.expanded && window.frame.contains(point)
         if store.expanded { window.ignoresMouseEvents = !onBody }
         let activityHotspot = activity.isPresented ? activity.window?.frame.insetBy(dx: -8, dy: -6) : nil
         let inside = hotspot.contains(point) || onBody || activityHotspot?.contains(point) == true
@@ -547,7 +580,9 @@ final class IslandWindowController: NSWindowController {
         let width = min(max(640, CGFloat(preferences.expandedWidth)), screen.frame.width - 40)
         let bodyHeight = min(CGFloat(520), screen.frame.height - top - 36)
         let target = NSRect(x: screen.frame.midX - width / 2, y: screen.frame.maxY - top - bodyHeight, width: width, height: top + bodyHeight)
-        let neck = NSRect(x: screen.frame.midX - (cameraWidth + 16) / 2, y: screen.frame.maxY - top, width: cameraWidth + 16, height: top)
+        // Reveal vertically from the top edge at the final width. The hover
+        // hotspot remains the physical camera, independently of this frame.
+        let neck = NSRect(x: target.minX, y: screen.frame.maxY - 1, width: width, height: 1)
         activity.layout(on: screen, cameraWidth: cameraWidth, height: top)
         store.cameraWidth = cameraWidth; store.compactHeight = top
         store.presentationWidth = width; store.presentationHeight = top + bodyHeight
@@ -563,11 +598,13 @@ final class IslandWindowController: NSWindowController {
             if !transitioning && animationTarget == neck { return }
             store.contentVisible = false; window.ignoresMouseEvents = true
             guard window.isVisible, duration > 0 else {
-                motion?.cancel(); animationTarget = nil; window.orderOut(nil); window.setFrame(neck, display: false); return
+                motion?.cancel(); animationTarget = nil; window.orderOut(nil); window.setFrame(neck, display: false)
+                activity.setMainPanelVisible(false); return
             }
             animate(to: neck, expanding: false, duration: duration)
             return
         }
+        activity.setMainPanelVisible(true)
         window.ignoresMouseEvents = false
         if transitioning || !window.isVisible {
             store.contentVisible = reduceMotion
@@ -588,7 +625,7 @@ final class IslandWindowController: NSWindowController {
         guard let window else { return }
         guard duration > 0 else {
             animationTarget = nil; window.setFrame(target, display: true); store.contentVisible = expanding
-            if !expanding { window.orderOut(nil) }; return
+            if !expanding { window.orderOut(nil); activity.setMainPanelVisible(false) }; return
         }
         let origin = window.frame
         motion = Task { @MainActor [weak self] in
@@ -608,7 +645,7 @@ final class IslandWindowController: NSWindowController {
                 if expanding && progress >= 0.55 && !self.store.contentVisible { self.store.contentVisible = true }
                 if progress >= 1 {
                     self.animationTarget = nil
-                    if !expanding { window.orderOut(nil) }
+                    if !expanding { window.orderOut(nil); self.activity.setMainPanelVisible(false) }
                     return
                 }
                 try? await Task.sleep(nanoseconds: UInt64(duration / Double(steps) * 1_000_000_000))
