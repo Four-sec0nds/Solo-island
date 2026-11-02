@@ -387,6 +387,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             "tool_input": ["command": "swift test"]]), provider: .codex, instance: UUID(),
             helperPID: ProcessInfo.processInfo.processIdentifier)
         demo.agents.preview([event])
+        // The window orders in synchronously; its SwiftUI glyphs commit on the
+        // next run-loop, just like the music/focus snapshots above.
+        try? await Task.sleep(nanoseconds: 100_000_000)
         try require(hud.isVisible && !main.isVisible, "A waiting agent must show passive compact indicators")
         try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-agent.png"))
         controller.screenContextDidChange(at: outside)
