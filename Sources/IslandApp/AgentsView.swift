@@ -33,8 +33,10 @@ struct AgentsView: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("Агенты").font(.system(size: 26, weight: .semibold, design: .rounded))
                 Spacer()
-                Button(connections ? "К работе" : "Подключения") { connections.toggle() }
-                    .buttonStyle(IslandButtonStyle(.soft)).recordingTarget("Подключения агентов")
+                if !agents.activity.sessions.isEmpty {
+                    Button(connections ? "К работе" : "Подключения") { connections.toggle() }
+                        .buttonStyle(IslandButtonStyle(.soft)).recordingTarget("Подключения агентов")
+                }
             }
             if let message = agents.message {
                 HStack(alignment: .top) {
@@ -58,7 +60,7 @@ struct AgentsView: View {
     private var connectionView: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Задача в работе — вы в курсе")
+                Text("Подключите Claude Code или Codex")
                     .font(.system(size: 19, weight: .semibold, design: .rounded))
                 Text("Время работы и запросы разрешения от Claude Code и Codex появятся здесь. Подключите клиент один раз и начните новую задачу.")
                     .font(.system(size: 12)).foregroundStyle(IslandPalette.secondary).fixedSize(horizontal: false, vertical: true)
@@ -85,7 +87,7 @@ struct AgentsView: View {
             }
             Text("Для терминальных клиентов с поддержкой hooks. После подключения перезапустите клиент. Браузерные чаты не подключаются; поддержка десктопных клиентов зависит от их версии.")
                 .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).fixedSize(horizontal: false, vertical: true)
-            Text("Меняются только настройки событий выбранного клиента, с резервной копией. Вход в аккаунты не требуется. Если Island закрыт, запрос вернётся в клиент.")
+            Text("Настройки событий сохраняются с резервной копией. Island не запрашивает ключи или вход в аккаунт. Если Island закрыт, запрос вернётся в клиент.")
                 .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -101,9 +103,12 @@ struct AgentsView: View {
             Text(request.provider.title + " · " + request.project + " · " + request.tool)
                 .font(.system(size: 11, weight: .medium)).foregroundStyle(IslandPalette.secondary)
             Text(request.cwd).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).textSelection(.enabled)
-            ScrollView([.vertical, .horizontal]) {
-                Text(request.input ?? "").font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading).padding(10)
+            GeometryReader { geometry in
+                ScrollView([.vertical, .horizontal]) {
+                    Text(request.input ?? "").font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
+                        .fixedSize(horizontal: true, vertical: true)
+                        .frame(minWidth: max(0, geometry.size.width - 20), alignment: .topLeading).padding(10)
+                }
             }.frame(height: 98).background(IslandPalette.background, in: RoundedRectangle(cornerRadius: 9))
             HStack(spacing: 8) {
                 Button("Разрешить один раз") { agents.respond(request, decision: .allow) }

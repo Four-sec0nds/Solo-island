@@ -151,7 +151,10 @@ final class IslandStore: ObservableObject {
         }
     }
     private func applyHover(_ inside: Bool) {
-        if inside { expanded = true }
+        if inside {
+            if !expanded && !agents.pending.isEmpty { tab = .agents }
+            expanded = true
+        }
         else if !pinned && !editingForm && !draggingFiles && NSApp.modalWindow == nil { expanded = false }
     }
     func reveal(_ target: IslandTab? = nil) {

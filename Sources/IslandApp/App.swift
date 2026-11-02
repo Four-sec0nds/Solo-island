@@ -389,8 +389,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         demo.agents.preview([event])
         try require(hud.isVisible && !main.isVisible, "A waiting agent must show passive compact indicators")
         try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-agent.png"))
-        demo.reveal(.agents)
-        try require(main.isVisible && !hud.isVisible, "Opening agents must hide their compact indicators")
+        controller.screenContextDidChange(at: outside)
+        controller.checkPointer(at: NSPoint(x: hud.frame.minX + 18, y: hud.frame.midY))
+        try require(demo.tab == .agents && main.isVisible && !hud.isVisible,
+                    "Hovering a pending agent must open its requests and hide compact indicators")
         demo.dismiss()
         try require(!main.isVisible && hud.isVisible, "Collapsing agents must restore their compact indicators")
         demo.agents.preview([])

@@ -57,7 +57,7 @@ struct IslandRootView: View {
                     }.padding(10).islandCard(tint: .orange)
                 }
                 Group {
-                    if !store.state.settings.musicOnboardingComplete { MusicOnboardingView(store: store) }
+                    if !store.state.settings.musicOnboardingComplete && store.tab != .agents { MusicOnboardingView(store: store) }
                     else { content }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }.padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 16)

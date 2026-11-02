@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Darwin
 import IslandCore
 
 @MainActor
@@ -74,7 +75,7 @@ final class AgentService: ObservableObject {
                 if event.hook != .permission { try? FileManager.default.removeItem(at: mailbox.eventURL(event.id)) }
             }
             let previous = next.sessions
-            next.expire(at: Date()) { mailbox.isLive($0, instance: instance) }
+            next.expire(at: Date(), clientAlive: { $0 > 1 && kill($0, 0) == 0 }) { mailbox.isLive($0, instance: instance) }
             if changed || next.sessions != previous { activity = next }
             // IDs are only needed while their on-disk request exists.
             seen = Set(events.filter { $0.hook == .permission }.map(\.id))
@@ -119,7 +120,7 @@ final class AgentService: ObservableObject {
             try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: config.path)
             refreshInstallation()
             message = enabled ? "\(provider.title): перезапустите клиент и начните новую задачу. Статус появится после первого события."
-                              : "\(provider.title) отключён. Остальные настройки сохранены."
+                              : "Подключение \(provider.title) удалено из настроек. Перезапустите клиент, чтобы отключить уже загруженные события."
         } catch { message = "Не удалось изменить подключение: \(error.localizedDescription)" }
     }
     /// Synthetic native captures never read or modify the user's agent config.

@@ -44,6 +44,15 @@ final class AgentBridgeTests: XCTestCase {
         XCTAssertTrue(activity.pending.isEmpty)
         XCTAssertNil(activity.current)
     }
+    func testClientExitStopsTheClockEvenWithoutAStopHook() throws {
+        var activity = AgentActivity()
+        let request = try event(.prompt)
+        activity.ingest(request)
+        let end = request.date.addingTimeInterval(15)
+        activity.expire(at: end, clientAlive: { _ in false }) { _ in true }
+        XCTAssertEqual(activity.sessions[0].status, .interrupted)
+        XCTAssertEqual(activity.sessions[0].elapsed(at: end.addingTimeInterval(600)), 15)
+    }
     func testInputMinimisationAndInvalidPayloads() throws {
         let ordinary = try event(.preTool)
         XCTAssertNil(ordinary.input)

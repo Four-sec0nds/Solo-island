@@ -27,10 +27,11 @@ public struct AgentEvent: Codable, Equatable, Sendable, Identifiable {
     public var tool: String
     public var input: String?
     public var helperPID: Int32
+    public var clientPID: Int32
     public var expiresAt: Date
 
     public init(data: Data, provider: AgentProvider, instance: UUID, helperPID: Int32,
-                now: Date = Date(), lifetime: TimeInterval = 120) throws {
+                now: Date = Date(), lifetime: TimeInterval = 120, clientPID: Int32? = nil) throws {
         guard data.count <= 512 * 1024,
               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let name = object["hook_event_name"] as? String, let hook = AgentHook(rawValue: name),
@@ -39,6 +40,7 @@ public struct AgentEvent: Codable, Equatable, Sendable, Identifiable {
         id = UUID(); self.instance = instance; self.provider = provider; sessionID = session
         if let child = object["agent_id"] as? String, !child.isEmpty { sessionID += ":" + String(child.prefix(256)) }
         self.hook = hook; date = now; self.helperPID = helperPID; expiresAt = now.addingTimeInterval(lifetime)
+        self.clientPID = clientPID ?? ProcessInfo.processInfo.processIdentifier
         cwd = String((object["cwd"] as? String ?? "").prefix(4096))
         tool = String((object["tool_name"] as? String ?? "").prefix(256))
         if hook == .permission {
@@ -53,7 +55,17 @@ public struct AgentEvent: Codable, Equatable, Sendable, Identifiable {
     public var project: String { URL(fileURLWithPath: cwd).lastPathComponent.isEmpty ? "Проект" : URL(fileURLWithPath: cwd).lastPathComponent }
 }
 
-public enum AgentBridgeError: Error { case invalidEvent, unsafePath, staleRequest, invalidConfiguration }
+public enum AgentBridgeError: LocalizedError {
+    case invalidEvent, unsafePath, staleRequest, invalidConfiguration
+    public var errorDescription: String? {
+        switch self {
+        case .invalidEvent: return "Клиент передал неподдерживаемое событие."
+        case .unsafePath: return "Не удалось открыть приватный каталог подключения. Проверьте его права и символические ссылки."
+        case .staleRequest: return "Запрос уже завершён или истёк."
+        case .invalidConfiguration: return "Файл настроек клиента содержит неподдерживаемый JSON. Он не изменён."
+        }
+    }
+}
 
 public struct AgentSession: Identifiable, Equatable, Sendable {
     public enum Status: String, Sendable { case working, waiting, finished, interrupted, unknown }
@@ -67,6 +79,7 @@ public struct AgentSession: Identifiable, Equatable, Sendable {
     public var status: Status
     public var tool: String
     public var pending: [AgentEvent]
+    public var clientPID: Int32
     public func elapsed(at date: Date) -> TimeInterval { max(0, (endedAt ?? date).timeIntervalSince(startedAt)) }
     public func clock(at date: Date) -> String {
         let minutes = Int(elapsed(at: date) / 60)
@@ -85,13 +98,14 @@ public struct AgentActivity: Sendable {
         let index = sessions.firstIndex { $0.id == event.sessionKey }
         var session = index.map { sessions[$0] } ?? AgentSession(id: event.sessionKey, provider: event.provider,
             project: event.project, cwd: event.cwd, startedAt: event.date, updatedAt: event.date,
-            status: .unknown, tool: "", pending: [])
+            status: .unknown, tool: "", pending: [], clientPID: event.clientPID)
         guard event.date >= session.updatedAt else { return }
         if event.hook == .prompt || ((session.status == .finished || session.status == .interrupted || session.status == .unknown)
                                     && (event.hook == .preTool || event.hook == .permission)) {
             session.startedAt = event.date; session.endedAt = nil
         }
         session.updatedAt = event.date
+        session.clientPID = event.clientPID
         if !event.tool.isEmpty { session.tool = event.tool }
         switch event.hook {
         case .sessionStart: break
@@ -122,7 +136,7 @@ public struct AgentActivity: Sendable {
             sessions[index].updatedAt = date
         }
     }
-    public mutating func expire(at now: Date, requestAlive: (AgentEvent) -> Bool) {
+    public mutating func expire(at now: Date, clientAlive: (Int32) -> Bool = { _ in true }, requestAlive: (AgentEvent) -> Bool) {
         for index in sessions.indices {
             let previous = sessions[index].pending.count
             sessions[index].pending.removeAll { $0.expiresAt <= now || !requestAlive($0) }
@@ -133,6 +147,10 @@ public struct AgentActivity: Sendable {
             // infer a client's work after a long gap without lifecycle events.
             if sessions[index].status == .working && now.timeIntervalSince(sessions[index].updatedAt) > 3600 {
                 sessions[index].status = .unknown; sessions[index].endedAt = now
+            }
+            if (sessions[index].status == .working || sessions[index].status == .waiting)
+                && !clientAlive(sessions[index].clientPID) {
+                sessions[index].status = .interrupted; sessions[index].endedAt = now; sessions[index].pending = []
             }
         }
     }

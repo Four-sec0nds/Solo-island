@@ -425,6 +425,7 @@ final class InteractionRecorder {
                 try await Task.sleep(nanoseconds: 100_000_000)
             }
             guard store.agents.pending.contains(where: { $0.id == request.id }) else { throw failure("Agent hook did not reach Island") }
+            store.now = Date()
             try await tab(.agents)
             if decision == .allow {
                 try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-agents-approval.png"))
