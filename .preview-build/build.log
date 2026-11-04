@@ -3,49 +3,49 @@ TAP version 13
 # Subtest: empty and login pages do not become tracks or expose form data
 ok 1 - empty and login pages do not become tracks or expose form data
   ---
-  duration_ms: 2.890125
+  duration_ms: 2.99025
   type: 'test'
   ...
 # Subtest: active HTML5 media wins and non-finite stream duration is omitted
 ok 2 - active HTML5 media wins and non-finite stream duration is omitted
   ---
-  duration_ms: 0.534125
+  duration_ms: 1.171042
   type: 'test'
   ...
 # Subtest: media session next and seek handlers receive structured action details
 ok 3 - media session next and seek handlers receive structured action details
   ---
-  duration_ms: 0.491875
+  duration_ms: 1.5575
   type: 'test'
   ...
 # Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
 ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
   ---
-  duration_ms: 0.46075
+  duration_ms: 2.133667
   type: 'test'
   ...
 # Subtest: site-specific next button is used only when enabled
 ok 5 - site-specific next button is used only when enabled
   ---
-  duration_ms: 1.00925
+  duration_ms: 0.724292
   type: 'test'
   ...
 # Subtest: DOM-free media session supplies a usable timeline and seek handler
 ok 6 - DOM-free media session supplies a usable timeline and seek handler
   ---
-  duration_ms: 0.792708
+  duration_ms: 0.590042
   type: 'test'
   ...
 # Subtest: a new media-session track does not inherit the preceding timeline
 ok 7 - a new media-session track does not inherit the preceding timeline
   ---
-  duration_ms: 1.203416
+  duration_ms: 0.384292
   type: 'test'
   ...
 # Subtest: media-session position wins over an audio element without a loaded timeline
 ok 8 - media-session position wins over an audio element without a loaded timeline
   ---
-  duration_ms: 0.855667
+  duration_ms: 0.448708
   type: 'test'
   ...
 1..8
@@ -56,7 +56,7 @@ ok 8 - media-session position wins over an audio element without a loaded timeli
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 144.79375
+# duration_ms 246.305958
 test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
 test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
 test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
@@ -67,29 +67,29 @@ test_local_or_public_branch_publication_is_rejected (test_publish_preview.Publis
 test_success_preserves_sources_and_public_refs_and_excludes_recordings (test_publish_preview.PublishPreviewTests.test_success_preserves_sources_and_public_refs_and_excludes_recordings) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 3.480s
+Ran 8 tests in 5.056s
 
 OK
 Building for debugging...
 [0/19] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
-[0/19] Write SoloIsland-entitlement.plist
 [0/19] Write sources
-[3/19] Write SoloBridge-entitlement.plist
-[3/19] Write sources
+[0/19] Write SoloBridge-entitlement.plist
+[0/19] Write SoloIsland-entitlement.plist
+[4/19] Write sources
 [10/19] Write swift-version--79AA4F9932D1E87A.txt
-[12/28] Emitting module IslandCore
-[13/32] Compiling IslandCore NotchHoverTracker.swift
-[14/32] Compiling IslandCore NowPlaying.swift
-[15/32] Compiling IslandCore ProcessRunner.swift
-[16/32] Compiling IslandCore TaskReminders.swift
-[17/32] Compiling IslandCore IslandLayout.swift
-[18/32] Compiling IslandCore Models.swift
-[19/32] Compiling IslandCore MusicProvider.swift
-[20/32] Compiling IslandCore NotchActivity.swift
-[21/32] Compiling IslandCore AgentActivity.swift
-[22/32] Compiling IslandCore AgentHookConfiguration.swift
-[23/32] Compiling IslandCore AgentHookRunner.swift
-[24/32] Compiling IslandCore AgentMailbox.swift
+[12/28] Compiling IslandCore AgentActivity.swift
+[13/28] Compiling IslandCore AgentHookConfiguration.swift
+[14/28] Compiling IslandCore AgentHookRunner.swift
+[15/28] Compiling IslandCore AgentMailbox.swift
+[16/28] Emitting module IslandCore
+[17/28] Compiling IslandCore IslandLayout.swift
+[18/28] Compiling IslandCore Models.swift
+[19/28] Compiling IslandCore MusicProvider.swift
+[20/28] Compiling IslandCore NotchActivity.swift
+[21/32] Compiling IslandCore NotchHoverTracker.swift
+[22/32] Compiling IslandCore NowPlaying.swift
+[23/32] Compiling IslandCore ProcessRunner.swift
+[24/32] Compiling IslandCore TaskReminders.swift
 [25/41] Emitting module SoloBridge
 [26/41] Compiling SoloBridge main.swift
 [26/41] Write Objects.LinkFileList
@@ -97,13 +97,13 @@ Building for debugging...
 [28/41] Applying SoloBridge
 [30/41] Emitting module IslandPlatform
 [31/41] Compiling IslandPlatform ClipboardService.swift
-[32/60] Compiling IslandApp ActionsView.swift
-[33/60] Compiling IslandApp AgentPetView.swift
+[32/60] Emitting module IslandPlatformTests
+[33/60] Compiling IslandPlatformTests ClipboardServiceTests.swift
 [34/60] Compiling IslandApp AgentService.swift
 [35/60] Compiling IslandApp AgentsView.swift
 [36/60] Emitting module IslandCoreTests
-[37/62] Emitting module IslandPlatformTests
-[38/62] Compiling IslandPlatformTests ClipboardServiceTests.swift
+[37/60] Compiling IslandApp ActionsView.swift
+[38/60] Compiling IslandApp AgentPetView.swift
 [39/62] Compiling IslandCoreTests NotchHoverTrackerTests.swift
 [40/62] Compiling IslandCoreTests PlanningTests.swift
 [41/64] Emitting module SoloIslandPackageTests
@@ -118,89 +118,89 @@ Building for debugging...
 [50/71] Compiling IslandApp TasksView.swift
 [51/71] Compiling IslandApp WebMusicService.swift
 [52/71] Compiling IslandApp WebPlayerScript.swift
-[53/71] Compiling IslandApp FilesView.swift
-[54/71] Compiling IslandApp FocusView.swift
-[55/71] Compiling IslandApp InteractionRecorder.swift
-[56/71] Compiling IslandApp IslandStore.swift
-[57/71] Compiling IslandApp IslandTheme.swift
-[58/71] Compiling IslandApp IslandView.swift
-[59/71] Compiling IslandApp MediaService.swift
-[60/71] Compiling IslandApp MusicView.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-[67/71] Compiling IslandApp BrandViews.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[59/71] Compiling IslandApp BrandViews.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
-[68/71] Compiling IslandApp Controls.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[60/71] Compiling IslandApp Controls.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[61/71] Compiling IslandApp FilesView.swift
+[62/71] Compiling IslandApp FocusView.swift
+[63/71] Compiling IslandApp InteractionRecorder.swift
+[64/71] Compiling IslandApp IslandStore.swift
+[65/71] Compiling IslandApp IslandTheme.swift
+[66/71] Compiling IslandApp IslandView.swift
+[67/71] Compiling IslandApp MediaService.swift
+[68/71] Compiling IslandApp MusicView.swift
 [68/71] Write Objects.LinkFileList
 [69/71] Linking SoloIsland
 [70/71] Applying SoloIsland
-Build complete! (39.97s)
-Test Suite 'All tests' started at 2026-11-04 12:15:44.024.
-Test Suite 'SoloIslandPackageTests.xctest' started at 2026-11-04 12:15:44.025.
-Test Suite 'AgentBridgeTests' started at 2026-11-04 12:15:44.025.
+Build complete! (47.72s)
+Test Suite 'All tests' started at 2026-11-04 12:43:12.385.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-11-04 12:43:12.386.
+Test Suite 'AgentBridgeTests' started at 2026-11-04 12:43:12.386.
 Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' passed (0.019 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' passed (0.022 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' passed (0.117 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' passed (0.180 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testParallelApprovalsResolveIndividuallyAndExpire]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testParallelApprovalsResolveIndividuallyAndExpire]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testPermissionIndicatorTakesPriorityOverFocusThenReturns]' started.
@@ -208,60 +208,60 @@ Test Case '-[IslandCoreTests.AgentBridgeTests testPermissionIndicatorTakesPriori
 Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' passed (0.003 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' passed (0.001 seconds).
-Test Suite 'AgentBridgeTests' passed at 2026-11-04 12:15:44.168.
-	 Executed 9 tests, with 0 failures (0 unexpected) in 0.143 (0.143) seconds
-Test Suite 'ClipboardServiceTests' started at 2026-11-04 12:15:44.168.
+Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' passed (0.000 seconds).
+Test Suite 'AgentBridgeTests' passed at 2026-11-04 12:43:12.595.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.209 (0.209) seconds
+Test Suite 'ClipboardServiceTests' started at 2026-11-04 12:43:12.595.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.014 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.012 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
-2026-11-04 12:15:44.203 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.203 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.203 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.203 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.203 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.203 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.203 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.203 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.203 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.203 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.203 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.203 xctest[2166:9965] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.030 seconds).
+2026-11-04 12:43:12.632 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.632 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.632 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.632 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.632 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.632 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.632 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.632 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.632 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.632 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.632 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.632 xctest[2203:10345] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.036 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.002 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
-2026-11-04 12:15:44.215 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.215 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.215 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.215 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.215 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.215 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.215 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.215 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.215 xctest[2166:9965] Unknown number of components for colorspace model -1
-2026-11-04 12:15:44.215 xctest[2166:9965] Bad colorspace name NSNamedColorSpace
-2026-11-04 12:15:44.215 xctest[2166:9965] Unrecognized colorspace number -2
-2026-11-04 12:15:44.215 xctest[2166:9965] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.006 seconds).
+2026-11-04 12:43:12.646 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.646 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.646 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.646 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.646 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.646 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.646 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.646 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.646 xctest[2203:10345] Unknown number of components for colorspace model -1
+2026-11-04 12:43:12.646 xctest[2203:10345] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:43:12.646 xctest[2203:10345] Unrecognized colorspace number -2
+2026-11-04 12:43:12.646 xctest[2203:10345] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.009 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.001 seconds).
-Test Suite 'ClipboardServiceTests' passed at 2026-11-04 12:15:44.223.
-	 Executed 5 tests, with 0 failures (0 unexpected) in 0.054 (0.055) seconds
-Test Suite 'CompactPlaybackTests' started at 2026-11-04 12:15:44.223.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.002 seconds).
+Test Suite 'ClipboardServiceTests' passed at 2026-11-04 12:43:12.657.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.061 (0.061) seconds
+Test Suite 'CompactPlaybackTests' started at 2026-11-04 12:43:12.657.
 Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' started.
-Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' started.
 Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' passed (0.000 seconds).
-Test Suite 'CompactPlaybackTests' passed at 2026-11-04 12:15:44.224.
+Test Suite 'CompactPlaybackTests' passed at 2026-11-04 12:43:12.658.
 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
-Test Suite 'IslandCoreTests' started at 2026-11-04 12:15:44.224.
+Test Suite 'IslandCoreTests' started at 2026-11-04 12:43:12.658.
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.049 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.029 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.118 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.132 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' started.
@@ -290,20 +290,20 @@ Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndat
 Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
-Test Suite 'IslandCoreTests' passed at 2026-11-04 12:15:44.402.
-	 Executed 17 tests, with 0 failures (0 unexpected) in 0.177 (0.178) seconds
-Test Suite 'NotchActivityTests' started at 2026-11-04 12:15:44.402.
+Test Suite 'IslandCoreTests' passed at 2026-11-04 12:43:12.828.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.170 (0.170) seconds
+Test Suite 'NotchActivityTests' started at 2026-11-04 12:43:12.828.
 Test Case '-[IslandCoreTests.NotchActivityTests testFocusOwnsTimeWhileRetainingMusicStateAndResumesMusicOnCompletion]' started.
 Test Case '-[IslandCoreTests.NotchActivityTests testFocusOwnsTimeWhileRetainingMusicStateAndResumesMusicOnCompletion]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchActivityTests testNoTrackOrFocusHidesTheWings]' started.
 Test Case '-[IslandCoreTests.NotchActivityTests testNoTrackOrFocusHidesTheWings]' passed (0.000 seconds).
-Test Case '-[IslandCoreTests.NotchActivityTests testPausedTrackKeepsItsCoverWithoutClaimingPlayback]' started.
-Test Case '-[IslandCoreTests.NotchActivityTests testPausedTrackKeepsItsCoverWithoutClaimingPlayback]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchActivityTests testPauseAndStopHideBothMusicWingsAndResumeRestoresThem]' started.
+Test Case '-[IslandCoreTests.NotchActivityTests testPauseAndStopHideBothMusicWingsAndResumeRestoresThem]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' started.
 Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' passed (0.000 seconds).
-Test Suite 'NotchActivityTests' passed at 2026-11-04 12:15:44.403.
-	 Executed 4 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
-Test Suite 'NotchHoverTrackerTests' started at 2026-11-04 12:15:44.403.
+Test Suite 'NotchActivityTests' passed at 2026-11-04 12:43:12.829.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'NotchHoverTrackerTests' started at 2026-11-04 12:43:12.829.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' started.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testOutsideSamplesAfterSwitchPreserveImmediateFirstEntry]' started.
@@ -312,9 +312,9 @@ Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDo
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDoNotLoseTheNextEntry]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' started.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' passed (0.000 seconds).
-Test Suite 'NotchHoverTrackerTests' passed at 2026-11-04 12:15:44.403.
+Test Suite 'NotchHoverTrackerTests' passed at 2026-11-04 12:43:12.829.
 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
-Test Suite 'PlanningTests' started at 2026-11-04 12:15:44.403.
+Test Suite 'PlanningTests' started at 2026-11-04 12:43:12.829.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
@@ -327,12 +327,12 @@ Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWitho
 Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
-Test Suite 'PlanningTests' passed at 2026-11-04 12:15:44.406.
-	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
-Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-11-04 12:15:44.406.
-	 Executed 47 tests, with 0 failures (0 unexpected) in 0.379 (0.381) seconds
-Test Suite 'All tests' passed at 2026-11-04 12:15:44.406.
-	 Executed 47 tests, with 0 failures (0 unexpected) in 0.379 (0.382) seconds
+Test Suite 'PlanningTests' passed at 2026-11-04 12:43:12.832.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-11-04 12:43:12.832.
+	 Executed 47 tests, with 0 failures (0 unexpected) in 0.444 (0.446) seconds
+Test Suite 'All tests' passed at 2026-11-04 12:43:12.832.
+	 Executed 47 tests, with 0 failures (0 unexpected) in 0.444 (0.447) seconds
 ◇ Test run started.
 ↳ Testing Library Version: 124.4
 ↳ Target Platform: arm64e-apple-macos14.0
@@ -343,16 +343,16 @@ Building for production...
 [5/7] Compiling IslandCore AgentActivity.swift
 [6/8] Compiling IslandPlatform ClipboardService.swift
 [7/9] Compiling IslandApp ActionsView.swift
-/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-560 |     }
-561 |     func checkPointer(at location: NSPoint? = nil) {
-562 |         guard let window, let screen = NSScreen.screens.first else { return }
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:589:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+587 |     }
+588 |     func checkPointer(at location: NSPoint? = nil) {
+589 |         guard let window, let screen = NSScreen.screens.first else { return }
     |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
-563 |         let point = location ?? NSEvent.mouseLocation
-564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+590 |         let point = location ?? NSEvent.mouseLocation
+591 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
 [7/9] Write Objects.LinkFileList
 [8/9] Linking SoloIsland
-Build of product 'SoloIsland' complete! (45.48s)
+Build of product 'SoloIsland' complete! (55.43s)
 [0/1] Planning build
 Building for production...
 [0/4] Write sources
@@ -360,13 +360,13 @@ Building for production...
 [3/5] Compiling SoloBridge main.swift
 [3/5] Write Objects.LinkFileList
 [4/5] Linking SoloBridge
-Build of product 'SoloBridge' complete! (1.11s)
+Build of product 'SoloBridge' complete! (1.48s)
 /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/MacOS/SoloBridge: replacing existing signature
 From https://github.com/ungive/media-control
  * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
 HEAD is now at 3cfd5dc Bump version to 0.7.7
 Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
-Cloning into '/private/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.08t7vd/source/mediaremote-adapter'...
+Cloning into '/private/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.Uw50e4/source/mediaremote-adapter'...
 From https://github.com/ungive/mediaremote-adapter
  * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
 Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
@@ -374,10 +374,10 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 -- Detecting OBJC compiler ABI info
 -- Detecting OBJC compiler ABI info - done
 -- Check for working OBJC compiler: /usr/bin/clang - skipped
--- Configuring done (3.3s)
+-- Configuring done (2.2s)
 -- Generating done (0.5s)
--- Build files have been written to: /var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.08t7vd/build
-[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
+-- Build files have been written to: /var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.Uw50e4/build
+[  5%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
 [ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
 [ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
 [ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
@@ -388,9 +388,9 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 [ 42%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/now_playing.m.o
 [ 47%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/repeat.m.o
 [ 52%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/seek.m.o
-[ 57%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/send.m.o
+[ 63%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/send.m.o
 [ 63%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/shuffle.m.o
-[ 68%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/speed.m.o
+[ 73%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/speed.m.o
 [ 73%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/stream.m.o
 [ 78%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/test.m.o
 [ 84%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/private/MediaRemote.m.o
@@ -398,7 +398,7 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 [ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
 [100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
 Ad-hoc signing MediaRemoteAdapter.framework
-/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.08t7vd/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.Uw50e4/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
 [100%] Built target MediaRemoteAdapter
 -- Install configuration: "Release"
 -- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
@@ -695,6 +695,15 @@ layout expanded=false transition=false active=false frame=560.0
 motion system=true effective=true duration=0.0
 layout expanded=true transition=true active=false frame=560.0
 motion system=true effective=true duration=0.0
+Native snapshot: tasks-empty-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
 layout expanded=false transition=true active=false frame=0.0
 motion system=true effective=true duration=0.0
 layout expanded=false transition=false active=false frame=560.0
@@ -715,6 +724,9 @@ motion system=true effective=true duration=0.0
 layout expanded=false transition=true active=false frame=560.0
 motion system=true effective=true duration=0.0
 Notch activity: idle hidden, playback, pause, combined focus, wing hover and camera clearance passed
+Paused music: both wings hidden, resume restored and independent focus preserved passed
+Workspace layout: dock contained on every tab including empty tasks at 520 points; title above content and outside camera passed
+Downloaded pets: Claude and Codex atlases, idle/work/wait frames decoded passed
 Compact player: full-width timeline visible with long titles, errors, missing position and missing duration passed
 layout expanded=false transition=true active=false frame=0.0
 motion system=true effective=true duration=0.0
@@ -806,8 +818,8 @@ Native input: click Файлы
 Native input: click Текст
 Native input: click Скрины
 Native input: click Всё
-Native input: click Закрепить:965DE04F-F1AF-41B4-A4D3-36E3D3ADD052
-Native input: click Копировать:AB6EF67F-76C4-49D5-8B7B-400065541731
+Native input: click Закрепить:CE0B9252-F42B-45CA-BF2A-B89404B4B29B
+Native input: click Копировать:F44CAE1D-7717-466C-812F-48A54EA748C0
 Native validation phase: actions
 Native input: click Вкладка:Действия
 Native input: click Finder
@@ -1085,14 +1097,14 @@ layout expanded=true transition=false active=false frame=560.0
 motion system=true effective=false duration=0.32
 Native validation phase: agents
 Native input: click Вкладка:Агенты
-Native input: click Разрешить агенту:9ACE3277-6E9A-4530-94D9-1CC744188464
+Native input: click Разрешить агенту:2014BF2A-34B0-4869-83D7-C0770E964B09
 Native input: click Вкладка:Агенты
-Native input: click Отклонить агенту:8F31F17A-093C-4947-B0B7-6DDEB49F477B
+Native input: click Отклонить агенту:02C6B75A-78ED-49BA-9910-A390302561AC
 Native input: click Вкладка:Агенты
-Native input: click Вернуть в клиент:99DE41E8-1668-4A83-A26B-52574B16A98D
+Native input: click Вернуть в клиент:C89BE7BF-DDD1-4C30-9C3E-A8A8951A683C
 Agent bridge: real mailbox, native allow/deny/client clicks and exact one-shot protocol replies passed
 Native input: click Закреплено
-Interactive native footage: 11 clips, 1517 frames; music, all five sliders, calendars, lists, focus and buttons recorded
+Interactive native footage: 11 clips, 1526 frames; music, all five sliders, calendars, lists, focus and buttons recorded
 layout expanded=false transition=true active=false frame=0.0
 motion system=true effective=true duration=0.0
 layout expanded=false transition=false active=false frame=560.0
@@ -1107,32 +1119,5 @@ layout expanded=true transition=true active=false frame=560.0
 motion system=true effective=true duration=0.0
 Quit button: native click terminated Solo Island through its application lifecycle
 created: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
-Checksumming Protective Master Boot Record (MBR : 0)…
-Protective Master Boot Record (MBR :: verified   CRC32 $8A1DEE0B
-Checksumming GPT Header (Primary GPT Header : 1)…
- GPT Header (Primary GPT Header : 1): verified   CRC32 $C298D3EF
-Checksumming GPT Partition Data (Primary GPT Table : 2)…
-GPT Partition Data (Primary GPT Tabl: verified   CRC32 $0CA959E8
-Checksumming  (Apple_Free : 3)…
-                    (Apple_Free : 3): verified   CRC32 $00000000
-Checksumming disk image (Apple_HFS : 4)…
-          disk image (Apple_HFS : 4): verified   CRC32 $F84D9869
-Checksumming  (Apple_Free : 5)…
-                    (Apple_Free : 5): verified   CRC32 $00000000
-Checksumming GPT Partition Data (Backup GPT Table : 6)…
-GPT Partition Data (Backup GPT Table: verified   CRC32 $0CA959E8
-Checksumming GPT Header (Backup GPT Header : 7)…
-  GPT Header (Backup GPT Header : 7): verified   CRC32 $3C8BD1F5
-verified   CRC32 $7748AF00
-hdiutil: verify: checksum of "/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg" is VALID
-expected   CRC32 $7748AF00
-/dev/disk5          	GUID_partition_scheme          	
-/dev/disk5s1        	Apple_HFS                      	/private/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-dmg.2YEdBT/mount
-media-control 0.7.7
-Copyright (c) 2025 Jonas van den Berg
-Licensed under the BSD 3-Clause License.
-null
-"disk5" ejected.
-Installer: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
-Built: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app
-Archive: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland-macOS.zip
+hdiutil: verify: unable to recognize "/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg" as a disk image. (corrupt image)
+hdiutil: verify failed - corrupt image
