@@ -27,7 +27,7 @@ struct FilesView: View {
                     Spacer(minLength: 4)
                     Button { store.captureClipboardNow() } label: { Image(systemName: "doc.on.clipboard").frame(width: 24, height: 26) }
                         .buttonStyle(IslandButtonStyle(.icon)).help("Добавить текущий буфер обмена").accessibilityLabel("Добавить текущий буфер обмена")
-                    Button { store.pickFiles() } label: { Image(systemName: "plus").frame(width: 24, height: 26) }
+                    Button { store.pickFiles() } label: { IslandAddIcon() }
                         .buttonStyle(IslandButtonStyle(.filled)).help("Добавить файлы").accessibilityLabel("Добавить файлы")
                 }
                 IslandSegments(options: ShelfFilter.allCases, selection: $filter, title: { $0.rawValue })

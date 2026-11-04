@@ -31,7 +31,7 @@ struct TasksView: View {
                     TextField("Новая задача…", text: $title).textFieldStyle(IslandTextFieldStyle())
                         .font(.system(size: 13)).accessibilityLabel("Новая задача")
                         .onSubmit { addQuickTask() }
-                    Button { addQuickTask() } label: { Image(systemName: "plus").frame(width: 18, height: 18) }
+                    Button { addQuickTask() } label: { IslandAddIcon() }
                         .buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel("Добавить задачу")
                         .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).help("Добавить задачу")
                 }

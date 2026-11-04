@@ -137,3 +137,12 @@ Web agents use dedicated browser windows or the bundled Chromium extension.
 The existing agent pets represent these sessions too, with an explicit web
 label. Only lifecycle state crosses the local bridge; webpage changes and
 unsupported/cloud-only states remain a capability limit.
+
+## Web activity and add controls (0.8.1)
+
+All icon-only add buttons share one 18-point icon frame and the existing filled
+button style. Web connection rows report observer installation and received
+events. Opening a provider returns to activity instead of keeping the connection
+page selected. The production observer starts before page scripts and tracks
+existing request/stream lifecycles and Codex task status fields. Native checks
+exercise that actual script and the site consumer, rather than injecting events.

@@ -1,5 +1,11 @@
 import SwiftUI
 
+struct IslandAddIcon: View {
+    var body: some View {
+        Image(systemName: "plus").frame(width: 18, height: 18)
+    }
+}
+
 struct IslandButtonStyle: ButtonStyle {
     enum Kind { case filled, soft, icon, bare }
     var kind: Kind = .soft

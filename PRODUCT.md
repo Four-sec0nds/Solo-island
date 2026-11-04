@@ -72,7 +72,8 @@ testimonials, performance or cloud-sync claims to add to the UI.
 
 Music authentication and full websites use independent, resizable native windows
 sharing the existing WebKit session; the island retains playback controls.
-Web agent activity comes from supported page controls through the built-in
+Web agent activity comes from supported request/stream lifecycles, Codex task
+status metadata and page controls through the built-in
 WebKit window or an opt-in Chrome/Edge/Brave extension with Native Messaging.
 No chat text, cookies, credentials or conversation URLs enter the status bridge.
 Web status requires an open observed page and recognisable generation controls;

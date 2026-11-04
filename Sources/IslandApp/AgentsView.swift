@@ -46,7 +46,7 @@ struct AgentsView: View {
                 Text("Веб-агенты в Chrome, Edge и Brave").font(.system(size: 14, weight: .semibold))
                 Text("Расширение передаёт только начало, завершение и состояние работы на поддерживаемых страницах Claude и ChatGPT/Codex.")
                     .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
-                Button("Подключить браузер") { agents.installBrowserBridge() }.buttonStyle(IslandButtonStyle(.filled))
+                Button("Подключить браузер") { agents.installBrowserBridge(); messageDetails = agents.message != nil }.buttonStyle(IslandButtonStyle(.filled))
                 Text("После подключения загрузите папку расширения в браузере и обновите вкладки. Для Safari можно использовать веб-окно Island.")
                     .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
             } else {
@@ -56,12 +56,12 @@ struct AgentsView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(connectionKind == "Веб" ? (provider == .claude ? "Claude" : "ChatGPT / Codex") : provider.title)
                                 .font(.system(size: 13, weight: .semibold))
-                            Text(connectionKind == "Веб" ? "Отдельное веб-окно" : agents.observed.contains(provider) ? "События получены" : agents.installed.contains(provider) ? "Ожидаем задачу" : "Не подключён")
+                            Text(connectionKind == "Веб" ? agents.webConnections[provider] ?? "Отдельное веб-окно" : agents.observed.contains(provider) ? "События получены" : agents.installed.contains(provider) ? "Ожидаем задачу" : "Не подключён")
                                 .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
                         }
                         Spacer()
                         if connectionKind == "Веб" {
-                            Button("Открыть") { agents.openWeb(provider) }.buttonStyle(IslandButtonStyle(.soft))
+                            Button("Открыть") { agents.openWeb(provider); connections = false }.buttonStyle(IslandButtonStyle(.soft))
                         } else {
                             Button(agents.installed.contains(provider) ? "Отключить" : "Подключить") {
                                 agents.setEnabled(provider, enabled: !agents.installed.contains(provider))

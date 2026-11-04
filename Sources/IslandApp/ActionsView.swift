@@ -19,7 +19,7 @@ struct ActionsView: View {
                                      subtitle: adding ? nil : "Приложения, папки и команды")
                 Spacer()
                 if !adding {
-                    Button { adding = true } label: { Image(systemName: "plus").frame(width: 20, height: 20) }
+                    Button { adding = true } label: { IslandAddIcon() }
                         .buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel("Добавить действие").recordingTarget("Добавить действие")
                 }
             }

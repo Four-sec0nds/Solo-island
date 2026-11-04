@@ -8,6 +8,7 @@ final class AgentService: ObservableObject {
     @Published private(set) var activity = AgentActivity()
     @Published private(set) var installed: Set<AgentProvider> = []
     @Published private(set) var observed: Set<AgentProvider> = []
+    @Published private(set) var webConnections: [AgentProvider: String] = [:]
     @Published var message: String?
     private let mailbox: AgentMailbox
     private let instance = UUID()
@@ -20,10 +21,13 @@ final class AgentService: ObservableObject {
         if webBrowsers[provider] == nil { webBrowsers[provider] = WebAgentBrowser(provider: provider, agents: self) }
         webBrowsers[provider]?.present()
     }
+    func webConnection(_ provider: AgentProvider, status: String) { webConnections[provider] = status }
     func receiveWeb(_ data: Data) {
         do {
-            let event = try WebAgentEvent.decode(data).bridgeEvent(instance: instance, pid: ProcessInfo.processInfo.processIdentifier)
+            let web = try WebAgentEvent.decode(data)
+            let event = try web.bridgeEvent(instance: instance, pid: ProcessInfo.processInfo.processIdentifier)
             try mailbox.write(event, to: mailbox.eventURL(event.id)); poll()
+            webConnections[web.provider] = "Статусы поступают"
         } catch { message = "Веб-сеанс не передал поддерживаемый статус." }
     }
     func installBrowserBridge() {

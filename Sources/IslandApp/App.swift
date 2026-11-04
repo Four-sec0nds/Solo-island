@@ -536,31 +536,64 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fputs("Music login window: readable full-size browser and shared playback session passed\n", stderr)
     }
     private func verifyWebAgents(folder: URL, directory: URL) async throws {
+        var fixture = IslandState(); fixture.settings.musicOnboardingComplete = true
+        try StateRepository(url: folder.appendingPathComponent("state.json")).save(fixture)
         let demo = IslandStore(dataFolder: folder)
         demo.agents.start(); defer { demo.agents.stop() }
-        let browser = WebAgentBrowser(provider: .codex, agents: demo.agents)
-        browser.loadPreviewFixture(); browser.present()
-        defer { browser.window.close() }
-        for _ in 0..<50 {
-            if !browser.webView.isLoading { break }
-            try await Task.sleep(nanoseconds: 80_000_000)
+        let controller = IslandWindowController(store: demo, trackPointer: false, reducedMotionOverride: true)
+        defer { controller.close() }
+        demo.reveal(.agents)
+        func failure(_ reason: String) -> NSError {
+            NSError(domain: "SoloIsland.WebAgent", code: 1, userInfo: [NSLocalizedDescriptionKey: reason])
         }
-        let session = UUID().uuidString
-        for state in ["start", "working", "finished"] {
-            let payload: [String: Any] = ["provider": "codex", "host": "chatgpt.com", "session": session, "state": state]
-            let bytes = try JSONSerialization.data(withJSONObject: payload)
-            let json = String(decoding: bytes, as: UTF8.self)
-            try await browser.webView.evaluateJavaScript("window.webkit.messageHandlers.soloAgent.postMessage(" + json + "); true;")
-            for _ in 0..<30 {
-                if state == "finished" ? demo.agents.activity.current == nil : demo.agents.activity.current?.isWeb == true { break }
-                try await Task.sleep(nanoseconds: 80_000_000)
+        @MainActor func until(_ check: () -> Bool) async -> Bool {
+            for _ in 0..<100 {
+                if check() { return true }; try? await Task.sleep(nanoseconds: 60_000_000)
             }
-            guard state == "finished" ? demo.agents.activity.current == nil : demo.agents.activity.current?.isWeb == true else {
-                throw NSError(domain: "SoloIsland.WebAgent", code: 1, userInfo: [NSLocalizedDescriptionKey: "Web lifecycle did not reach the native agent panel"])
+            return check()
+        }
+        for provider in AgentProvider.allCases {
+            let browser = WebAgentBrowser(provider: provider, agents: demo.agents)
+            browser.loadPreviewFixture(); browser.present()
+            defer { browser.window.close() }
+            guard await until({ demo.agents.webConnections[provider] == "Наблюдение включено" }) else {
+                throw failure("The bundled page observer did not install for " + provider.rawValue)
+            }
+            try await browser.webView.evaluateJavaScript("document.getElementById('begin').click(); true;")
+            guard await until({ demo.agents.activity.current?.provider == provider && demo.agents.activity.current?.isWeb == true }),
+                  let active = demo.agents.activity.current else { throw failure("Real page fetch did not start the native timer") }
+            try await Task.sleep(nanoseconds: 1_100_000_000)
+            guard let current = demo.agents.activity.current, current.id == active.id,
+                  current.elapsed(at: Date()) >= 1 else { throw failure("Web elapsed time did not advance") }
+            if provider == .codex, let panel = controller.window {
+                try PreviewRecorder.png(panel, to: directory.appendingPathComponent("SoloIsland-web-agents.png"))
+            }
+            try await browser.webView.evaluateJavaScript("document.getElementById('end').click(); true;")
+            guard await until({ demo.agents.activity.sessions.first(where: { $0.id == active.id })?.status == .finished }) else {
+                throw failure("Real ReadableStream completion did not finish the native session")
+            }
+            let consumed = try await browser.webView.evaluateJavaScript("window.fixtureCompleted === true") as? Bool ?? false
+            guard consumed else { throw failure("Observer interfered with the site's stream reader") }
+            if provider == .codex {
+                try await browser.webView.evaluateJavaScript("window.fixtureMode='task'; window.fixtureState='in_progress'; document.getElementById('begin').click(); true;")
+                guard await until({ demo.agents.activity.current?.provider == .codex && demo.agents.activity.current?.id != active.id }),
+                      let task = demo.agents.activity.current else { throw failure("Cloud task status did not start its own native session") }
+                try await browser.webView.evaluateJavaScript("document.getElementById('end').click(); true;")
+                guard await until({ demo.agents.activity.sessions.first(where: { $0.id == task.id })?.status == .finished }) else {
+                    throw failure("Cloud task completion metadata did not stop its timer")
+                }
+            }
+            try await browser.webView.evaluateJavaScript("window.fixtureMode='stream'; document.getElementById('begin').click(); true;")
+            guard await until({ demo.agents.activity.current?.provider == provider }), let closing = demo.agents.activity.current else {
+                throw failure("A new web turn did not restart observation")
+            }
+            browser.window.close()
+            guard await until({ demo.agents.activity.sessions.first(where: { $0.id == closing.id })?.status == .interrupted }) else {
+                throw failure("Closing the observed page left a running timer")
             }
         }
-        try PreviewRecorder.png(browser.window, to: directory.appendingPathComponent("SoloIsland-web-agents.png"))
         fputs("Web agents: native WKWebView, local lifecycle bridge, elapsed session and completion passed\n", stderr)
+        fputs("Web observer: bundled script, both providers, real fetch/ReadableStream, Codex task metadata, native timer and window close passed\n", stderr)
     }
 
 }
