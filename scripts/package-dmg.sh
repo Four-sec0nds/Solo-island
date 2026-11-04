@@ -32,8 +32,23 @@ Homebrew, Node.js и компилятор для использования не
 Для «Не беспокоить» настройте две «Быстрые команды» в разделе настроек.
 Сборка локально подписана ad-hoc; нотарификация Apple не выполнена.
 INSTALL
-hdiutil create -volname 'Solo Island' -fs HFS+ -srcfolder "$work_dir/stage" -format UDZO -ov "$dmg_path"
-hdiutil verify "$dmg_path"
+# Build a generously sized writable volume first, then compress the closed
+# image. Direct srcfolder -> UDZO creation produced an invalid tiny image on a
+# hosted macOS runner after adding the pet atlases. Keep both CRC verification
+# and the relocated, read-only application checks below.
+stage_kib="$(du -sk "$work_dir/stage" | awk '{print $1}')"
+image_mib=$(( (stage_kib + 1023) / 1024 + 32 ))
+if (( image_mib < 64 )); then image_mib=64; fi
+image_valid=false
+for attempt in 1 2; do
+    hdiutil create -size "${image_mib}m" -layout SPUD -volname 'Solo Island' -fs HFS+ \
+        -srcfolder "$work_dir/stage" -format UDRW -ov "$work_dir/writable.dmg"
+    hdiutil convert "$work_dir/writable.dmg" -format UDZO -ov -o "$dmg_path"
+    if hdiutil verify "$dmg_path"; then image_valid=true; break; fi
+    echo "Disk image verification failed on attempt $attempt; rebuilding the generated image." >&2
+    rm -f "$dmg_path" "$work_dir/writable.dmg"
+done
+[[ "$image_valid" == true ]] || { echo 'The generated DMG failed integrity verification.' >&2; exit 1; }
 hdiutil attach "$dmg_path" -readonly -nobrowse -mountpoint "$work_dir/mount"
 mounted=true
 [[ "$(readlink "$work_dir/mount/Applications")" == /Applications ]]
