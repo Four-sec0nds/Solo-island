@@ -1,8 +1,30 @@
+import AppKit
 import SwiftUI
+import ImageIO
 import IslandCore
 
-/// Small original pixel sprites, rendered at native resolution. Their motion
-/// reflects a real session; no activity or permission state is invented here.
+/// Downloaded sprite atlases are decoded once and cropped in memory. No web
+/// view, network fetch, cache directory or external pet app runs at runtime.
+@MainActor
+enum AgentPetSprites {
+    private static var atlases: [AgentProvider: CGImage] = [:]
+    private static var cells: [String: CGImage] = [:]
+    static func frame(provider: AgentProvider, row: Int, column: Int) -> CGImage? {
+        let key = provider.rawValue + ":" + String(row) + ":" + String(column)
+        if let cached = cells[key] { return cached }
+        let atlas: CGImage
+        if let cached = atlases[provider] { atlas = cached }
+        else {
+            guard let url = Bundle.main.url(forResource: provider.rawValue, withExtension: "webp", subdirectory: "AgentPets"),
+                  let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+                  let image = CGImageSourceCreateImageAtIndex(source, 0, nil), image.width == 1536, image.height == 1872 else { return nil }
+            atlases[provider] = image; atlas = image
+        }
+        guard let image = atlas.cropping(to: CGRect(x: CGFloat(column * 192), y: CGFloat(row * 208), width: 192, height: 208)) else { return nil }
+        cells[key] = image; return image
+    }
+}
+
 struct AgentPetView: View {
     var provider: AgentProvider
     var size: CGFloat = 42
@@ -13,49 +35,19 @@ struct AgentPetView: View {
     @Environment(\.islandReducedMotionOverride) private var motionOverride
     private var moving: Bool { visible && (working || waiting) && !(motionOverride ?? reduceMotion) }
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.25, paused: !moving)) { timeline in
-            let frame = moving ? Int(timeline.date.timeIntervalSinceReferenceDate * 4) % 4 : 0
-            Canvas { context, canvas in
-                let unit = min(canvas.width / 28, canvas.height / 24)
-                let origin = CGPoint(x: (canvas.width - 28 * unit) / 2, y: (canvas.height - 24 * unit) / 2)
-                func pixel(_ x: CGFloat, _ y: CGFloat, _ width: CGFloat, _ height: CGFloat, _ color: Color) {
-                    let rect = CGRect(x: origin.x + x * unit, y: origin.y + y * unit, width: width * unit, height: height * unit)
-                    context.fill(Path(rect), with: .color(color))
-                }
-                let ink = Color(islandHex: 0x1C1726)
-                let body = provider == .claude ? Color(islandHex: 0xF3A06A) : IslandPalette.mint
-                let light = provider == .claude ? Color(islandHex: 0xFFD0A3) : Color(islandHex: 0xD3FFF1)
-                let shade = provider == .claude ? Color(islandHex: 0xC66B42) : Color(islandHex: 0x58B3A6)
-                let step: CGFloat = frame == 1 || frame == 2 ? 1 : 0
-                if provider == .claude {
-                    // Eight short, stepped legs make the orange spider legible
-                    // even beside the physical camera at 24 points.
-                    for index in 0..<4 {
-                        let y = CGFloat(6 + index * 3), shift = index % 2 == 0 ? step : -step
-                        pixel(4, y, 4, 2, body); pixel(2, y - 1 + shift, 2, 3, body)
-                        pixel(20, y, 4, 2, body); pixel(24, y - 1 - shift, 2, 3, body)
-                    }
-                    pixel(8, 4, 12, 2, light); pixel(6, 6, 16, 11, body)
-                    pixel(8, 17, 12, 2, shade); pixel(7, 6, 2, 3, light)
-                    pixel(10, 9, 2, frame == 3 ? 1 : 3, ink)
-                    pixel(16, 9, 2, frame == 3 ? 1 : 3, ink)
-                    pixel(13, 14, 2, 1, shade)
+        TimelineView(.animation(minimumInterval: 0.16, paused: !moving)) { timeline in
+            let column = moving ? Int(timeline.date.timeIntervalSinceReferenceDate * 6) % 6 : 0
+            let row = waiting ? 6 : working ? 7 : 0
+            Group {
+                if let image = AgentPetSprites.frame(provider: provider, row: row, column: column) {
+                    Image(decorative: image, scale: 1).resizable().interpolation(.high).scaledToFit()
                 } else {
-                    // Byte is a mint robot cat: square ears, a little muzzle,
-                    // four paws and a stepped tail, not a generic terminal icon.
-                    pixel(6, 3, 4, 5, body); pixel(18, 3, 4, 5, body)
-                    pixel(7, 4, 2, 2, IslandPalette.lavender); pixel(19, 4, 2, 2, IslandPalette.lavender)
-                    pixel(9, 5, 10, 2, light); pixel(6, 7, 16, 10, body)
-                    pixel(8, 17, 12, 2, shade); pixel(7, 7, 2, 3, light)
-                    pixel(10, 10, 2, frame == 3 ? 1 : 2, ink); pixel(16, 10, 2, frame == 3 ? 1 : 2, ink)
-                    pixel(13, 13, 2, 1, ink); pixel(12, 14, 4, 1, shade)
-                    pixel(8, 19 - step, 3, 2, body); pixel(17, 19 + step, 3, 2, body)
-                    pixel(22, 14, 3, 2, shade); pixel(24, 10 - step, 2, 5, body)
-                    if waiting { pixel(3, 7 - step, 2, 5, light) }
+                    Image(systemName: provider == .claude ? "text.bubble" : "terminal")
+                        .foregroundStyle(IslandPalette.secondary)
                 }
             }
         }.frame(width: size, height: size)
-            .accessibilityLabel(provider == .claude ? "Паучок — питомец Claude Code" : "Байт — кот-робот Codex")
+            .accessibilityLabel(provider == .claude ? "Clawd — питомец Claude Code" : "Питомец Codex")
     }
 }
 

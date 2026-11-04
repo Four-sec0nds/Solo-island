@@ -24,6 +24,8 @@ lipo "$app_dir/Contents/MacOS/SoloBridge" -verify_arch "$app_arch"
 codesign --force --sign - "$app_dir/Contents/MacOS/SoloBridge"
 lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "$app_arch"
 cp Resources/Info.plist "$app_dir/Contents/Info.plist"
+rm -rf "$app_dir/Contents/Resources/AgentPets"
+cp -R Resources/AgentPets "$app_dir/Contents/Resources/AgentPets"
 /usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app_dir/Contents/Info.plist" >/dev/null
 iconset_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-island-icons.XXXXXX")/AppIcon.iconset"
 trap 'rm -rf "${iconset_dir%/AppIcon.iconset}"' EXIT

@@ -8,11 +8,15 @@ final class NotchActivityTests: XCTestCase {
         XCTAssertFalse(NotchActivity(track: track, focus: nil).isVisible)
     }
 
-    func testPausedTrackKeepsItsCoverWithoutClaimingPlayback() {
+    func testPauseAndStopHideBothMusicWingsAndResumeRestoresThem() {
         var track = NowPlaying(); track.title = "Track"; track.playing = true
         XCTAssertEqual(NotchActivity(track: track, focus: nil), .music(.playing))
         track.playing = false
-        XCTAssertEqual(NotchActivity(track: track, focus: nil), .music(.paused))
+        XCTAssertEqual(NotchActivity(track: track, focus: nil), .hidden)
+        track.playing = nil
+        XCTAssertEqual(NotchActivity(track: track, focus: nil), .hidden)
+        track.playing = true
+        XCTAssertEqual(NotchActivity(track: track, focus: nil), .music(.playing))
         track.title = nil
         XCTAssertEqual(NotchActivity(track: track, focus: nil), .hidden)
     }
@@ -25,8 +29,8 @@ final class NotchActivityTests: XCTestCase {
         focus.pause(at: start.addingTimeInterval(60))
         XCTAssertEqual(NotchActivity(track: track, focus: focus), .focus(paused: true, music: .playing))
         track.playing = false
-        XCTAssertEqual(NotchActivity(track: track, focus: focus), .focus(paused: true, music: .paused))
-        XCTAssertEqual(NotchActivity(track: track, focus: nil), .music(.paused))
+        XCTAssertEqual(NotchActivity(track: track, focus: focus), .focus(paused: true, music: nil))
+        XCTAssertEqual(NotchActivity(track: track, focus: nil), .hidden)
         XCTAssertEqual(NotchActivity(track: NowPlaying(), focus: focus), .focus(paused: true, music: nil))
     }
 

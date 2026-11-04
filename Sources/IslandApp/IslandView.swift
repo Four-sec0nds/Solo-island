@@ -18,6 +18,10 @@ struct IslandRootView: View {
                 IslandPalette.background
                 RadialGradient(colors: [IslandPalette.lavender.opacity(0.065), .clear], center: .topTrailing, startRadius: 0, endRadius: 500)
                 Color.black.frame(width: store.cameraWidth, height: store.compactHeight)
+                topBar.padding(.horizontal, 18)
+                    .frame(width: store.presentationWidth, height: store.compactHeight)
+                    .opacity(store.contentVisible ? 1 : 0)
+                    .position(x: geometry.size.width / 2, y: store.compactHeight / 2)
                 expandedBody
                     .frame(width: store.presentationWidth, height: store.presentationHeight - store.compactHeight)
                     .opacity(store.contentVisible ? 1 : 0)
@@ -45,7 +49,7 @@ struct IslandRootView: View {
     }
     private var expandedBody: some View {
         VStack(spacing: 0) {
-            topBar.padding(.horizontal, 18).padding(.top, 8).padding(.bottom, 4)
+            GeometryReader { workspace in
             VStack(alignment: .leading, spacing: 10) {
                 if let error = store.error {
                     HStack(alignment: .top, spacing: 8) {
@@ -60,8 +64,10 @@ struct IslandRootView: View {
                     if !store.state.settings.musicOnboardingComplete && store.tab != .agents { MusicOnboardingView(store: store) }
                     else { content }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            }.padding(.horizontal, 18).padding(.top, 6).padding(.bottom, 10)
-            bottomBar
+            }.frame(width: workspace.size.width, height: workspace.size.height, alignment: .topLeading)
+                .clipped()
+            }.padding(.horizontal, 18).padding(.top, 8).padding(.bottom, 10)
+            bottomBar.fixedSize(horizontal: false, vertical: true).recordingTarget("Нижняя панель")
         }
     }
     @ViewBuilder private var content: some View {
@@ -85,15 +91,18 @@ struct IslandRootView: View {
         }
     }
     private var topBar: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
+            HStack(spacing: 7) {
             IslandBrandMark(size: 22).accessibilityHidden(true)
             Text("Solo Island").font(.system(size: 12, weight: .semibold, design: .rounded))
-                .foregroundStyle(IslandPalette.secondary)
-            Spacer(minLength: 8)
+                .foregroundStyle(IslandPalette.secondary).lineLimit(1)
+            }.frame(maxWidth: .infinity, alignment: .leading).recordingTarget("Название Solo Island")
+            Color.clear.frame(width: store.cameraWidth + 16).accessibilityHidden(true)
+            Group {
             if let toast = store.toast {
                 Label(toast.message, systemImage: toast.symbol)
                     .font(.system(size: 11)).foregroundStyle(accent).lineLimit(1)
-                    .frame(maxWidth: 230, alignment: .trailing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             } else if store.state.focus != nil && store.tab != .focus {
                 Button { store.tab = .focus } label: {
                     Label(store.focusedTime, systemImage: "timer").monospacedDigit()
@@ -101,7 +110,9 @@ struct IslandRootView: View {
                 }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(accent)
                     .accessibilityLabel("Открыть фокус, осталось " + store.focusedTime)
             }
-        }.frame(height: 24)
+            else { Color.clear }
+            }.frame(maxWidth: .infinity, alignment: .trailing)
+        }
     }
     private var bottomBar: some View {
         HStack(spacing: 6) {

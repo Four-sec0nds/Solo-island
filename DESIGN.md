@@ -104,3 +104,19 @@ robot cat. These original sprites are drawn by the native Canvas, with no
 external assets. They appear in connections, sessions, permission requests and
 the compact camera wing. Working/waiting animates their feet/eyes; hidden panels
 and Reduce Motion freeze the animation. Existing bridge decisions stay intact.
+
+## Bounded workspace and downloaded pets (0.7.2)
+
+The header now lives in the top band beside the camera. The center has an
+explicit clear hardware gap; both side groups stay in their own safe wing. A
+GeometryReader bounds the content before the fixed-size bottom navigation is
+measured, so an intrinsic empty-state height cannot push the dock out of the
+window. Empty Tasks has a smaller horizontal state within its own scroll area.
+Native captures assert dock bounds on every tab, including empty tasks at 520.
+
+Both hand-drawn pets are replaced with downloaded, unmodified community sprite
+atlases from xiangking/agent-pet, pinned in Resources/AgentPets/NOTICE.md with
+MIT attribution. Claude uses Clawd; Codex uses the blue terminal companion.
+Idle/work/wait cells are cropped locally and frozen offscreen/with Reduce Motion.
+Music wings are visible only during playback; pause/stop hides cover and bars.
+Independent focus and agent indicators retain their own activity rules.

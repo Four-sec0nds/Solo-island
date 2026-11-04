@@ -37,7 +37,18 @@ struct TasksView: View {
                 }
                 let tasks = TaskQuery.tasks(store.state.tasks, in: list, now: store.now)
                 if tasks.isEmpty {
-                    EmptyState(icon: "checklist", title: "Здесь пока пусто", detail: list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
+                    ScrollView {
+                        HStack(spacing: 12) {
+                            Image(systemName: "checklist").font(.system(size: 22, weight: .light))
+                                .foregroundStyle(accent).frame(width: 44, height: 44)
+                                .background(IslandPalette.surface, in: RoundedRectangle(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Здесь пока пусто").font(.system(size: 15, weight: .semibold, design: .rounded))
+                                Text(list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
+                                    .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
+                            }.frame(maxWidth: .infinity, alignment: .leading)
+                        }.padding(.vertical, 10)
+                    }
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 7) {

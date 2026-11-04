@@ -55,9 +55,9 @@ jobs:
             dist/SoloIsland-settings-appearance.png
             dist/SoloIsland-music-empty.png
             dist/SoloIsland-tasks-empty.png
+            dist/SoloIsland-tasks-empty-compact.png
             dist/SoloIsland-music-error.png
             dist/SoloIsland-notch-music.png
-            dist/SoloIsland-notch-paused.png
             dist/SoloIsland-notch-focus.png
             dist/SoloIsland-notch-focus-paused.png
             dist/SoloIsland-notch-combined.png

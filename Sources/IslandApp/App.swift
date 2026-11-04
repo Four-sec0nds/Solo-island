@@ -174,7 +174,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     ("settings-compact", .settings), ("settings-appearance", .settings),
                     ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music),
                     ("agents", .agents), ("agents-working", .agents), ("agents-compact", .agents),
-                    ("music-no-position", .music), ("music-no-duration", .music), ("agents-claude", .agents)
+                    ("music-no-position", .music), ("music-no-duration", .music), ("agents-claude", .agents),
+                    ("tasks-empty-compact", .tasks)
                 ]
                 for (name, tab) in stills {
                     fputs("Native snapshot: \(name)\n", stderr)
@@ -187,7 +188,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                             minutes: name == "focus-compact" ? 5999 : 90,
                             now: name == "focus-compact" ? Date() : Date().addingTimeInterval(-60))
                     }
-                    if name == "tasks-empty" { stillFixture.tasks = [] }
+                    if name == "tasks-empty" || name == "tasks-empty-compact" { stillFixture.tasks = [] }
                     if name == "custom-focus" { stillFixture.settings.customFocusSeconds = 37 * 60 }
                     if name == "onboarding" { stillFixture.settings.musicOnboardingComplete = false }
                     if tab == .files {
@@ -223,6 +224,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     stillStore.reveal(tab)
                     try? await Task.sleep(nanoseconds: 850_000_000)
                     guard let stillWindow = stillController.window else { throw CocoaError(.fileWriteUnknown) }
+                    guard let dock = RecordingTargets.frames["Нижняя панель"],
+                          dock.minY >= stillWindow.frame.height - 70,
+                          dock.maxY <= stillWindow.frame.height + 0.5,
+                          dock.minX >= -0.5, dock.maxX <= stillWindow.frame.width + 0.5,
+                          let brand = RecordingTargets.frames["Название Solo Island"],
+                          brand.minY >= -0.5, brand.maxY <= stillStore.compactHeight + 0.5,
+                          brand.maxX <= stillWindow.frame.width / 2 - stillStore.cameraWidth / 2 else {
+                        throw NSError(domain: "SoloIsland.Layout", code: 1, userInfo: [NSLocalizedDescriptionKey: "Dock overflow or unsafe top title in " + name])
+                    }
                     if name == "settings-appearance" {
                         guard PreviewRecorder.revealControl("Ширина", in: stillWindow) else { throw CocoaError(.fileWriteUnknown) }
                         try? await Task.sleep(nanoseconds: 200_000_000)
@@ -239,6 +249,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     stillController.close()
                 }
                 try await verifyNotchActivity(folder: folder.appendingPathComponent("notch-activity"), directory: directory, fixture: fixture)
+                for provider in AgentProvider.allCases {
+                    for row in [0, 6, 7] {
+                        for column in 0..<6 {
+                            guard let sprite = AgentPetSprites.frame(provider: provider, row: row, column: column),
+                                  sprite.width == 192, sprite.height == 208 else {
+                                throw NSError(domain: "SoloIsland.Pets", code: 1, userInfo: [NSLocalizedDescriptionKey: "Bundled pet atlas could not be decoded"])
+                            }
+                        }
+                    }
+                }
+                fputs("Workspace layout: dock contained on every tab including empty tasks at 520 points; title above content and outside camera passed\n", stderr)
+                fputs("Downloaded pets: Claude and Codex atlases, idle/work/wait frames decoded passed\n", stderr)
                 fputs("Compact player: full-width timeline visible with long titles, errors, missing position and missing duration passed\n", stderr)
                 try await recordFocusMotion(folder: folder.appendingPathComponent("focus-motion"), directory: directory, fixture: fixture)
                 try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
@@ -353,11 +375,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-music.png"))
         track.playing = false; demo.media.setPreview(track)
         try? await Task.sleep(nanoseconds: 100_000_000)
-        try require(hud.isVisible && !main.isVisible, "Pause must retain the cover without opening the panel")
-        try PreviewRecorder.png(hud, to: directory.appendingPathComponent("SoloIsland-notch-paused.png"))
+        try require(!hud.isVisible && !main.isVisible, "Pause must hide both compact music wings")
+        track.playing = true; demo.media.setPreview(track)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        try require(hud.isVisible && !main.isVisible, "Resume must restore the compact music wings")
+        track.playing = false; demo.media.setPreview(track)
         let date = Date()
         var focus = FocusSession(taskID: fixture.tasks[0].id, minutes: 5999, now: date)
         demo.previewFocus(focus, at: date)
+        try require(hud.isVisible, "Pausing music must not hide an independent focus session")
         track.playing = true; demo.media.setPreview(track)
         try? await Task.sleep(nanoseconds: 100_000_000)
         try require(demo.focusedTime == "99:59" && hud.isVisible, "Combined focus must retain HH:MM")
@@ -412,6 +438,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         demo.agents.preview([])
         try require(!hud.isVisible, "Ending the last agent must hide the compact panel")
         fputs("Notch activity: idle hidden, playback, pause, combined focus, wing hover and camera clearance passed\n", stderr)
+        fputs("Paused music: both wings hidden, resume restored and independent focus preserved passed\n", stderr)
     }
     private func recordFocusMotion(folder: URL, directory: URL, fixture: IslandState) async throws {
         var fixture = fixture; fixture.settings.customFocusSeconds = 12
