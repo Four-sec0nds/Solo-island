@@ -236,6 +236,7 @@ final class InteractionRecorder {
     private func page(to fraction: Double) async throws {
         let suffix = fraction > 0.5 ? ":вперёд" : ":назад"
         guard let key = RecordingTargets.frames.keys.sorted().first(where: { $0.hasPrefix("Страница:") && $0.hasSuffix(suffix) }) else {
+            if name == "actions" && store.state.actions.allSatisfy({ RecordingTargets.frames[$0.title] != nil }) { return }
             throw failure("Page navigation is missing in " + name)
         }
         var changed = false

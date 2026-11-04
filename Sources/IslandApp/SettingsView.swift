@@ -7,7 +7,7 @@ struct IslandSettingsView: View {
     @ObservedObject var store: IslandStore
     @ObservedObject var media: MediaService
 
-    @State private var section = "Вид"
+    private var section: Binding<String> { Binding(get: { store.settingsPage }, set: { store.settingsPage = $0 }) }
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -16,9 +16,9 @@ struct IslandSettingsView: View {
                 Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
                     .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
             }
-            IslandSegments(options: ["Музыка", "Вид", "Алерты", "Фокус", "Система"], selection: $section, title: { $0 })
+            IslandSegments(options: ["Музыка", "Вид", "Алерты", "Фокус", "Система"], selection: section, title: { $0 })
             Group {
-                switch section {
+                switch store.settingsPage {
                 case "Музыка": musicSection
                 case "Алерты": notificationsSection
                 case "Фокус": focusSection
@@ -36,13 +36,11 @@ struct IslandSettingsView: View {
                 HStack {
                     Button("Веб-плеер / вход") {
                         if let provider = store.state.settings.musicProvider { store.selectMusicProvider(provider) }
-                    }.font(.system(size: 11))
+                    }
                     Spacer()
-                    Button("Сбросить веб-сессии") { store.webMusic.resetSession() }
-                        .font(.system(size: 10)).buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(IslandPalette.secondary)
-                }
-                Text("Вход сохраняется в Solo Island. Сброс не затрагивает аккаунты Safari и других браузеров.")
-                    .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).lineSpacing(2)
+                    Button("Сбросить вход") { store.webMusic.resetSession() }
+                        .help("Сбросить только веб-сессию Solo Island. Аккаунты браузеров сохраняются.")
+                }.font(.system(size: 10)).buttonStyle(IslandButtonStyle(.bare)).frame(height: 22)
             }
         }
     }
@@ -94,7 +92,7 @@ struct IslandSettingsView: View {
 
     private var focusSection: some View {
         settingsSection("Не беспокоить", icon: "moon") {
-            Text("Создай в «Быстрых командах» команды включения и выключения режима. Укажи их имена — кнопка управления находится в разделе «Фокус».")
+            Text("Имена команд включения и выключения режима из приложения «Быстрые команды».")
                 .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).lineSpacing(2)
             TextField("Имя команды включения", text: binding(\.focusShortcut)).textFieldStyle(IslandTextFieldStyle())
             TextField("Имя команды выключения", text: binding(\.endFocusShortcut)).textFieldStyle(IslandTextFieldStyle())

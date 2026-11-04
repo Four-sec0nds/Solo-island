@@ -175,7 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music),
                     ("agents", .agents), ("agents-working", .agents), ("agents-compact", .agents),
                     ("music-no-position", .music), ("music-no-duration", .music), ("agents-claude", .agents),
-                    ("tasks-empty-compact", .tasks)
+                    ("tasks-empty-compact", .tasks), ("settings-music", .settings), ("settings-focus", .settings)
                 ]
                 for (name, tab) in stills {
                     fputs("Native snapshot: \(name)\n", stderr)
@@ -213,6 +213,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if name == "music-no-duration" { stillTrack.duration = nil }
                     stillStore.media.setPreview(name == "music-empty" ? NowPlaying() : stillTrack)
                     if name == "music-error" { stillStore.media.error = "Источник временно недоступен. Переподключи плеер в настройках." }
+                    if name == "settings-music" { stillStore.settingsPage = "Музыка" }
+                    if name == "settings-focus" { stillStore.settingsPage = "Фокус" }
                     stillStore.tab = tab; stillStore.pinned = true
                     if name == "deadline" || name == "reminder" {
                         var draft = fixture.tasks[1]
@@ -548,7 +550,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let payload: [String: Any] = ["provider": "codex", "host": "chatgpt.com", "session": session, "state": state]
             let bytes = try JSONSerialization.data(withJSONObject: payload)
             let json = String(decoding: bytes, as: UTF8.self)
-            try await browser.webView.evaluateJavaScript("window.webkit.messageHandlers.soloAgent.postMessage(" + json + ")")
+            try await browser.webView.evaluateJavaScript("window.webkit.messageHandlers.soloAgent.postMessage(" + json + "); true;")
             for _ in 0..<30 {
                 if state == "finished" ? demo.agents.activity.current == nil : demo.agents.activity.current?.isWeb == true { break }
                 try await Task.sleep(nanoseconds: 80_000_000)

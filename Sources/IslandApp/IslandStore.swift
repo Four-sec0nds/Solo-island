@@ -9,6 +9,7 @@ final class IslandStore: ObservableObject {
     @Published private(set) var state: IslandState
     @Published var now = Date()
     @Published var tab: IslandTab = .music
+    @Published var settingsPage = "Вид"
     @Published var cameraWidth: CGFloat = 160
     @Published var compactHeight: CGFloat = 37
     @Published var presentationWidth: CGFloat = CGFloat(IslandLayout.defaultWidth)

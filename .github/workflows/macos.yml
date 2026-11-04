@@ -54,6 +54,8 @@ jobs:
             dist/SoloIsland-focus-compact.png
             dist/SoloIsland-settings-compact.png
             dist/SoloIsland-settings-appearance.png
+            dist/SoloIsland-settings-music.png
+            dist/SoloIsland-settings-focus.png
             dist/SoloIsland-music-empty.png
             dist/SoloIsland-tasks-empty.png
             dist/SoloIsland-tasks-empty-compact.png

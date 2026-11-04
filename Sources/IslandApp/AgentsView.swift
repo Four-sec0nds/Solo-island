@@ -14,19 +14,19 @@ struct AgentsView: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("Агенты").font(.system(size: 22, weight: .semibold, design: .rounded))
                 Spacer()
+                if agents.message != nil {
+                    Button { messageDetails = true } label: { Image(systemName: "info.circle") }
+                        .buttonStyle(IslandButtonStyle(.bare)).help("Инструкция / сообщение подключения")
+                }
                 if !agents.activity.sessions.isEmpty {
                     Button(connections ? "К работе" : "Подключения") { connections.toggle() }
                         .buttonStyle(IslandButtonStyle(.soft)).recordingTarget("Подключения агентов")
                 }
             }
-            if agents.message != nil {
-                Button { messageDetails = true } label: { Label("Показать инструкцию / сообщение", systemImage: "info.circle") }
-                    .font(.system(size: 10)).buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(IslandPalette.secondary)
-            }
             if connections || agents.activity.sessions.isEmpty {
                 connectionView.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if !agents.pending.isEmpty {
-                CompactList(items: agents.pending, rowHeight: 228, id: "запросы") { request in approval(request) }
+                CompactList(items: agents.pending, rowHeight: 210, id: "запросы") { request in approval(request) }
             } else {
                 CompactList(items: agents.activity.sessions, rowHeight: 52, id: "агенты") { session in sessionRow(session) }
             }
@@ -89,7 +89,7 @@ struct AgentsView: View {
             Text(request.cwd).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).lineLimit(2)
                 .help(request.cwd).textSelection(.enabled)
             CompactText(text: request.input ?? "", id: "операция " + request.id.uuidString, monospaced: true)
-                .padding(8).frame(height: 88).background(IslandPalette.background, in: RoundedRectangle(cornerRadius: 9))
+                .padding(8).frame(height: 76).background(IslandPalette.background, in: RoundedRectangle(cornerRadius: 9))
             HStack(spacing: 8) {
                 Button("Разрешить один раз") { agents.respond(request, decision: .allow) }
                     .buttonStyle(IslandButtonStyle(.filled)).recordingTarget("Разрешить агенту:" + request.id.uuidString)
