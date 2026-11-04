@@ -1,0 +1,815 @@
+/opt/homebrew/bin/cmake
+TAP version 13
+# Subtest: empty and login pages do not become tracks or expose form data
+ok 1 - empty and login pages do not become tracks or expose form data
+  ---
+  duration_ms: 2.449875
+  type: 'test'
+  ...
+# Subtest: active HTML5 media wins and non-finite stream duration is omitted
+ok 2 - active HTML5 media wins and non-finite stream duration is omitted
+  ---
+  duration_ms: 0.602958
+  type: 'test'
+  ...
+# Subtest: media session next and seek handlers receive structured action details
+ok 3 - media session next and seek handlers receive structured action details
+  ---
+  duration_ms: 0.463792
+  type: 'test'
+  ...
+# Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
+ok 4 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
+  ---
+  duration_ms: 0.402542
+  type: 'test'
+  ...
+# Subtest: site-specific next button is used only when enabled
+ok 5 - site-specific next button is used only when enabled
+  ---
+  duration_ms: 0.433
+  type: 'test'
+  ...
+# Subtest: DOM-free media session supplies a usable timeline and seek handler
+ok 6 - DOM-free media session supplies a usable timeline and seek handler
+  ---
+  duration_ms: 0.700083
+  type: 'test'
+  ...
+# Subtest: a new media-session track does not inherit the preceding timeline
+ok 7 - a new media-session track does not inherit the preceding timeline
+  ---
+  duration_ms: 0.407458
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 99.682291
+test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
+test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
+test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
+test_success_publishes_dmg_and_checksum_without_modifying_source (test_publish_build.PublishBuildTests.test_success_publishes_dmg_and_checksum_without_modifying_source) ... ok
+test_a_stale_build_does_not_overwrite_new_source (test_publish_preview.PublishPreviewTests.test_a_stale_build_does_not_overwrite_new_source) ... ok
+test_failure_removes_an_older_preview_installer (test_publish_preview.PublishPreviewTests.test_failure_removes_an_older_preview_installer) ... ok
+test_local_or_public_branch_publication_is_rejected (test_publish_preview.PublishPreviewTests.test_local_or_public_branch_publication_is_rejected) ... ok
+test_success_preserves_sources_and_public_refs_and_excludes_recordings (test_publish_preview.PublishPreviewTests.test_success_preserves_sources_and_public_refs_and_excludes_recordings) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.638s
+
+OK
+Building for debugging...
+[0/19] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
+[1/19] Write sources
+[2/19] Write SoloIsland-entitlement.plist
+[2/19] Write sources
+[4/19] Write SoloBridge-entitlement.plist
+[4/19] Write sources
+[10/19] Write swift-version--79AA4F9932D1E87A.txt
+[12/28] Compiling IslandCore IslandLayout.swift
+[13/28] Compiling IslandCore Models.swift
+[14/28] Compiling IslandCore MusicProvider.swift
+[15/28] Compiling IslandCore NotchActivity.swift
+[16/32] Emitting module IslandCore
+[17/32] Compiling IslandCore AgentActivity.swift
+[18/32] Compiling IslandCore AgentHookConfiguration.swift
+[19/32] Compiling IslandCore AgentHookRunner.swift
+[20/32] Compiling IslandCore AgentMailbox.swift
+[21/32] Compiling IslandCore NotchHoverTracker.swift
+[22/32] Compiling IslandCore NowPlaying.swift
+[23/32] Compiling IslandCore ProcessRunner.swift
+[24/32] Compiling IslandCore TaskReminders.swift
+[25/41] Emitting module SoloBridge
+[26/41] Compiling SoloBridge main.swift
+[26/41] Write Objects.LinkFileList
+[27/41] Linking SoloBridge
+[28/41] Applying SoloBridge
+[30/41] Emitting module IslandPlatform
+[31/41] Compiling IslandPlatform ClipboardService.swift
+[32/60] Emitting module IslandPlatformTests
+[33/60] Compiling IslandPlatformTests ClipboardServiceTests.swift
+[34/60] Compiling IslandApp AgentService.swift
+[35/60] Compiling IslandApp AgentsView.swift
+[36/62] Emitting module IslandCoreTests
+[37/62] Compiling IslandApp ActionsView.swift
+[38/62] Compiling IslandApp AgentPetView.swift
+[39/62] Compiling IslandCoreTests NotchHoverTrackerTests.swift
+[40/62] Compiling IslandCoreTests PlanningTests.swift
+[41/64] Emitting module SoloIslandPackageTests
+[42/64] Compiling SoloIslandPackageTests runner.swift
+[42/64] Write Objects.LinkFileList
+[43/64] Linking SoloIslandPackageTests
+[45/64] Compiling IslandApp FilesView.swift
+[46/64] Compiling IslandApp FocusView.swift
+[47/64] Compiling IslandApp InteractionRecorder.swift
+[48/64] Compiling IslandApp IslandStore.swift
+[49/64] Compiling IslandApp IslandTheme.swift
+[50/64] Compiling IslandApp IslandView.swift
+[51/64] Compiling IslandApp MediaService.swift
+[52/64] Compiling IslandApp MusicView.swift
+[53/64] Emitting module IslandApp
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[60/64] Compiling IslandApp BrandViews.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[61/64] Compiling IslandApp Controls.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[62/71] Compiling IslandApp NotchActivityView.swift
+[63/71] Compiling IslandApp NotificationService.swift
+[64/71] Compiling IslandApp PreviewRecorder.swift
+[65/71] Compiling IslandApp SettingsView.swift
+[66/71] Compiling IslandApp TasksView.swift
+[67/71] Compiling IslandApp WebMusicService.swift
+[68/71] Compiling IslandApp WebPlayerScript.swift
+[68/71] Write Objects.LinkFileList
+[69/71] Linking SoloIsland
+[70/71] Applying SoloIsland
+Build complete! (39.87s)
+Test Suite 'All tests' started at 2026-11-04 12:06:49.567.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-11-04 12:06:49.568.
+Test Suite 'AgentBridgeTests' started at 2026-11-04 12:06:49.568.
+Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' passed (0.019 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' passed (0.118 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testParallelApprovalsResolveIndividuallyAndExpire]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testParallelApprovalsResolveIndividuallyAndExpire]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testPermissionIndicatorTakesPriorityOverFocusThenReturns]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testPermissionIndicatorTakesPriorityOverFocusThenReturns]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' passed (0.004 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' passed (0.001 seconds).
+Test Suite 'AgentBridgeTests' passed at 2026-11-04 12:06:49.713.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.145 (0.146) seconds
+Test Suite 'ClipboardServiceTests' started at 2026-11-04 12:06:49.713.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.018 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
+2026-11-04 12:06:49.754 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.754 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.754 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.754 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.754 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.754 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.754 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.754 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.754 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.754 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.754 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.755 xctest[2158:9983] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.038 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.002 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
+2026-11-04 12:06:49.772 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.772 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.772 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.772 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.772 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.772 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.772 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.772 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.772 xctest[2158:9983] Unknown number of components for colorspace model -1
+2026-11-04 12:06:49.772 xctest[2158:9983] Bad colorspace name NSNamedColorSpace
+2026-11-04 12:06:49.772 xctest[2158:9983] Unrecognized colorspace number -2
+2026-11-04 12:06:49.772 xctest[2158:9983] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.007 seconds).
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.002 seconds).
+Test Suite 'ClipboardServiceTests' passed at 2026-11-04 12:06:49.781.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.067 (0.067) seconds
+Test Suite 'CompactPlaybackTests' started at 2026-11-04 12:06:49.781.
+Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' started.
+Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' started.
+Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' passed (0.000 seconds).
+Test Suite 'CompactPlaybackTests' passed at 2026-11-04 12:06:49.781.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'IslandCoreTests' started at 2026-11-04 12:06:49.781.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.043 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.128 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' passed (0.005 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
+Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
+Test Suite 'IslandCoreTests' passed at 2026-11-04 12:06:49.964.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.182 (0.183) seconds
+Test Suite 'NotchActivityTests' started at 2026-11-04 12:06:49.964.
+Test Case '-[IslandCoreTests.NotchActivityTests testFocusOwnsTimeWhileRetainingMusicStateAndResumesMusicOnCompletion]' started.
+Test Case '-[IslandCoreTests.NotchActivityTests testFocusOwnsTimeWhileRetainingMusicStateAndResumesMusicOnCompletion]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchActivityTests testNoTrackOrFocusHidesTheWings]' started.
+Test Case '-[IslandCoreTests.NotchActivityTests testNoTrackOrFocusHidesTheWings]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchActivityTests testPausedTrackKeepsItsCoverWithoutClaimingPlayback]' started.
+Test Case '-[IslandCoreTests.NotchActivityTests testPausedTrackKeepsItsCoverWithoutClaimingPlayback]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' started.
+Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' passed (0.000 seconds).
+Test Suite 'NotchActivityTests' passed at 2026-11-04 12:06:49.965.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'NotchHoverTrackerTests' started at 2026-11-04 12:06:49.965.
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' started.
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testOutsideSamplesAfterSwitchPreserveImmediateFirstEntry]' started.
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testOutsideSamplesAfterSwitchPreserveImmediateFirstEntry]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDoNotLoseTheNextEntry]' started.
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDoNotLoseTheNextEntry]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' started.
+Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' passed (0.000 seconds).
+Test Suite 'NotchHoverTrackerTests' passed at 2026-11-04 12:06:49.966.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'PlanningTests' started at 2026-11-04 12:06:49.966.
+Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
+Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
+Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testDeadlineAlertsAreSeparateAndSkipPastTimesAndCompletedTasks]' started.
+Test Case '-[IslandCoreTests.PlanningTests testDeadlineAlertsAreSeparateAndSkipPastTimesAndCompletedTasks]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testEditedDeadlinesOptOutAndDuplicateTimesDoNotDoubleNotify]' started.
+Test Case '-[IslandCoreTests.PlanningTests testEditedDeadlinesOptOutAndDuplicateTimesDoNotDoubleNotify]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' started.
+Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
+Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
+Test Suite 'PlanningTests' passed at 2026-11-04 12:06:49.970.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.004 (0.004) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-11-04 12:06:49.970.
+	 Executed 47 tests, with 0 failures (0 unexpected) in 0.400 (0.402) seconds
+Test Suite 'All tests' passed at 2026-11-04 12:06:49.970.
+	 Executed 47 tests, with 0 failures (0 unexpected) in 0.400 (0.404) seconds
+◇ Test run started.
+↳ Testing Library Version: 124.4
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests passed after 0.001 seconds.
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version--79AA4F9932D1E87A.txt
+[5/7] Compiling IslandCore AgentActivity.swift
+[6/8] Compiling IslandPlatform ClipboardService.swift
+[7/9] Compiling IslandApp ActionsView.swift
+/Users/runner/work/Solo-island/Solo-island/Sources/IslandApp/App.swift:562:31: warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+560 |     }
+561 |     func checkPointer(at location: NSPoint? = nil) {
+562 |         guard let window, let screen = NSScreen.screens.first else { return }
+    |                               `- warning: immutable value 'screen' was never used; consider replacing with '_' or removing it
+563 |         let point = location ?? NSEvent.mouseLocation
+564 |         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
+[7/9] Write Objects.LinkFileList
+[8/9] Linking SoloIsland
+Build of product 'SoloIsland' complete! (64.88s)
+[0/1] Planning build
+Building for production...
+[0/4] Write sources
+[1/4] Write swift-version--79AA4F9932D1E87A.txt
+[3/5] Compiling SoloBridge main.swift
+[3/5] Write Objects.LinkFileList
+[4/5] Linking SoloBridge
+Build of product 'SoloBridge' complete! (1.35s)
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/MacOS/SoloBridge: replacing existing signature
+From https://github.com/ungive/media-control
+ * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
+HEAD is now at 3cfd5dc Bump version to 0.7.7
+Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
+Cloning into '/private/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.uYJAjz/source/mediaremote-adapter'...
+From https://github.com/ungive/mediaremote-adapter
+ * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
+Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
+-- The OBJC compiler identification is AppleClang 17.0.0.17000013
+-- Detecting OBJC compiler ABI info
+-- Detecting OBJC compiler ABI info - done
+-- Check for working OBJC compiler: /usr/bin/clang - skipped
+-- Configuring done (2.6s)
+-- Generating done (0.6s)
+-- Build files have been written to: /var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.uYJAjz/build
+[  5%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
+[ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
+[ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
+[ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
+[ 26%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/globals.m.o
+[ 31%] Linking OBJC executable ../MediaRemoteAdapterTestClient
+[ 31%] Built target MediaRemoteAdapterTestClient
+[ 36%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/keys.m.o
+[ 42%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/now_playing.m.o
+[ 47%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/repeat.m.o
+[ 52%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/seek.m.o
+[ 57%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/send.m.o
+[ 63%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/shuffle.m.o
+[ 68%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/speed.m.o
+[ 73%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/stream.m.o
+[ 78%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/test.m.o
+[ 84%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/private/MediaRemote.m.o
+[ 89%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/Debounce.m.o
+[ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
+[100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
+Ad-hoc signing MediaRemoteAdapter.framework
+/var/folders/y3/p6x0rn5562l5qyxy7x6jqrsc0000gn/T/solo-media.uYJAjz/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+[100%] Built target MediaRemoteAdapter
+-- Install configuration: "Release"
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/mediaremote-adapter.pl
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Resources
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/_CodeSignature
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/_CodeSignature/CodeResources
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/Resources
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/Resources/Info.plist
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/A/MediaRemoteAdapter
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/Versions/Current
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework/MediaRemoteAdapter
+-- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/MediaRemoteAdapterTestClient
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/Frameworks/MediaRemoteAdapter.framework: replacing existing signature
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/lib/media-control/MediaRemoteAdapterTestClient: replacing existing signature
+media-control 0.7.7
+Copyright (c) 2025 Jonas van den Berg
+Licensed under the BSD 3-Clause License.
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app: replacing existing signature
+--prepared:/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/MacOS/SoloBridge
+--validated:/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/MacOS/SoloBridge
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app: valid on disk
+/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app: satisfies its Designated Requirement
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+Window overlay: reveal, competing window, pin and unpin passed
+layout expanded=false transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=true frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+layout expanded=false transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=true frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=true frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=false active=true frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+layout expanded=false transition=true active=true frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+layout expanded=false transition=false active=true frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=true active=true frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+layout expanded=false transition=false active=true frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=true active=true frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+Screen hover: Space/display notifications, immediate entry, cached cursor, stale close and pin passed
+Native snapshot: preview
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: tasks
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: focus
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: files
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: actions
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: onboarding
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: custom-focus
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: deadline
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: reminder
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: settings
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: music-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
+Native snapshot: tasks-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
+Native snapshot: focus-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
+Native snapshot: settings-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
+Native snapshot: settings-appearance
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: music-empty
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: tasks-empty
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: music-error
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: agents
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: agents-working
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: agents-compact
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=520.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=520.0
+motion system=true effective=true duration=0.0
+Native snapshot: music-no-position
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: music-no-duration
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Native snapshot: agents-claude
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Notch exit state: expanded=false visible=false hud=true passive=true pin=false editing=false modal=false
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Notch activity: idle hidden, playback, pause, combined focus, wing hover and camera clearance passed
+Compact player: full-width timeline visible with long titles, errors, missing position and missing duration passed
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Focus recording: countdown, progress, pause and resume passed
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=true duration=0.0
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=true duration=0.0
+Embedded WKWebView smoke: metadata, play, seek, next and pause passed
+layout expanded=false transition=true active=false frame=0.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=false transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+layout expanded=true transition=true active=false frame=560.0
+motion system=true effective=false duration=0.32
+motion step=1 frame=560.0
+motion step=10 frame=560.0
+Native validation phase: onboarding
+Native input: click Яндекс Музыка
+layout expanded=true transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+Native input: click К плееру
+Native validation phase: music
+Native input: click Воспроизвести
+Native input: drag Позиция воспроизведения
+Native input: click Следующий трек
+Native input: click Предыдущий трек
+Native input: click Пауза
+Native validation phase: tasks
+Native input: click Вкладка:Задачи
+Native input: click Завершить:Собрать идеи для проекта
+Native input: click Выполненные
+Native input: click Предстоящие
+Native input: click Сегодня
+Native validation phase: deadline
+Native input: click Добавить срок и напоминание
+Task editor: new task button activated
+Native input: type Название задачи
+Native input: click Название задачи
+Native input: click Алерт:срок
+Native input: drag Через сколько дней выполнить задачу
+Native input: click Алерт:день
+Native input: click Алерт:час
+Native input: click Алерт:день
+Native input: click Алерт:час
+Native input: click Своя дата
+Native validation phase: reminder
+Native input: click Напоминание
+Native input: click Алерт:напоминание
+Native input: click Календарь:вперёд
+Native input: click Календарь:назад
+Native input: click Friday, November 6, 2026
+Native input: click Сохранить задачу
+Native validation phase: custom-focus
+Native input: click Вкладка:Фокус
+Native input: click 45 мин
+layout expanded=true transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+Native input: click Своё
+layout expanded=true transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+Native input: type Часы
+Native input: click Часы
+layout expanded=true transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+Native input: type Минуты
+Native input: click Минуты
+layout expanded=true transition=false active=false frame=560.0
+motion system=true effective=false duration=0.32
+Native input: click Продумать главную страницу
+Interaction recording: Interactive control is not laid out: Продумать главную страницу
+TARGET 15 мин (22.0, 130.0, 80.16666666666667, 32.0)
+TARGET 25 мин (106.16666666666667, 130.0, 80.16666666666664, 32.0)
+TARGET 45 мин (190.33333333333331, 130.0, 80.16666666666669, 32.0)
+TARGET 60 мин (274.5, 130.0, 80.16666666666663, 32.0)
+TARGET 90 мин (358.66666666666663, 130.0, 80.16666666666663, 32.0)
+TARGET Вкладка:Агенты (354.91666666666663, 338.0, 66.58333333333337, 42.0)
+TARGET Вкладка:Буфер (217.74999999999997, 338.0, 66.58333333333334, 42.0)
+TARGET Вкладка:Действия (286.3333333333333, 338.0, 66.58333333333331, 42.0)
+TARGET Вкладка:Задачи (80.58333333333329, 338.0, 66.58333333333334, 42.0)
+TARGET Вкладка:Музыка (11.999999999999943, 338.0, 66.58333333333334, 42.0)
+TARGET Вкладка:Настройки (434.00000000000006, 341.0, 36.0, 36.0)
+TARGET Вкладка:Фокус (149.16666666666663, 338.0, 66.58333333333334, 42.0)
+TARGET Завершить Solo Island:ObjectIdentifier(0x000000014980c970) (512.0, 327.5, 36.0, 36.0)
+TARGET Завершить Solo Island:ObjectIdentifier(0x00000001498e3440) (512.0, 341.0, 36.0, 36.0)
+TARGET Закреплено (473.00000000000006, 341.0, 36.0, 36.0)
+TARGET Минуты (286.5, 209.0, 228.5, 38.0)
+TARGET Подготовить новый проект (18.0, 319.0, 509.0, 54.0)
+TARGET Своё (442.83333333333326, 130.0, 80.16666666666663, 32.0)
+TARGET Часы (30.0, 209.0, 228.5, 38.0)
+Preview: Interactive control is not laid out: Продумать главную страницу
