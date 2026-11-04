@@ -49,7 +49,7 @@ struct IslandSettingsView: View {
 
     private var appearanceSection: some View {
         settingsSection("Оформление", icon: "slider.horizontal.3") {
-            settingSlider("Ширина", value: binding(\.expandedWidth), range: 640...900, suffix: "pt")
+            settingSlider("Ширина", value: binding(\.expandedWidth), range: IslandLayout.minimumWidth...IslandLayout.maximumWidth, suffix: "pt")
             settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
             VStack(alignment: .leading, spacing: 6) {
                 HStack {

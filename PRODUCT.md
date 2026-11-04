@@ -43,8 +43,8 @@ fully quits the app. Re-entering after changing Space/display must remain prompt
 - No account backend, fabricated player capabilities or new service credentials.
 - Normal dimensions stay compact; header content clears the physical camera.
   Preserve existing user data, key actions, keyboard behavior and Reduce Motion.
-- A full-width workspace and bottom navigation replace the left panel. The palette
-  remains unchanged. Music/focus wings must not steal keyboard focus or clicks.
+- A compact 560-point workspace (520–680 adjustable) and six bottom destinations replace the left panel. The body is 360 points tall; longer forms scroll. The palette
+  remains unchanged. Music/focus/agent wings must not steal keyboard focus or clicks. Agent pets are original native pixel sprites: an orange spider for Claude Code and a mint robot cat, Byte, for Codex.
 
 ## Brand Commitments
 

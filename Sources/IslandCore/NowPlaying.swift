@@ -17,7 +17,9 @@ public struct NowPlaying: Decodable, Equatable {
     public init() {}
     public var hasTrack: Bool { title?.isEmpty == false }
     public var isPlaying: Bool { playing == true }
-    public var canSeek: Bool { (duration ?? 0) > 0 && elapsedTime != nil }
+    // Duration is enough for an absolute seek. Some macOS sources omit their
+    // current position; this must not remove the entire timeline from the UI.
+    public var canSeek: Bool { duration.map { $0.isFinite && $0 > 0 } ?? false }
     public var applicationID: String? { parentApplicationBundleIdentifier ?? bundleIdentifier }
     public func position(at now: Date, receivedAt: Date) -> Double {
         let base = max(0, elapsedTime ?? 0)

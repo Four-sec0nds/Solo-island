@@ -11,8 +11,8 @@ final class IslandStore: ObservableObject {
     @Published var tab: IslandTab = .music
     @Published var cameraWidth: CGFloat = 160
     @Published var compactHeight: CGFloat = 37
-    @Published var presentationWidth: CGFloat = 720
-    @Published var presentationHeight: CGFloat = 557
+    @Published var presentationWidth: CGFloat = CGFloat(IslandLayout.defaultWidth)
+    @Published var presentationHeight: CGFloat = CGFloat(IslandLayout.bodyHeight + 37)
     @Published var contentVisible = false
     @Published var expanded = false
     @Published var pinned = false
@@ -51,7 +51,7 @@ final class IslandStore: ObservableObject {
             state = IslandState(); canPersist = false
             loadingError = "Не удалось прочитать сохранённые данные. Исходный файл оставлен без изменений: \(error.localizedDescription)"
         }
-        if state.settings.expandedWidth < 640 { state.settings.expandedWidth = 720 }
+        state.settings.adoptCompactLayout()
         error = loadingError
         notifications.onAction = { [weak self] action, id in
             Task { @MainActor in self?.handleNotification(action, id: id) }

@@ -155,7 +155,8 @@ public struct QuickAction: Identifiable, Codable, Equatable {
 }
 
 public struct IslandSettings: Codable, Equatable {
-    public var expandedWidth: Double = 720
+    public var expandedWidth: Double = IslandLayout.defaultWidth
+    public var compactLayoutRevision: Int = IslandLayout.revision
     public var cornerRadius: Double = 30
     public var animationDuration: Double = 0.25
     public var coverAccent: Bool = true
@@ -169,12 +170,13 @@ public struct IslandSettings: Codable, Equatable {
     public init() {}
     public var focusDuration: TimeInterval { Double(customFocusSeconds.map { min(359999, max(1, $0)) } ?? min(5999, max(1, focusMinutes)) * 60) }
     private enum CodingKeys: String, CodingKey {
-        case expandedWidth, cornerRadius, animationDuration, coverAccent, accent, focusMinutes, focusShortcut, endFocusShortcut
+        case expandedWidth, compactLayoutRevision, cornerRadius, animationDuration, coverAccent, accent, focusMinutes, focusShortcut, endFocusShortcut
         case customFocusSeconds, musicProvider, musicOnboardingComplete
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        expandedWidth = try c.decodeIfPresent(Double.self, forKey: .expandedWidth) ?? 720
+        expandedWidth = try c.decodeIfPresent(Double.self, forKey: .expandedWidth) ?? IslandLayout.defaultWidth
+        compactLayoutRevision = try c.decodeIfPresent(Int.self, forKey: .compactLayoutRevision) ?? 0
         cornerRadius = try c.decodeIfPresent(Double.self, forKey: .cornerRadius) ?? 30
         animationDuration = try c.decodeIfPresent(Double.self, forKey: .animationDuration) ?? 0.25
         coverAccent = try c.decodeIfPresent(Bool.self, forKey: .coverAccent) ?? true
@@ -185,6 +187,13 @@ public struct IslandSettings: Codable, Equatable {
         customFocusSeconds = try c.decodeIfPresent(Int.self, forKey: .customFocusSeconds)
         if let raw = try c.decodeIfPresent(String.self, forKey: .musicProvider) { musicProvider = MusicProvider(rawValue: raw) }
         musicOnboardingComplete = try c.decodeIfPresent(Bool.self, forKey: .musicOnboardingComplete) ?? false
+    }
+    public mutating func adoptCompactLayout() {
+        if compactLayoutRevision < IslandLayout.revision {
+            expandedWidth = IslandLayout.defaultWidth
+            compactLayoutRevision = IslandLayout.revision
+        }
+        expandedWidth = IslandLayout.width(expandedWidth)
     }
 }
 

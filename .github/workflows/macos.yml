@@ -66,6 +66,9 @@ jobs:
             dist/SoloIsland-agents-working.png
             dist/SoloIsland-agents-compact.png
             dist/SoloIsland-agents-approval.png
+            dist/SoloIsland-agents-claude.png
+            dist/SoloIsland-music-no-position.png
+            dist/SoloIsland-music-no-duration.png
           if-no-files-found: error
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'

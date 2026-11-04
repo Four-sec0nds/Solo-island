@@ -10,7 +10,7 @@ struct MusicView: View {
     var now: Date
     @State private var seeking: Double?
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             if let provider = store.state.settings.musicProvider {
                 HStack(spacing: 8) {
                     MusicProviderIcon(provider: provider, size: 22)
@@ -37,13 +37,13 @@ struct MusicView: View {
             .onDisappear { store.editingForm = false }
     }
     private var playbackContent: some View {
-        VStack(spacing: 12) {
-            if let error = web.error ?? (media.usingWeb ? nil : media.error) {
+        VStack(spacing: 6) {
+            if let error = playbackError {
                 HStack(spacing: 8) {
                     Image(systemName: "info.circle").foregroundStyle(.orange)
-                    Text(error).font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).lineLimit(2)
+                    Text(error).font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).lineLimit(1).help(error)
                     Spacer(minLength: 0)
-                }.padding(8).islandCard(tint: .orange)
+                }.padding(4).islandCard(tint: .orange)
             }
             Spacer(minLength: 0)
             if media.track.hasTrack { player }
@@ -92,18 +92,18 @@ struct MusicView: View {
         }
     }
     private var player: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .center, spacing: 24) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 16) {
                 Button { media.openSource() } label: {
-                    CoverView(image: media.artwork, size: 160,
+                    CoverView(image: media.artwork, size: 104,
                               isPlaying: media.track.isPlaying && store.expanded && store.contentVisible)
                 }.buttonStyle(IslandButtonStyle(.bare)).help("Открыть текущий плеер")
                     .accessibilityLabel("Открыть текущий плеер")
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(media.track.title ?? "").font(.system(size: 24, weight: .semibold, design: .rounded))
-                        .lineLimit(2).minimumScaleFactor(0.8).foregroundStyle(IslandPalette.text)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(media.track.title ?? "").font(.system(size: 19, weight: .semibold, design: .rounded))
+                        .lineLimit(playbackError == nil ? 2 : 1).minimumScaleFactor(0.8).foregroundStyle(IslandPalette.text)
                     if let artist = media.track.artist, !artist.isEmpty {
-                        Text(artist).font(.system(size: 13)).foregroundStyle(IslandPalette.secondary).lineLimit(2)
+                        Text(artist).font(.system(size: 12)).foregroundStyle(IslandPalette.secondary).lineLimit(1)
                     }
                     HStack(spacing: 7) {
                         Circle().fill(media.track.isPlaying ? accent : IslandPalette.lavender).frame(width: 5, height: 5)
@@ -115,30 +115,34 @@ struct MusicView: View {
                     transport.padding(.top, 2)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }.frame(maxWidth: .infinity)
-            if media.track.canSeek {
-                VStack(spacing: 3) {
-                    IslandSlider(value: Binding(get: { seeking ?? media.track.position(at: now, receivedAt: media.receivedAt) }, set: { seeking = $0 }),
-                           in: 0...max(1, media.track.duration ?? 1), onEditingChanged: { editing in
-                        if !editing, let value = seeking { media.seek(value); seeking = nil }
-                    }).accessibilityLabel("Позиция воспроизведения").recordingTarget("Позиция воспроизведения")
-                    HStack {
-                        Text(IslandStore.clock(Int(seeking ?? media.track.position(at: now, receivedAt: media.receivedAt))))
-                        Spacer()
-                        Text(IslandStore.clock(Int(media.track.duration ?? 0)))
-                    }.font(.system(size: 11, design: .monospaced)).foregroundStyle(IslandPalette.secondary)
-                }
+            VStack(spacing: 1) {
+                IslandSlider(value: Binding(get: { seeking ?? displayedPosition }, set: { seeking = $0 }),
+                       in: 0...max(1, media.track.duration ?? 1), emphasized: true, onEditingChanged: { editing in
+                    if !editing, let value = seeking { media.seek(value); seeking = nil }
+                }).disabled(!media.track.canSeek)
+                    .accessibilityLabel("Позиция воспроизведения").recordingTarget("Позиция воспроизведения")
+                HStack {
+                    Text(media.track.elapsedTime != nil || seeking != nil ? IslandStore.clock(Int(seeking ?? displayedPosition)) : "—:—")
+                    Spacer()
+                    if media.track.canSeek { Text(IslandStore.clock(Int(media.track.duration ?? 0))) }
+                    else { Text("Длительность пока недоступна").font(.system(size: 10)) }
+                }.font(.system(size: 10, design: .monospaced)).foregroundStyle(IslandPalette.secondary)
             }
-        }.padding(18).islandCard(radius: 20)
+        }.padding(12).islandCard(radius: 16)
     }
+    private var displayedPosition: Double {
+        media.track.elapsedTime == nil ? 0 : media.track.position(at: now, receivedAt: media.receivedAt)
+    }
+    private var playbackError: String? { web.error ?? (media.usingWeb ? nil : media.error) }
     private var transport: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Button { media.command(["previous-track"]) } label: {
                 Image(systemName: "backward.fill").font(.system(size: 15)).frame(width: 20, height: 22)
             }.buttonStyle(IslandButtonStyle(.icon)).disabled(media.track.prohibitsSkip == true)
                 .accessibilityLabel("Предыдущий трек").recordingTarget("Предыдущий трек")
             Button { media.command(["toggle-play-pause"]) } label: {
                 Image(systemName: media.track.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: 19)).frame(width: 28, height: 28)
+                    .font(.system(size: 17)).frame(width: 23, height: 23)
             }.buttonStyle(IslandButtonStyle(.filled))
                 .accessibilityLabel(media.track.isPlaying ? "Пауза" : "Воспроизвести")
                 .recordingTarget(media.track.isPlaying ? "Пауза" : "Воспроизвести")

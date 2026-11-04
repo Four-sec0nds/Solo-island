@@ -85,3 +85,22 @@ Permission requests show their complete tool input and project path before an
 explicit one-shot allow, deny or return-to-client choice. Permission requests
 take priority over focus/music in compact mode; no spinning or false progress.
 The connection screen distinguishes installed hooks from actually received events.
+
+## Compact player and agent pets (0.7.1)
+
+Default width is 560 points, adjustable between 520 and 680. The body is 360
+points tall with camera clearance added above it. Previous large saved widths
+migrate once to the compact default; later user choices persist. Keep original
+text sizes readable: reduce cover/ring size and spacing, and scroll long forms.
+All six destinations, including Agents (⌘6), sit in the bottom navigation.
+
+The music card always contains a prominent 7-point seek rail and visible thumb.
+Known duration enables absolute seeking even when elapsedTime is missing. When
+duration is unavailable the disabled timeline explains the missing metadata.
+Web music also reads the service's standard Media Session position state.
+
+Claude Code has an orange eight-legged pixel spider; Codex has Byte, a mint
+robot cat. These original sprites are drawn by the native Canvas, with no
+external assets. They appear in connections, sessions, permission requests and
+the compact camera wing. Working/waiting animates their feet/eyes; hidden panels
+and Reduce Motion freeze the animation. Existing bridge decisions stay intact.

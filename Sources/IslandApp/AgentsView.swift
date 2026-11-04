@@ -2,36 +2,15 @@ import SwiftUI
 import IslandCore
 
 @MainActor
-struct AgentStatusButton: View {
-    @ObservedObject var agents: AgentService
-    var action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 5) {
-                Image(systemName: agents.pending.isEmpty ? "terminal" : "hand.raised.fill")
-                Text(agents.pending.isEmpty ? "Агенты" : "Запросы · \(agents.pending.count)")
-                    .font(.system(size: 11, weight: .medium))
-                if agents.activity.current != nil && agents.pending.isEmpty {
-                    Circle().fill(IslandPalette.mint).frame(width: 5, height: 5).accessibilityHidden(true)
-                }
-            }.padding(.horizontal, 9).padding(.vertical, 5)
-                .background(IslandPalette.lavender.opacity(0.09), in: Capsule())
-        }.buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(agents.pending.isEmpty ? IslandPalette.secondary : IslandPalette.mint)
-            .keyboardShortcut("6", modifiers: .command).help("Агенты (⌘6)")
-            .accessibilityLabel("Открыть агентов, запросов: \(agents.pending.count)")
-            .recordingTarget("Вкладка:Агенты")
-    }
-}
-
-@MainActor
 struct AgentsView: View {
     @ObservedObject var agents: AgentService
     var now: Date
+    var visible = true
     @State private var connections = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Агенты").font(.system(size: 26, weight: .semibold, design: .rounded))
+                Text("Агенты").font(.system(size: 22, weight: .semibold, design: .rounded))
                 Spacer()
                 if !agents.activity.sessions.isEmpty {
                     Button(connections ? "К работе" : "Подключения") { connections.toggle() }
@@ -58,19 +37,17 @@ struct AgentsView: View {
         }.onAppear { agents.refreshInstallation() }
     }
     private var connectionView: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Подключите Claude Code или Codex")
-                    .font(.system(size: 19, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                 Text("Время работы и запросы разрешения от Claude Code и Codex появятся здесь. Подключите клиент один раз и начните новую задачу.")
                     .font(.system(size: 12)).foregroundStyle(IslandPalette.secondary).fixedSize(horizontal: false, vertical: true)
             }
             VStack(spacing: 0) {
                 ForEach(AgentProvider.allCases) { provider in
                     HStack(spacing: 12) {
-                        Image(systemName: provider == .claude ? "text.bubble" : "terminal")
-                            .font(.system(size: 18, weight: .medium)).foregroundStyle(IslandPalette.lavender)
-                            .frame(width: 38, height: 38).background(IslandPalette.raised, in: RoundedRectangle(cornerRadius: 10))
+                        AgentPetView(provider: provider, size: 42)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(provider.title).font(.system(size: 13, weight: .semibold))
                             Text(agents.observed.contains(provider) ? "События получены" : agents.installed.contains(provider) ? "Ожидаем первую задачу" : "Ещё не подключён")
@@ -81,7 +58,7 @@ struct AgentsView: View {
                             agents.setEnabled(provider, enabled: !agents.installed.contains(provider))
                         }.buttonStyle(IslandButtonStyle(.soft))
                             .accessibilityLabel((agents.installed.contains(provider) ? "Отключить " : "Подключить ") + provider.title)
-                    }.padding(.vertical, 12)
+                    }.padding(.vertical, 8)
                     if provider != AgentProvider.allCases.last { Divider().overlay(IslandPalette.separator) }
                 }
             }
@@ -92,24 +69,25 @@ struct AgentsView: View {
         }
     }
     private func approval(_ request: AgentEvent) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 8) {
-                Image(systemName: "hand.raised.fill").foregroundStyle(IslandPalette.mint)
+                AgentPetView(provider: request.provider, size: 24, waiting: true, visible: visible)
                 Text("Нужно разрешение").font(.system(size: 14, weight: .semibold))
                 Spacer()
                 Text("\(max(0, Int(request.expiresAt.timeIntervalSince(now)))) с")
                     .font(.system(size: 11)).monospacedDigit().foregroundStyle(IslandPalette.secondary)
             }
             Text(request.provider.title + " · " + request.project + " · " + request.tool)
-                .font(.system(size: 11, weight: .medium)).foregroundStyle(IslandPalette.secondary)
-            Text(request.cwd).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).textSelection(.enabled)
+                .font(.system(size: 11, weight: .medium)).foregroundStyle(IslandPalette.secondary).lineLimit(1)
+            Text(request.cwd).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).lineLimit(2)
+                .help(request.cwd).textSelection(.enabled)
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal]) {
                     Text(request.input ?? "").font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
                         .fixedSize(horizontal: true, vertical: true)
                         .frame(minWidth: max(0, geometry.size.width - 20), alignment: .topLeading).padding(10)
                 }
-            }.frame(height: 98).background(IslandPalette.background, in: RoundedRectangle(cornerRadius: 9))
+            }.frame(height: 64).background(IslandPalette.background, in: RoundedRectangle(cornerRadius: 9))
             HStack(spacing: 8) {
                 Button("Разрешить один раз") { agents.respond(request, decision: .allow) }
                     .buttonStyle(IslandButtonStyle(.filled)).recordingTarget("Разрешить агенту:" + request.id.uuidString)
@@ -120,13 +98,11 @@ struct AgentsView: View {
                     .buttonStyle(IslandButtonStyle(.bare)).help("Вернуть запрос в обычное окно подтверждения клиента")
                     .recordingTarget("Вернуть в клиент:" + request.id.uuidString)
             }
-        }.padding(14).islandCard(tint: IslandPalette.mint)
+        }.padding(10).islandCard(tint: IslandPalette.mint)
     }
     private func sessionRow(_ session: AgentSession) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: session.status == .finished ? "checkmark.circle" : session.status == .waiting ? "hand.raised" : "terminal")
-                .font(.system(size: 18)).foregroundStyle(session.status == .waiting ? IslandPalette.mint : IslandPalette.lavender)
-                .frame(width: 30)
+            AgentPetView(provider: session.provider, size: 42, working: session.status == .working, waiting: session.status == .waiting, visible: visible)
             VStack(alignment: .leading, spacing: 4) {
                 Text(session.provider.title + " · " + session.project).font(.system(size: 13, weight: .semibold)).lineLimit(1)
                 Text(status(session) + (session.tool.isEmpty ? "" : " · " + session.tool))

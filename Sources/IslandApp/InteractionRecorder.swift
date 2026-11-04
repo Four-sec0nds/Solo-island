@@ -162,10 +162,21 @@ final class InteractionRecorder {
             else { window.sendEvent(event) }
         }
     }
+    private func ensureVisible(_ query: String) async throws {
+        guard !query.hasPrefix("Вкладка:"), query != "Закреплено", query != "Закрепить",
+              let rect = RecordingTargets.frames[query] else { return }
+        let content = CGRect(x: 0, y: store.compactHeight + 32, width: window.frame.width,
+                             height: window.frame.height - store.compactHeight - 88)
+        if !content.contains(CGPoint(x: rect.midX, y: rect.midY)),
+           PreviewRecorder.revealControl(query, in: window, topMargin: 30) {
+            try await capture(3)
+        }
+    }
     private func press(_ query: String, fallback: NSPoint, after: () -> Void = {}) async throws {
         fputs("Native input: click \(query)\n", stderr)
         let deadline = inputDeadline("click " + query)
         defer { deadline.cancel() }
+        try await ensureVisible(query)
         guard let rect = RecordingTargets.frames[query], rect.width > 2, rect.height > 2 else {
             throw failure("Interactive control is not laid out: " + query)
         }
@@ -228,6 +239,7 @@ final class InteractionRecorder {
         fputs("Native input: drag \(label)\n", stderr)
         let deadline = inputDeadline("drag " + label)
         defer { deadline.cancel() }
+        try await ensureVisible(label)
         guard RecordingTargets.frames[label] != nil else { throw failure("Slider is not laid out: " + label) }
         let initial = RecordingTargets.frames[label] ?? fallback
         try await move(to: NSPoint(x: initial.minX + 6 + (initial.width - 12) * fractions[0], y: initial.midY))
@@ -393,7 +405,8 @@ final class InteractionRecorder {
         guard PreviewRecorder.revealControl("Ширина", in: window) else { throw failure("Appearance controls were not found") }
         events.append(Event(frame: frames.count, kind: "scroll", label: name)); try await capture(8)
         let before = store.state.settings
-        try await drag("Ширина", fractions: [(720.0-640)/260,0.65,0.18,(720.0-640)/260], fallback: NSRect(x:180,y:240,width:510,height:22))
+        let initialWidth = (before.expandedWidth - IslandLayout.minimumWidth) / (IslandLayout.maximumWidth - IslandLayout.minimumWidth)
+        try await drag("Ширина", fractions: [initialWidth,0.95,0.05,initialWidth], fallback: NSRect(x:180,y:240,width:350,height:22))
         guard let widths = sliderValues["Ширина"], (widths.max()! - widths.min()!) > 100,
               abs(store.state.settings.expandedWidth - before.expandedWidth) < 12 else { throw failure("Native width slider did not move and return to its initial value") }
         try await drag("Скругление", fractions: [(before.cornerRadius-22)/18,1,0,0.44], fallback: NSRect(x:180,y:295,width:510,height:22))
@@ -406,7 +419,7 @@ final class InteractionRecorder {
         try await press("Фиолетовый", fallback: NSPoint(x:510,y:270)); try await capture(6)
         try await press("Мятный", fallback: NSPoint(x:230,y:270)); try await capture(6)
         try await scroll(to: 1); try await scroll(to: 0)
-        store.setSettings { $0.expandedWidth = 720; $0.cornerRadius = 30; $0.animationDuration = 0.32; $0.accent = "mint" }
+        store.setSettings { $0.expandedWidth = IslandLayout.defaultWidth; $0.cornerRadius = 30; $0.animationDuration = 0.32; $0.accent = "mint" }
         try await capture(8)
         try begin("agents")
         store.agents.start()
@@ -427,6 +440,7 @@ final class InteractionRecorder {
             guard store.agents.pending.contains(where: { $0.id == request.id }) else { throw failure("Agent hook did not reach Island") }
             store.now = Date()
             try await tab(.agents)
+            try await ensureVisible("Разрешить агенту:" + request.id.uuidString)
             if decision == .allow {
                 try PreviewRecorder.png(window, to: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-agents-approval.png"))
             }

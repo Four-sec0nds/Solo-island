@@ -87,6 +87,7 @@ struct MusicProviderGrid: View {
 struct MusicOnboardingView: View {
     @ObservedObject var store: IslandStore
     var body: some View {
+        ScrollView {
         VStack(alignment: .leading, spacing: 15) {
             HStack(spacing: 12) {
                 IslandBrandMark(size: 48)
@@ -101,6 +102,7 @@ struct MusicOnboardingView: View {
             Button("Пока использовать системный плеер") { store.skipMusicSetup() }
                 .buttonStyle(IslandButtonStyle(.bare)).font(.system(size: 11)).foregroundStyle(.mint)
             Spacer(minLength: 0)
+        }
         }
     }
 }

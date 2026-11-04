@@ -136,9 +136,8 @@ private struct NotchActivityView: View {
                             style: StrokeStyle(lineWidth: 2, lineCap: .round)).rotationEffect(.degrees(-90))
                 Image(systemName: paused ? "pause.fill" : "timer").font(.system(size: 10, weight: .medium))
             }.frame(width: 22, height: 22).foregroundStyle(paused ? IslandPalette.lavender : IslandPalette.mint)
-        case .agent(_, let waiting):
-            Image(systemName: waiting ? "hand.raised.fill" : "terminal")
-                .font(.system(size: 17, weight: .medium))
+        case .agent(let provider, let waiting):
+            AgentPetView(provider: provider, size: 25, working: !waiting, waiting: waiting, visible: presentation.visible)
         }
     }
     @ViewBuilder private var trailing: some View {

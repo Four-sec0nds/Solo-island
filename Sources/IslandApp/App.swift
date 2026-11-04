@@ -173,14 +173,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     ("music-compact", .music), ("tasks-compact", .tasks), ("focus-compact", .focus),
                     ("settings-compact", .settings), ("settings-appearance", .settings),
                     ("music-empty", .music), ("tasks-empty", .tasks), ("music-error", .music),
-                    ("agents", .agents), ("agents-working", .agents), ("agents-compact", .agents)
+                    ("agents", .agents), ("agents-working", .agents), ("agents-compact", .agents),
+                    ("music-no-position", .music), ("music-no-duration", .music), ("agents-claude", .agents)
                 ]
                 for (name, tab) in stills {
                     fputs("Native snapshot: \(name)\n", stderr)
                     let destination = name == "preview" ? output : directory.appendingPathComponent("SoloIsland-" + name + ".png")
                     let stillFolder = folder.appendingPathComponent("still-" + name)
                     var stillFixture = fixture
-                    if name.hasSuffix("-compact") { stillFixture.settings.expandedWidth = 640 }
+                    if name.hasSuffix("-compact") { stillFixture.settings.expandedWidth = IslandLayout.minimumWidth }
                     if name == "focus" || name == "focus-compact" {
                         stillFixture.focus = FocusSession(taskID: fixture.tasks[1].id,
                             minutes: name == "focus-compact" ? 5999 : 90,
@@ -195,10 +196,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     try StateRepository(url: stillFolder.appendingPathComponent("state.json")).save(stillFixture)
                     let stillStore = IslandStore(dataFolder: stillFolder)
-                    if name == "agents-working" || name == "agents-compact" {
+                    if name == "agents-working" || name == "agents-compact" || name == "agents-claude" {
                         let event = try AgentEvent(data: JSONSerialization.data(withJSONObject: ["session_id": "preview",
                             "hook_event_name": "UserPromptSubmit", "cwd": "/Projects/Planify"]),
-                            provider: .codex, instance: UUID(), helperPID: ProcessInfo.processInfo.processIdentifier,
+                            provider: name == "agents-claude" ? .claude : .codex, instance: UUID(), helperPID: ProcessInfo.processInfo.processIdentifier,
                             now: Date().addingTimeInterval(-1320))
                         stillStore.agents.preview([event])
                     }
@@ -207,6 +208,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         stillTrack.title = "Город засыпает, а мы заканчиваем большой проект"
                         stillTrack.artist = "Демонстрационный исполнитель · длинное имя для предпросмотра"
                     }
+                    if name == "music-no-position" { stillTrack.elapsedTime = nil }
+                    if name == "music-no-duration" { stillTrack.duration = nil }
                     stillStore.media.setPreview(name == "music-empty" ? NowPlaying() : stillTrack)
                     if name == "music-error" { stillStore.media.error = "Источник временно недоступен. Переподключи плеер в настройках." }
                     stillStore.tab = tab; stillStore.pinned = true
@@ -224,11 +227,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         guard PreviewRecorder.revealControl("Ширина", in: stillWindow) else { throw CocoaError(.fileWriteUnknown) }
                         try? await Task.sleep(nanoseconds: 200_000_000)
                     }
+                    if tab == .music && name != "onboarding" && name != "music-empty" {
+                        guard let timeline = RecordingTargets.frames["Позиция воспроизведения"],
+                              timeline.width > 200, timeline.minY > stillStore.compactHeight + 32,
+                              timeline.maxY < stillWindow.frame.height - 56 else {
+                            throw NSError(domain: "SoloIsland.Timeline", code: 1, userInfo: [NSLocalizedDescriptionKey: "Playback timeline is missing or clipped in " + name])
+                        }
+                    }
                     try PreviewRecorder.png(stillWindow, to: destination, overlay: stillController.activityWindow)
                     if name == "preview" { try FileManager.default.copyItem(at: destination, to: imageURL) }
                     stillController.close()
                 }
                 try await verifyNotchActivity(folder: folder.appendingPathComponent("notch-activity"), directory: directory, fixture: fixture)
+                fputs("Compact player: full-width timeline visible with long titles, errors, missing position and missing duration passed\n", stderr)
                 try await recordFocusMotion(folder: folder.appendingPathComponent("focus-motion"), directory: directory, fixture: fixture)
                 try await verifyWebPlayer(folder: folder.appendingPathComponent("web-smoke"), output: directory.appendingPathComponent("SoloIsland-web-demo.png"))
                 try await InteractionRecorder.record(in: directory.appendingPathComponent("interactions"))
@@ -582,8 +593,8 @@ final class IslandWindowController: NSWindowController {
                    screen.auxiliaryTopRightArea?.height ?? 0].max() ?? 28
         hotspot = NSRect(x: screen.frame.midX - max(110, cameraWidth / 2 + 22), y: screen.frame.maxY - top - 12,
                          width: max(220, cameraWidth + 44), height: top + 12)
-        let width = min(max(640, CGFloat(preferences.expandedWidth)), screen.frame.width - 40)
-        let bodyHeight = min(CGFloat(520), screen.frame.height - top - 36)
+        let width = min(CGFloat(IslandLayout.width(preferences.expandedWidth)), screen.frame.width - 40)
+        let bodyHeight = min(CGFloat(IslandLayout.bodyHeight), screen.frame.height - top - 36)
         let target = NSRect(x: screen.frame.midX - width / 2, y: screen.frame.maxY - top - bodyHeight, width: width, height: top + bodyHeight)
         // Reveal vertically from the top edge at the final width. The hover
         // hotspot remains the physical camera, independently of this frame.

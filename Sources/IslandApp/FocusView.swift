@@ -9,26 +9,27 @@ struct FocusView: View {
     @State private var hours = 0
     @State private var minutes = 25
     var body: some View {
-        VStack(spacing: 16) {
+        ScrollView {
+        VStack(spacing: 10) {
             if let focus = store.state.focus {
-                HStack(alignment: .center, spacing: 30) {
+                HStack(alignment: .center, spacing: 18) {
                     ZStack {
                         Circle().stroke(IslandPalette.raised, lineWidth: 6)
                         Circle().trim(from: 0, to: min(1, max(0, 1 - focus.remaining(at: store.now) / focus.duration)))
                             .stroke(AngularGradient(colors: [accent, IslandPalette.lavender], center: .center),
                                     style: StrokeStyle(lineWidth: 6, lineCap: .round)).rotationEffect(.degrees(-90))
                         VStack(spacing: 8) {
-                            Text(store.focusedTime).font(.system(size: 48, weight: .light, design: .rounded)).monospacedDigit()
-                                .lineLimit(1).minimumScaleFactor(0.65).frame(width: 158)
+                            Text(store.focusedTime).font(.system(size: 36, weight: .light, design: .rounded)).monospacedDigit()
+                                .lineLimit(1).minimumScaleFactor(0.65).frame(width: 126)
                             Text("часы · минуты").font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
                         }
-                    }.frame(width: 196, height: 196)
-                    VStack(alignment: .leading, spacing: 16) {
+                    }.frame(width: 154, height: 154)
+                    VStack(alignment: .leading, spacing: 10) {
                         IslandStateBadge(title: focus.isPaused ? "На паузе" : "В фокусе",
                                          symbol: focus.isPaused ? "pause.fill" : "timer",
                                          color: focus.isPaused ? IslandPalette.lavender : accent)
                         Text(store.focusTask?.title ?? "Фокус-сессия")
-                            .font(.system(size: 22, weight: .semibold, design: .rounded)).lineLimit(3)
+                            .font(.system(size: 18, weight: .semibold, design: .rounded)).lineLimit(2)
                         Button(focus.isPaused ? "Продолжить" : "Пауза") { store.toggleFocusPause() }
                             .buttonStyle(IslandButtonStyle(.filled))
                             .recordingTarget(focus.isPaused ? "Продолжить" : "Пауза")
@@ -68,7 +69,6 @@ struct FocusView: View {
                     Button("Создать задачу") { store.tab = .tasks }.buttonStyle(IslandButtonStyle(.filled))
                 } else {
                     Text("Над чем поработаем?").font(.system(size: 12, weight: .medium)).foregroundStyle(IslandPalette.secondary).frame(maxWidth: .infinity, alignment: .leading)
-                    ScrollView {
                         LazyVStack(spacing: 8) {
                             ForEach(tasks) { task in
                                 Button { store.startFocus(taskID: task.id) } label: {
@@ -81,7 +81,6 @@ struct FocusView: View {
                                 }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(task.title)
                             }
                         }
-                    }
                 }
                 if store.focusAutomationActive {
                     Button("Выключить «Не беспокоить»") { store.toggleFocusAutomation() }.font(.caption)
@@ -89,6 +88,7 @@ struct FocusView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity)
+        }
             .onAppear {
                 let value = min(5999, max(1, Int(ceil(store.state.settings.focusDuration / 60))))
                 hours = value / 60; minutes = value % 60

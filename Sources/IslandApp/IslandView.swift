@@ -45,7 +45,7 @@ struct IslandRootView: View {
     }
     private var expandedBody: some View {
         VStack(spacing: 0) {
-            topBar.padding(.horizontal, 24).padding(.top, 14).padding(.bottom, 8)
+            topBar.padding(.horizontal, 18).padding(.top, 8).padding(.bottom, 4)
             VStack(alignment: .leading, spacing: 10) {
                 if let error = store.error {
                     HStack(alignment: .top, spacing: 8) {
@@ -60,7 +60,7 @@ struct IslandRootView: View {
                     if !store.state.settings.musicOnboardingComplete && store.tab != .agents { MusicOnboardingView(store: store) }
                     else { content }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            }.padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 16)
+            }.padding(.horizontal, 18).padding(.top, 6).padding(.bottom, 10)
             bottomBar
         }
     }
@@ -71,7 +71,7 @@ struct IslandRootView: View {
         case .focus: FocusView(store: store)
         case .files: FilesView(store: store)
         case .actions: ActionsView(store: store)
-        case .agents: AgentsView(agents: store.agents, now: store.now)
+        case .agents: AgentsView(agents: store.agents, now: store.now, visible: store.expanded && store.contentVisible)
         case .settings: IslandSettingsView(store: store, media: store.media)
         }
     }
@@ -89,12 +89,11 @@ struct IslandRootView: View {
             IslandBrandMark(size: 22).accessibilityHidden(true)
             Text("Solo Island").font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(IslandPalette.secondary)
-            AgentStatusButton(agents: store.agents) { store.tab = .agents }
             Spacer(minLength: 8)
             if let toast = store.toast {
                 Label(toast.message, systemImage: toast.symbol)
                     .font(.system(size: 11)).foregroundStyle(accent).lineLimit(1)
-                    .frame(maxWidth: 280, alignment: .trailing)
+                    .frame(maxWidth: 230, alignment: .trailing)
             } else if store.state.focus != nil && store.tab != .focus {
                 Button { store.tab = .focus } label: {
                     Label(store.focusedTime, systemImage: "timer").monospacedDigit()
@@ -105,16 +104,16 @@ struct IslandRootView: View {
         }.frame(height: 24)
     }
     private var bottomBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 4) {
+        HStack(spacing: 6) {
+            HStack(spacing: 2) {
                 ForEach(Array(IslandTab.allCases.prefix(5).enumerated()), id: \.element.id) { index, tab in
                     Button { store.tab = tab } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: tab.icon).font(.system(size: 16, weight: .medium))
-                                .frame(height: 18)
-                            Text(tab.rawValue).font(.system(size: 10, weight: store.tab == tab ? .semibold : .medium))
+                            Image(systemName: tab.icon).font(.system(size: 15, weight: .medium))
+                                .frame(height: 17)
+                            Text(tab.rawValue).font(.system(size: 9, weight: store.tab == tab ? .semibold : .medium))
                                 .lineLimit(1).minimumScaleFactor(0.85)
-                        }.frame(maxWidth: .infinity).frame(height: 44)
+                        }.frame(maxWidth: .infinity).frame(height: 42)
                             .background(store.tab == tab ? accent.opacity(0.12) : .clear,
                                         in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .contentShape(RoundedRectangle(cornerRadius: 12))
@@ -126,10 +125,10 @@ struct IslandRootView: View {
                         .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
                         .recordingTarget("Вкладка:" + tab.rawValue)
                 }
-            }.frame(maxWidth: 420)
-            Spacer(minLength: 0)
+                AgentTabButton(agents: store.agents, selected: store.tab == .agents) { store.tab = .agents }
+            }.frame(maxWidth: .infinity)
             Rectangle().fill(IslandPalette.separator).frame(width: 0.5, height: 24)
-            HStack(spacing: 6) {
+            HStack(spacing: 3) {
                 Button { store.tab = .settings } label: {
                     Image(systemName: "gearshape").font(.system(size: 15)).frame(width: 20, height: 22)
                 }.buttonStyle(IslandButtonStyle(.icon))
@@ -153,7 +152,7 @@ struct IslandRootView: View {
                     .keyboardShortcut("q", modifiers: .command)
                     .recordingTarget("Завершить Solo Island:\(ObjectIdentifier(store))")
             }.fixedSize()
-        }.padding(.horizontal, 18).padding(.top, 8).padding(.bottom, 12)
+        }.padding(.horizontal, 12).padding(.top, 6).padding(.bottom, 8)
             .background(IslandPalette.navigation.opacity(0.85))
             .overlay(alignment: .top) { Rectangle().fill(IslandPalette.separator.opacity(0.45)).frame(height: 0.5) }
     }

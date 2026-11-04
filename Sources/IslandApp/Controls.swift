@@ -96,53 +96,60 @@ struct IslandSlider: View {
     @Binding var value: Double
     var range: ClosedRange<Double>
     var onEditingChanged: (Bool) -> Void
+    var emphasized: Bool
     @Environment(\.islandAccent) private var accent
+    @Environment(\.isEnabled) private var enabled
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.islandReducedMotionOverride) private var motionOverride
     private var reduceMotion: Bool { motionOverride ?? systemReduceMotion }
     @State private var dragging = false
     @State private var hovered = false
     @FocusState private var focused: Bool
-    init(value: Binding<Double>, in range: ClosedRange<Double>, onEditingChanged: @escaping (Bool) -> Void = { _ in }) {
-        _value = value; self.range = range; self.onEditingChanged = onEditingChanged
+    init(value: Binding<Double>, in range: ClosedRange<Double>, emphasized: Bool = false, onEditingChanged: @escaping (Bool) -> Void = { _ in }) {
+        _value = value; self.range = range; self.emphasized = emphasized; self.onEditingChanged = onEditingChanged
     }
     private var fraction: Double { min(1, max(0, (value - range.lowerBound) / max(0.001, range.upperBound - range.lowerBound))) }
     var body: some View {
         GeometryReader { geometry in
             let width = max(1, geometry.size.width - 12)
             ZStack(alignment: .leading) {
-                Capsule().fill(IslandPalette.raised).frame(height: 4)
+                Capsule().fill(emphasized ? IslandPalette.secondary.opacity(0.24) : IslandPalette.raised).frame(height: emphasized ? 7 : 4)
                 Capsule().fill(accent)
-                    .frame(width: 6 + width * fraction, height: 4)
-                Circle().fill(IslandPalette.text).frame(width: 10, height: 10)
+                    .frame(width: 6 + width * fraction, height: emphasized ? 7 : 4)
+                Circle().fill(IslandPalette.text).frame(width: emphasized ? 12 : 10, height: emphasized ? 12 : 10)
                     .overlay(Circle().stroke(accent, lineWidth: 2))
                     .scaleEffect(!reduceMotion && dragging ? 1.35 : 1)
                     .offset(x: 1 + width * fraction)
             }.frame(height: geometry.size.height)
                 .contentShape(Rectangle())
                 .gesture(DragGesture(minimumDistance: 0).onChanged { event in
+                    guard enabled else { return }
                     if !dragging { dragging = true; onEditingChanged(true) }
                     setFraction((event.location.x - 6) / width)
                 }.onEnded { event in
+                    guard enabled else { return }
                     setFraction((event.location.x - 6) / width)
                     dragging = false; onEditingChanged(false)
                 })
         }.frame(height: 22)
+            .opacity(enabled ? 1 : 0.5)
             .onHover { hovered = $0 }
             .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: dragging)
             .accessibilityElement().accessibilityValue("\(Int(fraction * 100))%")
             .accessibilityAdjustableAction { direction in
+                guard enabled else { return }
                 let delta = (range.upperBound - range.lowerBound) / 50
                 onEditingChanged(true)
                 if direction == .increment { value = min(range.upperBound, value + delta) }
                 else if direction == .decrement { value = max(range.lowerBound, value - delta) }
                 onEditingChanged(false)
             }
-            .focusable()
+            .focusable(enabled)
             .focused($focused)
             .focusEffectDisabled()
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(accent.opacity(focused ? 0.8 : 0), lineWidth: 1))
             .onMoveCommand { direction in
+                guard enabled else { return }
                 guard direction == .left || direction == .right else { return }
                 onEditingChanged(true)
                 value = min(range.upperBound, max(range.lowerBound, value + (direction == .right ? 1 : -1) * (range.upperBound - range.lowerBound) / 50))

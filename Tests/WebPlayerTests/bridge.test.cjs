@@ -9,7 +9,7 @@ function fixture({elements=[],metadata=null,selectors={}}={}) {
  const messages=[],handlers={};
  const context={console,Number,String,Array,Object,setInterval:()=>{},
   document:{querySelectorAll:()=>elements,querySelector:s=>selectors[s]??null,addEventListener:()=>{}},
-  navigator:{mediaSession:{metadata,playbackState:'none',setActionHandler:(k,h)=>{handlers[k]=h}}},
+  navigator:{mediaSession:{metadata,playbackState:'none',setActionHandler:(k,h)=>{handlers[k]=h},setPositionState:()=>{}}},
   window:{webkit:{messageHandlers:{soloPlayer:{postMessage:p=>messages.push(p)}}}}
  };
  vm.createContext(context);vm.runInContext(source,context);
@@ -45,4 +45,28 @@ test('site-specific next button is used only when enabled',async()=>{
  const f=fixture({selectors:{'[data-testid="control-button-skip-forward"]':button}});
  assert.equal(await f.bridge.command('next-track'),'ok');assert.equal(clicks,1);
  button.disabled=true;assert.equal(await f.bridge.command('next-track'),'unavailable');assert.equal(clicks,1);
+});
+test('DOM-free media session supplies a usable timeline and seek handler',async()=>{
+ const f=fixture({metadata:{title:'Session track'}});
+ const session=f.context.navigator.mediaSession;
+ session.playbackState='paused';
+ session.setPositionState({duration:240,position:65,playbackRate:1});
+ assert.equal(f.bridge.snapshot().duration,240);
+ assert.equal(f.bridge.snapshot().elapsedTime,65);
+ let target;
+ session.setActionHandler('seekto',details=>{
+  target=details.seekTime;
+  session.setPositionState({duration:240,position:target,playbackRate:1});
+ });
+ assert.equal(await f.bridge.command('seek',120),'ok');
+ assert.equal(target,120);assert.equal(f.bridge.snapshot().elapsedTime,120);
+ session.setPositionState();
+ assert.equal(f.bridge.snapshot().duration,null);
+});
+test('a new media-session track does not inherit the preceding timeline',()=>{
+ const f=fixture({metadata:{title:'First'}}),session=f.context.navigator.mediaSession;
+ session.setPositionState({duration:120,position:70});
+ session.metadata={title:'Second'};
+ assert.equal(f.bridge.snapshot().duration,null);
+ assert.equal(f.bridge.snapshot().elapsedTime,null);
 });
