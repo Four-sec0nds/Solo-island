@@ -39,7 +39,7 @@ fully quits the app. Re-entering after changing Space/display must remain prompt
 - Quick actions run actual apps, folders and Shortcuts and show their real icons.
 - Settings retain width, corner radius, reveal timing, artwork accent, providers,
   notification permission and explicit user-configured Focus Shortcuts.
-- Agents: real local lifecycle hooks from compatible Claude Code/Codex clients, per-turn elapsed hours/minutes and one-shot permission decisions. Connection is opt-in, backs up and merges the client configuration, and never changes existing permission rules. No browser-chat integration or guaranteed desktop support.
+- Agents: real local lifecycle hooks from compatible Claude Code/Codex clients, per-turn elapsed hours/minutes and one-shot permission decisions. Connection is opt-in, backs up and merges the client configuration, and never changes existing permission rules. Supported Claude/ChatGPT web pages can report lifecycle and elapsed time through dedicated WebKit windows or the optional browser extension. Desktop clients still require compatible hooks.
 - No account backend, fabricated player capabilities or new service credentials.
 - Normal dimensions stay compact; header content clears the physical camera.
   Preserve existing user data, key actions, keyboard behavior and Reduce Motion.
