@@ -46,6 +46,7 @@ enum WebPlayerScript {
       const snapshot = () => {
         const el = media(), meta = ms?.metadata;
         const position = positionState && (!positionState.title || positionState.title === meta?.title) ? positionState : null;
+        const useSessionPosition = position && (!el || !Number.isFinite(el.duration) || el.duration <= 0);
         const sessionTime = position ? Math.min(position.duration, position.position
           + (ms?.playbackState === 'playing' ? Math.max(0, Date.now() - position.at) / 1000 * position.rate : 0)) : null;
         const title = meta?.title || (el ? text([
@@ -60,9 +61,9 @@ enum WebPlayerScript {
           'ytmusic-player-bar img', '[data-testid="now-playing-widget"] img', '.playbackSoundBadge__avatar img'
         ])?.src || null;
         return { title: String(title).trim().slice(0,512), artist: String(artist).slice(0,512),
-          playing: !!(el ? !el.paused && !el.ended : ms?.playbackState === 'playing'),
+          playing: !!(useSessionPosition ? ms?.playbackState === 'playing' : el ? !el.paused && !el.ended : ms?.playbackState === 'playing'),
           duration: (el ? finite(el.duration) : null) ?? position?.duration ?? null,
-          elapsedTime: (el ? finite(el.currentTime) : null) ?? sessionTime,
+          elapsedTime: useSessionPosition ? sessionTime : (el ? finite(el.currentTime) : null) ?? sessionTime,
           playbackRate: (el ? finite(el.playbackRate) : null) ?? position?.rate ?? 1, artworkURL: image ? String(image).slice(0,2048) : null };
       };
       const controls = {

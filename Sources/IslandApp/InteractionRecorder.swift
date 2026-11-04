@@ -163,8 +163,25 @@ final class InteractionRecorder {
         }
     }
     private func ensureVisible(_ query: String) async throws {
-        guard !query.hasPrefix("Вкладка:"), query != "Закреплено", query != "Закрепить",
-              let rect = RecordingTargets.frames[query] else { return }
+        guard !query.hasPrefix("Вкладка:"), query != "Закреплено", query != "Закрепить" else { return }
+        if RecordingTargets.frames[query] == nil, let root = window.contentView,
+           let scroll = scrollViews(root).filter({ !$0.isHidden && $0.bounds.height > 70 })
+            .max(by: { $0.bounds.height < $1.bounds.height }), let document = scroll.documentView {
+            // Lazy rows have no geometry until they approach the viewport.
+            // Scroll the real list in bounded steps before locating the exact
+            // control; never click a guessed position for an absent row.
+            for _ in 0..<16 {
+                if RecordingTargets.frames[query] != nil { break }
+                let origin = scroll.contentView.bounds.origin
+                let maximum = max(0, document.bounds.height - scroll.contentView.bounds.height)
+                let next = min(maximum, origin.y + scroll.contentView.bounds.height * 0.65)
+                if abs(next - origin.y) < 1 { break }
+                scroll.contentView.scroll(to: NSPoint(x: origin.x, y: next))
+                scroll.reflectScrolledClipView(scroll.contentView)
+                try await capture(2)
+            }
+        }
+        guard let rect = RecordingTargets.frames[query] else { return }
         let content = CGRect(x: 0, y: store.compactHeight + 32, width: window.frame.width,
                              height: window.frame.height - store.compactHeight - 88)
         if !content.contains(CGPoint(x: rect.midX, y: rect.midY)),

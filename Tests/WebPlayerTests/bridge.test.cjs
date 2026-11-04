@@ -70,3 +70,13 @@ test('a new media-session track does not inherit the preceding timeline',()=>{
  assert.equal(f.bridge.snapshot().duration,null);
  assert.equal(f.bridge.snapshot().elapsedTime,null);
 });
+test('media-session position wins over an audio element without a loaded timeline',()=>{
+ const audio={paused:true,currentTime:0,duration:NaN,playbackRate:1};
+ const f=fixture({elements:[audio],metadata:{title:'Loading audio'}}),session=f.context.navigator.mediaSession;
+ session.playbackState='paused';session.setPositionState({duration:240,position:75});
+ assert.equal(f.bridge.snapshot().duration,240);assert.equal(f.bridge.snapshot().elapsedTime,75);
+ session.playbackState='playing';assert.equal(f.bridge.snapshot().playing,true);
+ // Once real HTML media metadata is ready, its own clock is authoritative.
+ audio.duration=240;audio.currentTime=90;audio.paused=false;
+ assert.equal(f.bridge.snapshot().elapsedTime,90);
+});
