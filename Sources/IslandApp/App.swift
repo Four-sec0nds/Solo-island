@@ -234,8 +234,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         throw NSError(domain: "SoloIsland.Layout", code: 1, userInfo: [NSLocalizedDescriptionKey: "Dock overflow or unsafe top title in " + name])
                     }
                     if name == "settings-appearance" {
-                        guard PreviewRecorder.revealControl("Ширина", in: stillWindow) else { throw CocoaError(.fileWriteUnknown) }
+                        guard RecordingTargets.frames["Ширина"] != nil else { throw CocoaError(.fileWriteUnknown) }
                         try? await Task.sleep(nanoseconds: 200_000_000)
+                    }
+                    let owner = String(describing: ObjectIdentifier(stillStore))
+                    for (key, rect) in RecordingTargets.frames where RecordingTargets.owners[key] == owner {
+                        let dockControl = key.hasPrefix("Вкладка:") || key.hasPrefix("Завершить Solo Island:") || ["Закреплено", "Закрепить", "Нижняя панель"].contains(key)
+                        let upper = key == "Название Solo Island" ? CGFloat(0) : stillStore.compactHeight
+                        let lower = dockControl ? stillWindow.frame.height : dock.minY - 8
+                        guard rect.minY >= upper - 0.5, rect.maxY <= lower + 0.5,
+                              rect.minX >= -0.5, rect.maxX <= stillWindow.frame.width + 0.5 else {
+                            throw NSError(domain: "SoloIsland.Fit", code: 1, userInfo: [NSLocalizedDescriptionKey: "Control outside compact workspace: " + name + ": " + key + " " + String(describing: rect)])
+                        }
+                    }
+                    func overflowingScroll(_ root: NSView) -> Bool {
+                        if let scroll = root as? NSScrollView, !(scroll.documentView is NSTextView),
+                           let document = scroll.documentView, document.bounds.height > scroll.contentView.bounds.height + 2 { return true }
+                        return root.subviews.contains(where: overflowingScroll)
+                    }
+                    if let root = stillWindow.contentView, overflowingScroll(root) {
+                        throw NSError(domain: "SoloIsland.Compact", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unexpected scrolling in " + name])
                     }
                     if tab == .music && name != "onboarding" && name != "music-empty" {
                         guard let timeline = RecordingTargets.frames["Позиция воспроизведения"],
@@ -249,6 +267,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     stillController.close()
                 }
                 try await verifyNotchActivity(folder: folder.appendingPathComponent("notch-activity"), directory: directory, fixture: fixture)
+                try await verifyWebAgents(folder: folder.appendingPathComponent("web-agent-check"), directory: directory)
                 for provider in AgentProvider.allCases {
                     for row in [0, 6, 7] {
                         for column in 0..<6 {
@@ -259,6 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         }
                     }
                 }
+                fputs("Compact navigation: no overflowing scroll views in the island; lists and forms use visible pages passed\n", stderr)
                 fputs("Workspace layout: dock contained on every tab including empty tasks at 520 points; title above content and outside camera passed\n", stderr)
                 fputs("Downloaded pets: Claude and Codex atlases, idle/work/wait frames decoded passed\n", stderr)
                 fputs("Compact player: full-width timeline visible with long titles, errors, missing position and missing duration passed\n", stderr)
@@ -501,12 +521,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard await until({ webStore.media.track.title == "Следующий веб-трек" }) else { fputs("Embedded web next failed\n", stderr); exit(1) }
         webStore.media.command(["toggle-play-pause"])
         guard await until({ !webStore.media.track.isPlaying }) else { fputs("Embedded web pause failed\n", stderr); exit(1) }
+        guard let login = webStore.webMusic.playerPreviewWindow, login.isVisible,
+              login.contentView?.bounds.width ?? 0 >= 680, login.contentView?.bounds.height ?? 0 >= 500 else {
+            throw NSError(domain: "SoloIsland.MusicLogin", code: 1, userInfo: [NSLocalizedDescriptionKey: "Music login window is too small"])
+        }
+        try PreviewRecorder.png(login, to: output)
         webStore.musicWebsiteVisible = false
         try? await Task.sleep(nanoseconds: 250_000_000)
-        if let window = controller.window { try PreviewRecorder.png(window, to: output, overlay: controller.activityWindow) }
         controller.close()
         webStore.webMusic.stop()
         fputs("Embedded WKWebView smoke: metadata, play, seek, next and pause passed\n", stderr)
+        fputs("Music login window: readable full-size browser and shared playback session passed\n", stderr)
+    }
+    private func verifyWebAgents(folder: URL, directory: URL) async throws {
+        let demo = IslandStore(dataFolder: folder)
+        demo.agents.start(); defer { demo.agents.stop() }
+        let browser = WebAgentBrowser(provider: .codex, agents: demo.agents)
+        browser.loadPreviewFixture(); browser.present()
+        defer { browser.window.close() }
+        for _ in 0..<50 {
+            if !browser.webView.isLoading { break }
+            try await Task.sleep(nanoseconds: 80_000_000)
+        }
+        let session = UUID().uuidString
+        for state in ["start", "working", "finished"] {
+            let payload: [String: Any] = ["provider": "codex", "host": "chatgpt.com", "session": session, "state": state]
+            let bytes = try JSONSerialization.data(withJSONObject: payload)
+            let json = String(decoding: bytes, as: UTF8.self)
+            try await browser.webView.evaluateJavaScript("window.webkit.messageHandlers.soloAgent.postMessage(" + json + ")")
+            for _ in 0..<30 {
+                if state == "finished" ? demo.agents.activity.current == nil : demo.agents.activity.current?.isWeb == true { break }
+                try await Task.sleep(nanoseconds: 80_000_000)
+            }
+            guard state == "finished" ? demo.agents.activity.current == nil : demo.agents.activity.current?.isWeb == true else {
+                throw NSError(domain: "SoloIsland.WebAgent", code: 1, userInfo: [NSLocalizedDescriptionKey: "Web lifecycle did not reach the native agent panel"])
+            }
+        }
+        try PreviewRecorder.png(browser.window, to: directory.appendingPathComponent("SoloIsland-web-agents.png"))
+        fputs("Web agents: native WKWebView, local lifecycle bridge, elapsed session and completion passed\n", stderr)
     }
 
 }

@@ -4,23 +4,37 @@ import CryptoKit
 import SwiftUI
 
 @MainActor
-enum RecordingTargets { static var frames: [String: CGRect] = [:] }
+enum RecordingTargets {
+    static var frames: [String: CGRect] = [:]
+    static var owners: [String: String] = [:]
+}
+private struct RecordingOwnerKey: EnvironmentKey { static let defaultValue = "" }
+extension EnvironmentValues {
+    var recordingOwner: String {
+        get { self[RecordingOwnerKey.self] }
+        set { self[RecordingOwnerKey.self] = newValue }
+    }
+}
 
 @MainActor
 private struct RecordingTargetModifier: ViewModifier {
     let key: String
+    @Environment(\.recordingOwner) private var owner
     func body(content: Content) -> some View {
         if CommandLine.arguments.contains("--render-preview") {
             content.background {
                 GeometryReader { geometry in
                     Color.clear
-                        .onAppear { RecordingTargets.frames[key] = geometry.frame(in: .global) }
-                        .onChange(of: geometry.frame(in: .global)) { _, rect in RecordingTargets.frames[key] = rect }
+                        .onAppear { RecordingTargets.frames[key] = geometry.frame(in: .global); RecordingTargets.owners[key] = owner }
+                        .onChange(of: geometry.frame(in: .global)) { _, rect in RecordingTargets.frames[key] = rect; RecordingTargets.owners[key] = owner }
                         .onChange(of: key) { old, next in
-                            RecordingTargets.frames.removeValue(forKey: old)
+                            if RecordingTargets.owners[old] == owner { RecordingTargets.frames.removeValue(forKey: old); RecordingTargets.owners.removeValue(forKey: old) }
                             RecordingTargets.frames[next] = geometry.frame(in: .global)
+                            RecordingTargets.owners[next] = owner
                         }
-                        .onDisappear { RecordingTargets.frames.removeValue(forKey: key) }
+                        .onDisappear {
+                            if RecordingTargets.owners[key] == owner { RecordingTargets.frames.removeValue(forKey: key); RecordingTargets.owners.removeValue(forKey: key) }
+                        }
                 }.allowsHitTesting(false)
             }
         } else { content }
@@ -163,30 +177,15 @@ final class InteractionRecorder {
         }
     }
     private func ensureVisible(_ query: String) async throws {
-        guard !query.hasPrefix("Вкладка:"), query != "Закреплено", query != "Закрепить" else { return }
-        if RecordingTargets.frames[query] == nil, let root = window.contentView,
-           let scroll = scrollViews(root).filter({ !$0.isHidden && $0.bounds.height > 70 })
-            .max(by: { $0.bounds.height < $1.bounds.height }), let document = scroll.documentView {
-            // Lazy rows have no geometry until they approach the viewport.
-            // Scroll the real list in bounded steps before locating the exact
-            // control; never click a guessed position for an absent row.
+        guard !query.hasPrefix("Страница:"), RecordingTargets.frames[query] == nil else { return }
+        for suffix in [":назад", ":вперёд"] {
             for _ in 0..<16 {
-                if RecordingTargets.frames[query] != nil { break }
-                let origin = scroll.contentView.bounds.origin
-                let maximum = max(0, document.bounds.height - scroll.contentView.bounds.height)
-                let next = min(maximum, origin.y + scroll.contentView.bounds.height * 0.65)
-                if abs(next - origin.y) < 1 { break }
-                scroll.contentView.scroll(to: NSPoint(x: origin.x, y: next))
-                scroll.reflectScrolledClipView(scroll.contentView)
-                try await capture(2)
+                if RecordingTargets.frames[query] != nil { return }
+                guard let key = RecordingTargets.frames.keys.sorted().first(where: { $0.hasPrefix("Страница:") && $0.hasSuffix(suffix) }) else { break }
+                let before = Set(RecordingTargets.frames.keys)
+                try await press(key, fallback: .zero)
+                if Set(RecordingTargets.frames.keys) == before { break }
             }
-        }
-        guard let rect = RecordingTargets.frames[query] else { return }
-        let content = CGRect(x: 0, y: store.compactHeight + 32, width: window.frame.width,
-                             height: window.frame.height - store.compactHeight - 88)
-        if !content.contains(CGPoint(x: rect.midX, y: rect.midY)),
-           PreviewRecorder.revealControl(query, in: window, topMargin: 30) {
-            try await capture(3)
         }
     }
     private func press(_ query: String, fallback: NSPoint, after: () -> Void = {}) async throws {
@@ -234,23 +233,19 @@ final class InteractionRecorder {
     private func scrollViews(_ root: NSView) -> [NSScrollView] {
         (root as? NSScrollView).map { [$0] } ?? root.subviews.flatMap(scrollViews)
     }
-    private func scroll(to fraction: Double, steps: Int = 14) async throws {
-        guard let view = window.contentView,
-              let scroll = scrollViews(view).filter({ !$0.isHidden && $0.bounds.height > 70 }).max(by: { $0.bounds.height < $1.bounds.height }),
-              let document = scroll.documentView else { throw failure("No native scroll view in \(name)") }
-        let origin = scroll.contentView.bounds.origin
-        let maxY = max(0, document.bounds.height - scroll.contentView.bounds.height)
-        let target = maxY * fraction
-        let bounds = scroll.convert(scroll.bounds, to: nil)
-        try await move(to: NSPoint(x: bounds.midX, y: window.frame.height - bounds.midY), count: 3)
-        events.append(Event(frame: frames.count, kind: "scroll", label: name))
-        for step in 1...steps {
-            let t = Double(step) / Double(steps), p = t * t * (3 - 2 * t)
-            scroll.contentView.scroll(to: NSPoint(x: origin.x, y: origin.y + (target - origin.y) * p))
-            scroll.reflectScrolledClipView(scroll.contentView)
-            try await capture()
+    private func page(to fraction: Double) async throws {
+        let suffix = fraction > 0.5 ? ":вперёд" : ":назад"
+        guard let key = RecordingTargets.frames.keys.sorted().first(where: { $0.hasPrefix("Страница:") && $0.hasSuffix(suffix) }) else {
+            throw failure("Page navigation is missing in " + name)
         }
-        guard maxY > 1 else { throw failure("Fixture does not overflow in \(name)") }
+        var changed = false
+        for _ in 0..<16 {
+            let before = Set(RecordingTargets.frames.keys)
+            try await press(key, fallback: .zero)
+            if Set(RecordingTargets.frames.keys) == before { break }
+            changed = true
+        }
+        guard changed else { throw failure("Page navigation did not change the visible items in " + name) }
     }
     private func drag(_ label: String, fractions: [Double], fallback: NSRect) async throws {
         fputs("Native input: drag \(label)\n", stderr)
@@ -332,7 +327,7 @@ final class InteractionRecorder {
         try await press("Пауза", fallback: NSPoint(x: 435, y: 480)); try await capture(10)
 
         try begin("tasks"); try await tab(.tasks); try await capture(8)
-        try await scroll(to: 1); try await scroll(to: 0)
+        try await page(to: 1); try await page(to: 0)
         try await press("Завершить:Собрать идеи для проекта", fallback: NSPoint(x: 200,y: 250))
         guard store.state.tasks.first?.isCompleted == true else { throw failure("Task completion button did not complete the task") }
         try await press("Выполненные", fallback: NSPoint(x: 610,y: 143)); try await capture(8)
@@ -351,7 +346,7 @@ final class InteractionRecorder {
             try await press("Алерт:час", fallback: NSPoint(x: 665,y: 465))
         }
         try await press("Своя дата", fallback: NSPoint(x: 645,y: 348))
-        try await scroll(to: 1); try await scroll(to: 0); try await capture(5)
+        try await capture(5)
 
         try begin("reminder")
         try await press("Напоминание", fallback: NSPoint(x: 565,y: 194))
@@ -376,7 +371,7 @@ final class InteractionRecorder {
         }
 
         try begin("custom-focus"); try await tab(.focus)
-        try await scroll(to: 1); try await scroll(to: 0)
+        try await page(to: 1); try await page(to: 0)
         try await press("45 мин", fallback: NSPoint(x: 390,y: 175))
         try await press("Своё", fallback: NSPoint(x: 655,y: 175))
         try await type("1", field: "Часы", at: NSPoint(x: 270,y: 258))
@@ -402,7 +397,7 @@ final class InteractionRecorder {
         store.endFocus()
 
         try begin("files"); try await tab(.files)
-        try await scroll(to: 1); try await scroll(to: 0)
+        try await page(to: 1); try await page(to: 0)
         for (label,x) in [("Файлы",370.0),("Текст",500.0),("Скрины",630.0),("Всё",240.0)] {
             try await press(label, fallback: NSPoint(x:x,y:196)); try await capture(6)
         }
@@ -410,7 +405,7 @@ final class InteractionRecorder {
         try await press("Копировать:" + store.state.shelf[0].id.uuidString, fallback: NSPoint(x:675,y:245)); try await capture(8)
 
         try begin("actions"); try await tab(.actions)
-        try await scroll(to: 1); try await scroll(to: 0)
+        try await page(to: 1); try await page(to: 0)
         try await press("Finder", fallback: NSPoint(x:250,y:228)); try await capture(8)
         window.makeKeyAndOrderFront(nil)
         try await press("Добавить действие", fallback: NSPoint(x:675,y:135)); try await capture(8)
@@ -419,7 +414,7 @@ final class InteractionRecorder {
         try await press("Отмена", fallback: NSPoint(x:215,y:499)); try await capture(6)
 
         try begin("settings"); try await tab(.settings)
-        guard PreviewRecorder.revealControl("Ширина", in: window) else { throw failure("Appearance controls were not found") }
+        guard RecordingTargets.frames["Ширина"] != nil else { throw failure("Appearance controls were not found") }
         events.append(Event(frame: frames.count, kind: "scroll", label: name)); try await capture(8)
         let before = store.state.settings
         let initialWidth = (before.expandedWidth - IslandLayout.minimumWidth) / (IslandLayout.maximumWidth - IslandLayout.minimumWidth)
@@ -430,12 +425,14 @@ final class InteractionRecorder {
         try await drag("Скорость анимации", fractions: [(before.animationDuration-0.12)/0.48,1,0,0.42], fallback: NSRect(x:180,y:350,width:510,height:22))
         guard let radii = sliderValues["Скругление"], radii.max()! - radii.min()! > 10,
               let speeds = sliderValues["Скорость анимации"], speeds.max()! - speeds.min()! > 0.3 else { throw failure("Native appearance sliders did not change settings") }
-        guard PreviewRecorder.revealControl("Алерт:акцент", in: window, topMargin: 75) else { throw failure("Accent control was not found") }
+        guard RecordingTargets.frames["Алерт:акцент"] != nil else { throw failure("Accent control was not found") }
         events.append(Event(frame: frames.count, kind: "scroll", label: name)); try await capture(8)
         if store.state.settings.coverAccent { try await press("Алерт:акцент", fallback: NSPoint(x:680,y:230)) }
         try await press("Фиолетовый", fallback: NSPoint(x:510,y:270)); try await capture(6)
         try await press("Мятный", fallback: NSPoint(x:230,y:270)); try await capture(6)
-        try await scroll(to: 1); try await scroll(to: 0)
+        try await press("Система", fallback: .zero)
+        try await press("Музыка", fallback: .zero)
+        try await press("Вид", fallback: .zero)
         store.setSettings { $0.expandedWidth = IslandLayout.defaultWidth; $0.cornerRadius = 30; $0.animationDuration = 0.32; $0.accent = "mint" }
         try await capture(8)
         try begin("agents")

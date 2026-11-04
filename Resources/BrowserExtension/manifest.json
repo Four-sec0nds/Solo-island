@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Solo Island \u2014 web agents",
+  "version": "0.8.0",
+  "description": "Local activity and elapsed time for supported Claude and ChatGPT/Codex pages.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8mfVEIZm/1m2VAK0S0jxyQwkVA+V+TnkVDHM4i6iAsHP9jZlHfgpd0QH/EEqsYXIjiOW9HbUv7Ieh+rvzFp5aUPas6k9WVHjvv8Q+ipGlS0/xml4ESH0q5nyY9b1GKfi/303A8XVui8MX7VJoc3AUC2CmTteH0d5sWsGog7kIMTQz+86ts2u3ObraRbstywaP+GSq6eyflsieQJo5TK3dOF435FrRflUgwrISVv2usmwgDJrbOBIobwuhxRto0JlpzMICs1QFBizM1sjVFeoGbV+R8LgxCAc2vAIx8VWZtCghp80QKmTca/ruOzrbIuFO260omIq1N2cog6TNarPKwIDAQAB",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*",
+        "https://www.claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://www.chatgpt.com/*"
+      ],
+      "js": [
+        "observer.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

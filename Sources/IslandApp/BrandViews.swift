@@ -71,11 +71,11 @@ struct MusicProviderGrid: View {
             ForEach(MusicProvider.allCases) { provider in
                 Button { select(provider) } label: {
                     HStack(spacing: 10) {
-                        MusicProviderIcon(provider: provider, size: 30)
+                        MusicProviderIcon(provider: provider, size: 22)
                         Text(provider.title).font(.system(size: 12, weight: .medium)).lineLimit(1)
                         Spacer(minLength: 0)
                         if selected == provider { Image(systemName: "checkmark.circle.fill").foregroundStyle(IslandPalette.mint) }
-                    }.padding(12).frame(maxWidth: .infinity).islandCard(tint: selected == provider ? IslandPalette.mint : IslandPalette.lavender)
+                    }.padding(8).frame(maxWidth: .infinity).islandCard(tint: selected == provider ? IslandPalette.mint : IslandPalette.lavender)
                         .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(selected == provider ? IslandPalette.mint.opacity(0.5) : .clear, lineWidth: 1))
                 }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(provider.title)
             }
@@ -87,12 +87,11 @@ struct MusicProviderGrid: View {
 struct MusicOnboardingView: View {
     @ObservedObject var store: IslandStore
     var body: some View {
-        ScrollView {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
-                IslandBrandMark(size: 48)
+                IslandBrandMark(size: 36)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Что ты слушаешь?").font(.system(size: 24, weight: .semibold, design: .rounded))
+                    Text("Что ты слушаешь?").font(.system(size: 21, weight: .semibold, design: .rounded))
                     Text("Выбери сервис для своего островка.").font(.system(size: 12)).foregroundStyle(IslandPalette.secondary)
                 }
             }
@@ -102,7 +101,6 @@ struct MusicOnboardingView: View {
             Button("Пока использовать системный плеер") { store.skipMusicSetup() }
                 .buttonStyle(IslandButtonStyle(.bare)).font(.system(size: 11)).foregroundStyle(.mint)
             Spacer(minLength: 0)
-        }
         }
     }
 }

@@ -8,7 +8,7 @@ struct TasksView: View {
     @State private var list: TaskList = .today
     @State private var title = ""
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             if let task = store.taskDraft {
                 TaskEditor(task: task, initialReminder: store.editingReminder, save: {
                     store.upsertTask($0); store.taskDraft = nil; title = ""
@@ -37,7 +37,6 @@ struct TasksView: View {
                 }
                 let tasks = TaskQuery.tasks(store.state.tasks, in: list, now: store.now)
                 if tasks.isEmpty {
-                    ScrollView {
                         HStack(spacing: 12) {
                             Image(systemName: "checklist").font(.system(size: 22, weight: .light))
                                 .foregroundStyle(accent).frame(width: 44, height: 44)
@@ -47,14 +46,9 @@ struct TasksView: View {
                                 Text(list == .today ? "Добавьте задачу и начните фокус-сессию." : "Задачи появятся в этом списке автоматически.")
                                     .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
                             }.frame(maxWidth: .infinity, alignment: .leading)
-                        }.padding(.vertical, 10)
-                    }
+                        }.padding(.vertical, 10).frame(maxHeight: .infinity)
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 7) {
-                            ForEach(tasks) { task in taskRow(task) }
-                        }.padding(1)
-                    }
+                    CompactList(items: tasks, rowHeight: 46, id: "задачи") { task in taskRow(task) }
                 }
                 if !store.notificationsEnabled {
                     Button("Разрешить напоминания") { store.enableNotifications() }.font(.caption).buttonStyle(IslandButtonStyle(.bare)).foregroundStyle(accent)
@@ -77,7 +71,7 @@ struct TasksView: View {
             }.accessibilityLabel(task.isCompleted ? "Вернуть задачу" : "Завершить задачу").recordingTarget("Завершить:" + task.title)
             Button { store.editingReminder = false; store.taskDraft = task } label: {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(task.title).font(.system(size: 13, weight: .medium)).strikethrough(task.isCompleted).lineLimit(2)
+                    Text(task.title).font(.system(size: 13, weight: .medium)).strikethrough(task.isCompleted).lineLimit(1).help(task.title)
                         .foregroundStyle(task.isCompleted ? IslandPalette.secondary : IslandPalette.text)
                     HStack(spacing: 8) {
                         if let due = task.dueAt {
@@ -95,7 +89,7 @@ struct TasksView: View {
                         .frame(width: 30, height: 30).background(accent.opacity(0.1), in: Circle())
                 }.help("Начать фокус-сессию").accessibilityLabel("Начать фокус-сессию")
             }
-        }.buttonStyle(IslandButtonStyle(.bare)).padding(12).islandCard()
+        }.buttonStyle(IslandButtonStyle(.bare)).padding(8).islandCard()
             .contextMenu {
                 Button("Редактировать") { store.editingReminder = false; store.taskDraft = task }
                 Button("Удалить задачу", role: .destructive) { store.deleteTask(task.id) }
@@ -125,54 +119,54 @@ struct TaskEditor: View {
     }
     private var invalidReminder: Bool { reminderEnabled && reminderDate <= Date() }
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             TextField("Название задачи", text: $task.title).textFieldStyle(IslandTextFieldStyle())
                 .accessibilityLabel("Название задачи").recordingTarget("Название задачи")
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 IslandSegments(options: ["Срок", "Напоминание"], selection: $section, title: { $0 })
                 Button(action: cancel) { Image(systemName: "arrow.uturn.backward") }.help("Отмена")
                 Button {
-                    task.dueAt = dueEnabled ? dueDate : nil; task.reminderAt = reminderEnabled ? reminderDate : nil
-                    save(task)
+                    task.dueAt = dueEnabled ? dueDate : nil; task.reminderAt = reminderEnabled ? reminderDate : nil; save(task)
                 } label: { Image(systemName: "checkmark").frame(width: 20) }
-                    .buttonStyle(IslandButtonStyle(.filled)).help("Сохранить задачу").recordingTarget("Сохранить задачу")
-                    .accessibilityLabel("Сохранить задачу")
+                    .buttonStyle(IslandButtonStyle(.filled)).accessibilityLabel("Сохранить задачу").recordingTarget("Сохранить задачу")
                     .disabled(task.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || invalidReminder)
             }
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    if section == "Срок" {
-                        Toggle("Срок выполнения", isOn: $dueEnabled).font(.caption).recordingTarget("Алерт:срок")
-                        if dueEnabled {
-                            DeadlineControl(date: $dueDate)
-                            HStack {
-                                DatePicker("Время", selection: $dueDate, displayedComponents: .hourAndMinute).font(.caption)
-                                Spacer()
-                                Button { calendarVisible.toggle() } label: { Label("Своя дата", systemImage: "calendar") }.font(.caption).recordingTarget("Своя дата")
-                            }
-                            if calendarVisible { IslandCalendar(date: $dueDate) }
-                            VStack(alignment: .leading, spacing: 9) {
-                                Label("Заранее предупредить", systemImage: "bell.badge").font(.caption.bold())
-                                Toggle("За день до дедлайна", isOn: $task.alertDayBefore).font(.caption).recordingTarget("Алерт:день")
-                                Toggle("За час до дедлайна", isOn: $task.alertHourBefore).font(.caption).recordingTarget("Алерт:час")
-                            }.padding(12).islandCard(tint: accent)
-                            Text("Уведомления приходят и при закрытом приложении. Прошедшие интервалы пропускаются.")
-                                .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
-                        }
-                    } else {
-                        Toggle("Напомнить в выбранный день", isOn: $reminderEnabled).font(.caption).recordingTarget("Алерт:напоминание")
-                        if reminderEnabled {
-                            IslandCalendar(date: $reminderDate)
-                            DatePicker("Во сколько", selection: $reminderDate, displayedComponents: .hourAndMinute).font(.caption)
-                            if invalidReminder { Text("Выберите время в будущем.").font(.caption).foregroundStyle(.orange) }
-                        }
-                        Text("Это отдельное напоминание. Алерты за день и за час включаются в разделе «Срок».")
-                            .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
+            if section == "Срок" {
+                if calendarVisible {
+                    IslandCalendar(date: $dueDate)
+                    HStack {
+                        Button("Готово") { calendarVisible = false }.buttonStyle(IslandButtonStyle(.soft))
+                        Spacer()
+                        DatePicker("Время", selection: $dueDate, displayedComponents: .hourAndMinute).controlSize(.small)
                     }
-                }.padding(.bottom, 4)
+                } else {
+                    Toggle("Срок выполнения", isOn: $dueEnabled).font(.system(size: 11)).recordingTarget("Алерт:срок")
+                    if dueEnabled {
+                        DeadlineControl(date: $dueDate)
+                        HStack {
+                            DatePicker("Сдать к", selection: $dueDate, displayedComponents: .hourAndMinute).controlSize(.small)
+                            Spacer()
+                            Button("Своя дата") { calendarVisible = true }.font(.system(size: 11)).recordingTarget("Своя дата")
+                        }
+                        HStack(spacing: 16) {
+                            Toggle("За день", isOn: $task.alertDayBefore).recordingTarget("Алерт:день")
+                            Toggle("За час", isOn: $task.alertHourBefore).recordingTarget("Алерт:час")
+                        }.font(.system(size: 11))
+                    }
+                }
+            } else {
+                Toggle("Напомнить в выбранный день", isOn: $reminderEnabled).font(.system(size: 11)).recordingTarget("Алерт:напоминание")
+                if reminderEnabled {
+                    IslandCalendar(date: $reminderDate)
+                    DatePicker(invalidReminder ? "Укажи будущее время" : "Во сколько", selection: $reminderDate, displayedComponents: .hourAndMinute)
+                        .controlSize(.small).foregroundStyle(invalidReminder ? Color.orange : IslandPalette.text)
+                        .recordingTarget("Время напоминания")
+                }
             }
+            Spacer(minLength: 0)
         }
     }
+
 }
 
 @MainActor
@@ -184,7 +178,7 @@ struct DeadlineControl: View {
         Double(min(14, max(0, calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: date)).day ?? 0)))
     }
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Label("Дедлайн", systemImage: "flag.checkered").font(.caption).foregroundStyle(.secondary)
                 Spacer()
@@ -199,7 +193,7 @@ struct DeadlineControl: View {
             HStack {
                 Text("Сегодня"); Spacer(); Text("Неделя"); Spacer(); Text("Две недели")
             }.font(.system(size: 9)).foregroundStyle(.secondary)
-        }.padding(14).islandCard(tint: accent)
+        }.padding(8).islandCard(tint: accent)
     }
 }
 
@@ -214,7 +208,7 @@ struct IslandCalendar: View {
     private var count: Int { calendar.range(of: .day, in: .month, for: start)!.count }
     private var cells: Int { ((leading + count + 6) / 7) * 7 }
     var body: some View {
-        VStack(spacing: 7) {
+        VStack(spacing: 3) {
             HStack {
                 Button { move(-1) } label: { Image(systemName: "chevron.left") }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget("Календарь:назад")
                 Spacer()
@@ -222,7 +216,7 @@ struct IslandCalendar: View {
                 Spacer()
                 Button { move(1) } label: { Image(systemName: "chevron.right") }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget("Календарь:вперёд")
             }
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 3) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 3), count: 7), spacing: 2) {
                 ForEach(["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"], id: \.self) { name in
                     Text(name).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary).frame(maxWidth: .infinity)
                 }
@@ -237,15 +231,15 @@ struct IslandCalendar: View {
                         } label: {
                             Text("\(day)").font(.system(size: 12, weight: selected ? .semibold : .regular))
                                 .foregroundStyle(selected ? IslandPalette.foreground(on: accent) : IslandPalette.text)
-                                .frame(maxWidth: .infinity).frame(height: 26)
+                                .frame(maxWidth: .infinity).frame(height: 15)
                                 .background(selected ? accent : Color.clear, in: RoundedRectangle(cornerRadius: 7))
                                 .overlay(RoundedRectangle(cornerRadius: 7).stroke(calendar.isDateInToday(value) ? accent.opacity(0.5) : .clear))
                         }.buttonStyle(IslandButtonStyle(.bare)).accessibilityLabel(value.formatted(date: .complete, time: .omitted))
                             .recordingTarget(value.formatted(date: .complete, time: .omitted))
-                    } else { Color.clear.frame(height: 26) }
+                    } else { Color.clear.frame(height: 15) }
                 }
             }
-        }.padding(11).islandCard(tint: accent)
+        }.padding(6).islandCard(tint: accent)
             .onAppear { month = date }
     }
     private func move(_ step: Int) { month = calendar.date(byAdding: .month, value: step, to: start)! }

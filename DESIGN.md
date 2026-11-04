@@ -120,3 +120,20 @@ MIT attribution. Claude uses Clawd; Codex uses the blue terminal companion.
 Idle/work/wait cells are cropped locally and frozen offscreen/with Reduce Motion.
 Music wings are visible only during playback; pause/stop hides cover and bars.
 Independent focus and agent indicators retain their own activity rules.
+
+## Fitted workspaces and web agents (0.8.0)
+
+All compact destinations use fitted controls and visible page buttons. Tasks,
+focus choices, shelf entries, quick actions and agent sessions use bounded
+pages; settings use five section tabs. Deadline/calendar views have compact
+rows. Long shelf text and complete tool input are measured into pages without
+dropping characters. No primary island surface relies on a scroll gesture.
+Native validation scopes control rectangles to their actual host so every
+interactive element must stay above the fixed dock and inside the panel.
+
+Music login is a full-size, resizable native window with the same WKWebView
+and data store. The small island never hosts an unusably small login form.
+Web agents use dedicated browser windows or the bundled Chromium extension.
+The existing agent pets represent these sessions too, with an explicit web
+label. Only lifecycle state crosses the local bridge; webpage changes and
+unsupported/cloud-only states remain a capability limit.

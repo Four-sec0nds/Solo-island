@@ -8,6 +8,7 @@ struct ActionsView: View {
     @Environment(\.islandAccent) private var accent
     @ObservedObject var store: IslandStore
     @State private var adding = false
+    @State private var page = 0
     @State private var title = ""
     @State private var kind: ActionKind = .application
     @State private var target = ""
@@ -47,23 +48,26 @@ struct ActionsView: View {
             } else if store.state.actions.isEmpty {
                 EmptyState(icon: "bolt.fill", title: "Ваши частые действия", detail: "Добавьте приложения, папки и команды — они будут доступны в одном месте.")
             } else {
-                ScrollView {
-                    LazyVGrid(columns: [.init(.adaptive(minimum: 145), spacing: 12)], spacing: 12) {
-                        ForEach(store.state.actions) { action in
-                            Button { store.runAction(action) } label: {
-                                VStack(alignment: .leading, spacing: 9) {
-                                    HStack {
-                                        QuickActionIcon(action: action).frame(width: 36, height: 36)
-                                        Spacer()
-                                        Image(systemName: "arrow.up.right").font(.system(size: 10, weight: .medium)).foregroundStyle(IslandPalette.muted)
-                                    }
-                                    Text(action.title).font(.system(size: 13, weight: .semibold, design: .rounded)).lineLimit(1)
-                                    Text(action.kind.rawValue).font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
-                                }.frame(maxWidth: .infinity, minHeight: 84, alignment: .leading).padding(14)
-                                    .islandCard()
-                            }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(action.title).contextMenu { Button("Удалить действие", role: .destructive) { store.removeAction(action.id) } }
+                GeometryReader { geometry in
+                    let capacity = max(3, Int((geometry.size.height - 26) / 64) * 3)
+                    let count = ContentPages.count(items: store.state.actions.count, capacity: capacity)
+                    let range = ContentPages.range(items: store.state.actions.count, capacity: capacity, page: page)
+                    VStack(spacing: 6) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
+                            ForEach(Array(store.state.actions[range])) { action in
+                                Button { store.runAction(action) } label: {
+                                    HStack(spacing: 8) {
+                                        QuickActionIcon(action: action).frame(width: 28, height: 28)
+                                        Text(action.title).font(.system(size: 12, weight: .medium)).lineLimit(2)
+                                        Spacer(minLength: 0)
+                                    }.padding(8).frame(maxWidth: .infinity).frame(height: 56).islandCard()
+                                }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(action.title)
+                                    .contextMenu { Button("Удалить", role: .destructive) { store.removeAction(action.id) } }
+                            }
                         }
-                    }.padding(1)
+                        Spacer(minLength: 0)
+                        if count > 1 { CompactPageBar(page: $page, count: count, id: "действия") }
+                    }.onChange(of: count) { _, value in page = min(page, value - 1) }
                 }
             }
         }.onChange(of: kind) { _, _ in target = "" }

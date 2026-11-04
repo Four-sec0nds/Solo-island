@@ -15,6 +15,41 @@ final class AgentService: ObservableObject {
     private var seen = Set<UUID>()
     private var demo = false
     private let helper: URL
+    private var webBrowsers: [AgentProvider: WebAgentBrowser] = [:]
+    func openWeb(_ provider: AgentProvider) {
+        if webBrowsers[provider] == nil { webBrowsers[provider] = WebAgentBrowser(provider: provider, agents: self) }
+        webBrowsers[provider]?.present()
+    }
+    func receiveWeb(_ data: Data) {
+        do {
+            let event = try WebAgentEvent.decode(data).bridgeEvent(instance: instance, pid: ProcessInfo.processInfo.processIdentifier)
+            try mailbox.write(event, to: mailbox.eventURL(event.id)); poll()
+        } catch { message = "Веб-сеанс не передал поддерживаемый статус." }
+    }
+    func installBrowserBridge() {
+        do {
+            guard let binary = Bundle.main.url(forAuxiliaryExecutable: "SoloBridge"),
+                  let resources = Bundle.main.resourceURL?.appendingPathComponent("BrowserExtension") else { return }
+            let directory = helper.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+            try Data(contentsOf: binary).write(to: helper, options: .atomic)
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: helper.path)
+            let extensionFolder = directory.appendingPathComponent("BrowserExtension")
+            if FileManager.default.fileExists(atPath: extensionFolder.path) { try FileManager.default.removeItem(at: extensionFolder) }
+            try FileManager.default.copyItem(at: resources, to: extensionFolder)
+            let support = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support")
+            for browser in ["Google/Chrome", "Microsoft Edge", "BraveSoftware/Brave-Browser", "Chromium"] {
+                let folder = support.appendingPathComponent(browser + "/NativeMessagingHosts")
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+                let manifest: [String: Any] = ["name": BrowserBridgeIdentity.host, "description": "Solo Island local agent activity",
+                    "path": helper.path, "type": "stdio", "allowed_origins": [BrowserBridgeIdentity.origin]]
+                let bytes = try JSONSerialization.data(withJSONObject: manifest, options: [.prettyPrinted, .sortedKeys])
+                try bytes.write(to: folder.appendingPathComponent(BrowserBridgeIdentity.host + ".json"), options: .atomic)
+            }
+            NSWorkspace.shared.open(extensionFolder)
+            message = "В chrome://extensions включите режим разработчика → Загрузить распакованное расширение → выберите открытую папку BrowserExtension. Затем обновите вкладки Claude/ChatGPT."
+        } catch { message = "Не удалось подключить браузер: \(error.localizedDescription)" }
+    }
 
     init(dataFolder: URL) {
         mailbox = AgentMailbox(root: dataFolder.appendingPathComponent("AgentBridge/runtime", isDirectory: true))
@@ -71,7 +106,7 @@ final class AgentService: ObservableObject {
             var changed = false
             for event in events where !seen.contains(event.id) {
                 if event.hook == .permission && !mailbox.isLive(event, instance: instance) { continue }
-                next.ingest(event); seen.insert(event.id); observed.insert(event.provider); changed = true
+                next.ingest(event); seen.insert(event.id); if !event.isWeb { observed.insert(event.provider) }; changed = true
                 if event.hook != .permission { try? FileManager.default.removeItem(at: mailbox.eventURL(event.id)) }
             }
             let previous = next.sessions

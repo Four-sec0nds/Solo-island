@@ -52,6 +52,7 @@ public struct AgentEvent: Codable, Equatable, Sendable, Identifiable {
         }
     }
     public var sessionKey: String { provider.rawValue + ":" + sessionID }
+    public var isWeb: Bool { sessionID.hasPrefix("web:") }
     public var project: String { URL(fileURLWithPath: cwd).lastPathComponent.isEmpty ? "Проект" : URL(fileURLWithPath: cwd).lastPathComponent }
 }
 
@@ -80,6 +81,8 @@ public struct AgentSession: Identifiable, Equatable, Sendable {
     public var tool: String
     public var pending: [AgentEvent]
     public var clientPID: Int32
+    public var isWeb: Bool { id.contains(":web:") }
+    public var displayName: String { isWeb ? (provider == .claude ? "Claude · веб" : "ChatGPT / Codex · веб") : provider.title }
     public func elapsed(at date: Date) -> TimeInterval { max(0, (endedAt ?? date).timeIntervalSince(startedAt)) }
     public func clock(at date: Date) -> String {
         let minutes = Int(elapsed(at: date) / 60)
@@ -145,11 +148,11 @@ public struct AgentActivity: Sendable {
             }
             // A missing Stop must not leave a forever-running timer. We cannot
             // infer a client's work after a long gap without lifecycle events.
-            if sessions[index].status == .working && now.timeIntervalSince(sessions[index].updatedAt) > 3600 {
+            if sessions[index].status == .working && now.timeIntervalSince(sessions[index].updatedAt) > (sessions[index].isWeb ? 120 : 3600) {
                 sessions[index].status = .unknown; sessions[index].endedAt = now
             }
             if (sessions[index].status == .working || sessions[index].status == .waiting)
-                && !clientAlive(sessions[index].clientPID) {
+                && !sessions[index].isWeb && !clientAlive(sessions[index].clientPID) {
                 sessions[index].status = .interrupted; sessions[index].endedAt = now; sessions[index].pending = []
             }
         }

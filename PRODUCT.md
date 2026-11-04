@@ -43,7 +43,7 @@ fully quits the app. Re-entering after changing Space/display must remain prompt
 - No account backend, fabricated player capabilities or new service credentials.
 - Normal dimensions stay compact; header content clears the physical camera.
   Preserve existing user data, key actions, keyboard behavior and Reduce Motion.
-- A compact 560-point workspace (520–680 adjustable) and six bottom destinations replace the left panel. The body is 360 points tall; longer forms scroll. The palette
+- A compact 560-point workspace (520–680 adjustable) and six bottom destinations replace the left panel. The body is 360 points tall; fixed layouts and explicit pages replace content scrolling. Long lists and text remain accessible through page controls. The palette
   remains unchanged. Music/focus/agent wings must not steal keyboard focus or clicks. Agent pets are downloaded community sprites: orange Clawd for Claude Code and a blue terminal companion for Codex, with bundled attribution.
 
 ## Brand Commitments
@@ -69,3 +69,11 @@ testimonials, performance or cloud-sync claims to add to the UI.
 - Treat personal clipboard and task content as the main content, not decoration.
 - Make interaction feedback fast, coherent and optional under Reduce Motion.
 - Keep the camera-cutout connection and unobstructed hit areas functional.
+
+Music authentication and full websites use independent, resizable native windows
+sharing the existing WebKit session; the island retains playback controls.
+Web agent activity comes from supported page controls through the built-in
+WebKit window or an opt-in Chrome/Edge/Brave extension with Native Messaging.
+No chat text, cookies, credentials or conversation URLs enter the status bridge.
+Web status requires an open observed page and recognisable generation controls;
+web tool approvals are not fabricated or auto-accepted.

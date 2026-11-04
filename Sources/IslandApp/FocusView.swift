@@ -9,8 +9,7 @@ struct FocusView: View {
     @State private var hours = 0
     @State private var minutes = 25
     var body: some View {
-        ScrollView {
-        VStack(spacing: 10) {
+        VStack(spacing: 7) {
             if let focus = store.state.focus {
                 HStack(alignment: .center, spacing: 18) {
                     ZStack {
@@ -34,7 +33,7 @@ struct FocusView: View {
                             .buttonStyle(IslandButtonStyle(.filled))
                             .recordingTarget(focus.isPaused ? "Продолжить" : "Пауза")
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                }.frame(maxWidth: .infinity).padding(.vertical, 28)
+                }.frame(maxWidth: .infinity).padding(.vertical, 12)
                 HStack {
                     Button { store.toggleFocusAutomation() } label: {
                         Label(store.focusAutomationActive ? "Выключить «Не беспокоить»" : "Не беспокоить", systemImage: "moon")
@@ -48,7 +47,7 @@ struct FocusView: View {
                         .accessibilityLabel("Завершить задачу вместе с фокусом")
                 }.padding(.top, 8)
             } else {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     IslandSectionHeading(title: "Время для важного", subtitle: "Выбери длительность и одну задачу")
                     IslandSegments(options: [15, 25, 45, 60, 90, 0], selection: Binding(get: { store.state.settings.customFocusSeconds == nil ? store.state.settings.focusMinutes : 0 }, set: { value in
                         if value == 0 { custom = true; saveCustomTime() }
@@ -59,7 +58,7 @@ struct FocusView: View {
                             timeField("Часы", value: $hours, range: 0...99)
                             Text(":").foregroundStyle(accent)
                             timeField("Минуты", value: $minutes, range: 0...59)
-                        }.padding(12).islandCard(tint: accent)
+                        }.padding(7).islandCard(tint: accent)
                         Text("От 1 минуты до 99 часов 59 минут. Длительность сохраняется.").font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
                     }
                 }
@@ -69,18 +68,15 @@ struct FocusView: View {
                     Button("Создать задачу") { store.tab = .tasks }.buttonStyle(IslandButtonStyle(.filled))
                 } else {
                     Text("Над чем поработаем?").font(.system(size: 12, weight: .medium)).foregroundStyle(IslandPalette.secondary).frame(maxWidth: .infinity, alignment: .leading)
-                        LazyVStack(spacing: 8) {
-                            ForEach(tasks) { task in
-                                Button { store.startFocus(taskID: task.id) } label: {
-                                    HStack(spacing: 12) {
-                                        Text(task.title).font(.system(size: 13, weight: .medium)).lineLimit(2)
-                                        Spacer()
-                                        Image(systemName: "play.fill").font(.system(size: 11)).foregroundStyle(accent)
-                                            .frame(width: 28, height: 28).background(accent.opacity(0.09), in: Circle())
-                                    }.padding(13).islandCard()
-                                }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(task.title)
-                            }
-                        }
+                    CompactList(items: tasks, rowHeight: 36, id: "фокус") { task in
+                        Button { store.startFocus(taskID: task.id) } label: {
+                            HStack(spacing: 10) {
+                                Text(task.title).font(.system(size: 12, weight: .medium)).lineLimit(1)
+                                Spacer()
+                                Image(systemName: "play.fill").font(.system(size: 10)).foregroundStyle(accent)
+                            }.padding(8).islandCard()
+                        }.buttonStyle(IslandButtonStyle(.bare)).recordingTarget(task.title)
+                    }
                 }
                 if store.focusAutomationActive {
                     Button("Выключить «Не беспокоить»") { store.toggleFocusAutomation() }.font(.caption)
@@ -88,7 +84,6 @@ struct FocusView: View {
             }
             Spacer(minLength: 0)
         }.frame(maxWidth: .infinity)
-        }
             .onAppear {
                 let value = min(5999, max(1, Int(ceil(store.state.settings.focusDuration / 60))))
                 hours = value / 60; minutes = value % 60

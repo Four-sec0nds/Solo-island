@@ -22,19 +22,8 @@ struct MusicView: View {
                         .recordingTarget(store.musicWebsiteVisible ? "К плееру" : "Веб-плеер / вход")
                 }
             }
-            if store.musicWebsiteVisible, let provider = store.state.settings.musicProvider {
-                website(provider)
-            } else {
-                GeometryReader { geometry in
-                    ScrollView {
-                        playbackContent.frame(maxWidth: .infinity, minHeight: geometry.size.height)
-                    }.scrollIndicators(.hidden)
-                }
-            }
+            playbackContent.frame(maxWidth: .infinity, maxHeight: .infinity)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onChange(of: store.musicWebsiteVisible) { _, visible in store.editingForm = visible }
-            .onAppear { store.editingForm = store.musicWebsiteVisible }
-            .onDisappear { store.editingForm = false }
     }
     private var playbackContent: some View {
         VStack(spacing: 6) {
@@ -48,8 +37,8 @@ struct MusicView: View {
             Spacer(minLength: 0)
             if media.track.hasTrack { player }
             else {
-                VStack(spacing: 13) {
-                    IslandBrandMark(size: 64)
+                VStack(spacing: 8) {
+                    IslandBrandMark(size: 40)
                     Text("Включи любимую музыку").font(.system(size: 20, weight: .semibold, design: .rounded))
                     if let provider = store.state.settings.musicProvider {
                         Text("Войди на сайте сервиса и выбери трек.\nМузыка играет прямо внутри Solo Island.")
@@ -67,28 +56,6 @@ struct MusicView: View {
                 }.frame(maxWidth: .infinity)
             }
             Spacer(minLength: 0)
-        }
-    }
-    private func website(_ provider: MusicProvider) -> some View {
-        VStack(spacing: 6) {
-            HStack(spacing: 9) {
-                Button { if let popup = web.popup { popup.goBack() } else { web.webView.goBack() } } label: { Image(systemName: "chevron.left") }
-                Button { if let popup = web.popup { popup.reload() } else { web.reload() } } label: { Image(systemName: "arrow.clockwise") }
-                Image(systemName: "lock.fill").font(.system(size: 10)).foregroundStyle(IslandPalette.muted)
-                Text((web.popup ?? web.webView).url?.host ?? provider.url.host ?? "").font(.system(size: 11)).lineLimit(1).foregroundStyle(IslandPalette.secondary)
-                Spacer(minLength: 0)
-                if web.popup != nil { Button("Назад") { web.popup = nil }.font(.system(size: 9)) }
-                if web.loading { ProgressView().controlSize(.small) }
-                Button { web.openInBrowser() } label: { Image(systemName: "safari") }.help("Открыть в браузере")
-            }.buttonStyle(IslandButtonStyle(.bare)).padding(.horizontal, 3)
-            if let error = web.error {
-                Text(error).font(.system(size: 10)).foregroundStyle(.orange).lineLimit(2)
-            }
-            EmbeddedMusicWebsite(webView: web.popup ?? web.webView)
-                .id(ObjectIdentifier(web.popup ?? web.webView))
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            Text("Вход и подписка — на стороне сервиса. Если сайт ограничивает встроенный вход или защищённое аудио, открой его в браузере: системный плеер продолжит работать.")
-                .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
         }
     }
     private var player: some View {

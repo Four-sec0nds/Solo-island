@@ -19,6 +19,14 @@ final class WebMusicService: NSObject, ObservableObject, WKScriptMessageHandler,
     private var artworkTask: Task<Void, Never>?
     private var artworkURL: String?
     private var artworkRevision = UUID()
+    var onPlayerClosed: (() -> Void)?
+    private var playerWindow: MusicBrowserWindow?
+    var playerPreviewWindow: NSWindow? { playerWindow?.window }
+    func presentPlayer() {
+        if playerWindow == nil { playerWindow = MusicBrowserWindow(service: self) }
+        playerWindow?.present()
+    }
+    func hidePlayer() { playerWindow?.window?.orderOut(nil) }
     private var loaded = false
     private var previewFixture = false
     lazy var webView: WKWebView = {

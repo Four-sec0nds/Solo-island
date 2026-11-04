@@ -7,25 +7,25 @@ struct IslandSettingsView: View {
     @ObservedObject var store: IslandStore
     @ObservedObject var media: MediaService
 
+    @State private var section = "Вид"
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    IslandSectionHeading(title: "Настрой под себя", subtitle: "Твой островок, твой ритм")
-                    Spacer()
-                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.6.1")
-                        .font(.system(size: 10, design: .monospaced)).foregroundStyle(IslandPalette.secondary)
-                        .padding(.horizontal, 8).padding(.vertical, 6).background(IslandPalette.raised, in: Capsule())
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Настройки").font(.system(size: 20, weight: .semibold, design: .rounded))
+                Spacer()
+                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
+                    .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
+            }
+            IslandSegments(options: ["Музыка", "Вид", "Алерты", "Фокус", "Система"], selection: $section, title: { $0 })
+            Group {
+                switch section {
+                case "Музыка": musicSection
+                case "Алерты": notificationsSection
+                case "Фокус": focusSection
+                case "Система": mediaSection
+                default: appearanceSection
                 }
-                musicSection
-                appearanceSection
-                notificationsSection
-                focusSection
-                mediaSection
-                Label("Задачи и буфер хранятся только на этом Mac.", systemImage: "lock.shield")
-                    .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
-                    .padding(.horizontal, 3).padding(.bottom, 8)
-            }.padding(1)
+            }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
     }
 
@@ -49,8 +49,10 @@ struct IslandSettingsView: View {
 
     private var appearanceSection: some View {
         settingsSection("Оформление", icon: "slider.horizontal.3") {
-            settingSlider("Ширина", value: binding(\.expandedWidth), range: IslandLayout.minimumWidth...IslandLayout.maximumWidth, suffix: "pt")
-            settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
+            HStack(spacing: 14) {
+                settingSlider("Ширина", value: binding(\.expandedWidth), range: IslandLayout.minimumWidth...IslandLayout.maximumWidth, suffix: "pt")
+                settingSlider("Скругление", value: binding(\.cornerRadius), range: 22...40, suffix: "pt")
+            }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Скорость анимации")
@@ -116,10 +118,10 @@ struct IslandSettingsView: View {
     }
 
     private func settingsSection<Content: View>(_ title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 8) {
             Label(title, systemImage: icon).font(.system(size: 13, weight: .semibold)).foregroundStyle(IslandPalette.lavender)
             content()
-        }.frame(maxWidth: .infinity, alignment: .leading).padding(15).islandCard()
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(10).islandCard()
     }
 
     private func binding<T>(_ keyPath: WritableKeyPath<IslandSettings, T>) -> Binding<T> {

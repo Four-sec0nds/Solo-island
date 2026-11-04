@@ -24,7 +24,7 @@ jobs:
           set -o pipefail
           {
             command -v cmake || brew install cmake
-            node --test Tests/WebPlayerTests/bridge.test.cjs
+            node --test Tests/WebPlayerTests/bridge.test.cjs Tests/BrowserTests/*.test.cjs
             python3 -m unittest discover -s Tests/PackagingTests -v
             bash scripts/build.sh
           } 2>&1 | tee "$RUNNER_TEMP/solo-build.log"
@@ -47,6 +47,7 @@ jobs:
             dist/SoloIsland-reminder.png
             dist/SoloIsland-settings.png
             dist/SoloIsland-web-demo.png
+            dist/SoloIsland-web-agents.png
             dist/SoloIsland-icon.png
             dist/SoloIsland-music-compact.png
             dist/SoloIsland-tasks-compact.png

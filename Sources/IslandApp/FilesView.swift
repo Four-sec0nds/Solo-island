@@ -10,15 +10,14 @@ struct FilesView: View {
     @State private var filter = ShelfFilter.all
     @State private var preview: ShelfEntry?
     var body: some View {
-        VStack(alignment: .leading, spacing: 13) {
+        VStack(alignment: .leading, spacing: 8) {
             if let preview {
                 HStack {
                     Button { self.preview = nil } label: { Label("Назад", systemImage: "chevron.left") }
                     Spacer()
                     Button("Скопировать") { store.copyEntry(preview) }.buttonStyle(IslandButtonStyle(.filled))
                 }.buttonStyle(IslandButtonStyle(.bare))
-                ScrollView { Text(preview.text ?? "").font(.system(size: 13)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).padding(16) }
-                    .islandCard()
+                CompactText(text: preview.text ?? "", id: "текст буфера").padding(10).islandCard()
             } else {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
@@ -36,10 +35,7 @@ struct FilesView: View {
                 if entries.isEmpty {
                     EmptyState(icon: "square.on.square", title: "Место для важного", detail: "Скопируйте текст или файл, сделайте скриншот в буфер либо перетащите его сюда. История останется после перезапуска.")
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 9) { ForEach(entries) { entry in entryRow(entry) } }
-                        .padding(1)
-                    }
+                    CompactList(items: entries, rowHeight: 48, id: "буфер") { entry in entryRow(entry) }
                 }
                 HStack(spacing: 7) {
                     Image(systemName: "arrow.down.doc").foregroundStyle(accent)
@@ -47,7 +43,7 @@ struct FilesView: View {
                     Spacer(minLength: 5)
                     Image(systemName: "pin.fill").font(.system(size: 9)).foregroundStyle(IslandPalette.muted)
                     Text("Скриншоты сохраняются").font(.system(size: 10)).foregroundStyle(IslandPalette.muted).lineLimit(1)
-                }.padding(.horizontal, 11).padding(.vertical, 10)
+                }.padding(.horizontal, 8).padding(.vertical, 5)
                     .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(IslandPalette.separator, style: StrokeStyle(lineWidth: 0.8, dash: [4, 4])))
             }
         }
@@ -55,9 +51,9 @@ struct FilesView: View {
     private func entryRow(_ entry: ShelfEntry) -> some View {
         let exists = entry.kind == .text || FileManager.default.fileExists(atPath: entry.path)
         return HStack(spacing: 12) {
-            ShelfPreview(entry: entry).frame(width: 62, height: 54)
+            ShelfPreview(entry: entry).frame(width: 42, height: 36)
             VStack(alignment: .leading, spacing: 5) {
-                Text(title(entry)).font(.system(size: 12, weight: .medium)).lineLimit(entry.kind == .text ? 2 : 1).truncationMode(.middle)
+                Text(title(entry)).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
                 HStack(spacing: 5) {
                     Text(subtitle(entry, exists: exists)).lineLimit(1)
                     if entry.isPinned { Image(systemName: "pin.fill").font(.system(size: 8)).foregroundStyle(accent) }
@@ -70,7 +66,7 @@ struct FilesView: View {
                 }.help(entry.isPinned ? "Открепить" : "Хранить до удаления").recordingTarget("Закрепить:" + entry.id.uuidString)
             }
         }
-        .buttonStyle(IslandButtonStyle(.bare)).padding(.horizontal, 12).padding(.vertical, 10)
+        .buttonStyle(IslandButtonStyle(.bare)).padding(.horizontal, 8).padding(.vertical, 6)
         .islandCard(tint: entry.kind == .text ? IslandPalette.lavender : entry.kind == .image ? IslandPalette.pink : accent)
         .onDrag {
             if entry.kind == .text { return NSItemProvider(object: (entry.text ?? "") as NSString) }
@@ -128,7 +124,7 @@ private struct ShelfPreview: View {
             } else if let image {
                 Image(nsImage: image).resizable().aspectRatio(contentMode: entry.kind == .image ? .fill : .fit)
             } else { Image(systemName: "doc").font(.title2).foregroundStyle(.secondary) }
-        }.frame(width: 62, height: 54).clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }.frame(width: 42, height: 36).clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .task(id: entry.path) {
                 if entry.kind == .image, let source = CGImageSourceCreateWithURL(entry.url as CFURL, nil),
                    let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, [

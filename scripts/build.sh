@@ -26,6 +26,8 @@ lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "$app_arch"
 cp Resources/Info.plist "$app_dir/Contents/Info.plist"
 rm -rf "$app_dir/Contents/Resources/AgentPets"
 cp -R Resources/AgentPets "$app_dir/Contents/Resources/AgentPets"
+rm -rf "$app_dir/Contents/Resources/BrowserExtension"
+cp -R Resources/BrowserExtension "$app_dir/Contents/Resources/BrowserExtension"
 /usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app_dir/Contents/Info.plist" >/dev/null
 iconset_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-island-icons.XXXXXX")/AppIcon.iconset"
 trap 'rm -rf "${iconset_dir%/AppIcon.iconset}"' EXIT

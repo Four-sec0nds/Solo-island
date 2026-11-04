@@ -37,6 +37,7 @@ struct IslandRootView: View {
         .tint(accent).environment(\.islandAccent, accent)
         .environment(\.locale, Locale(identifier: "ru_RU"))
         .preferredColorScheme(.dark)
+        .environment(\.recordingOwner, String(describing: ObjectIdentifier(store)))
         .buttonStyle(IslandButtonStyle(.soft))
         .toggleStyle(IslandToggleStyle())
         .animation(reduceMotion ? nil : .easeInOut(duration: store.state.settings.animationDuration), value: store.tab)
@@ -242,12 +243,14 @@ struct EmptyState: View {
     var title: String
     var detail: String
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon).font(.system(size: 27, weight: .light)).foregroundStyle(accent)
-                .frame(width: 64, height: 64).background(IslandPalette.surface, in: RoundedRectangle(cornerRadius: 21, style: .continuous))
-            Text(title).font(.system(size: 17, weight: .semibold, design: .rounded))
-            Text(detail).font(.system(size: 12)).foregroundStyle(IslandPalette.secondary).multilineTextAlignment(.center).lineSpacing(3)
-        }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(20)
+        HStack(spacing: 12) {
+            Image(systemName: icon).font(.system(size: 24, weight: .light)).foregroundStyle(accent)
+                .frame(width: 44, height: 44).background(IslandPalette.surface, in: RoundedRectangle(cornerRadius: 12))
+            VStack(alignment: .leading, spacing: 5) {
+                Text(title).font(.system(size: 15, weight: .semibold, design: .rounded))
+                Text(detail).font(.system(size: 11)).foregroundStyle(IslandPalette.secondary).fixedSize(horizontal: false, vertical: true)
+            }.frame(maxWidth: .infinity, alignment: .leading)
+        }.frame(maxWidth: .infinity, maxHeight: .infinity).padding(8)
     }
 }
 

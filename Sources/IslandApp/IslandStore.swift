@@ -23,7 +23,12 @@ final class IslandStore: ObservableObject {
     @Published var notificationsEnabled = false
     @Published var taskDraft: IslandTask?
     @Published var editingReminder = false
-    @Published var musicWebsiteVisible = false
+    @Published var musicWebsiteVisible = false {
+        didSet {
+            if musicWebsiteVisible { webMusic.presentPlayer() }
+            else { webMusic.hidePlayer() }
+        }
+    }
     @Published var focusAutomationActive = false
     let media = MediaService()
     let webMusic = WebMusicService()
@@ -64,6 +69,7 @@ final class IslandStore: ObservableObject {
             Task { @MainActor in self?.notificationsEnabled = enabled }
         }
         audio = AudioService.snapshot()
+        webMusic.onPlayerClosed = { [weak self] in self?.musicWebsiteVisible = false }
         media.attach(webMusic)
         media.onOpenWeb = { [weak self] in self?.musicWebsiteVisible = true; self?.reveal(.music) }
     }
