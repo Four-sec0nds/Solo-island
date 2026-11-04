@@ -116,7 +116,9 @@ final class WebAgentBrowser: NSObject, WKScriptMessageHandler, WKNavigationDeleg
         window.begin = () => { window.fixtureCompleted=false; window.fixtureJob=(async()=>{
           const response=await fetch('https://\(host)'+(window.fixtureMode==='task'?'/backend-api/wham/tasks/local-task':'\(route)'),{method:window.fixtureMode==='task'?'GET':'POST'});
           if(window.fixtureMode==='task') { await response.json(); return; }
-          const reader=response.body.getReader(); while(!(await reader.read()).done){} window.fixtureCompleted=true;
+          window.fixtureController.enqueue(new TextEncoder().encode('local-stream'));
+          const reader=response.body.pipeThrough(new TextDecoderStream()).getReader(); let text='';
+          while(true){const value=await reader.read();if(value.done)break;text+=value.value;} window.fixtureCompleted=text==='local-stream';
         })(); };
         window.end = () => { if(window.fixtureMode==='task') {window.fixtureState='completed';begin();} else window.fixtureController.close(); };
         </script></body></html>

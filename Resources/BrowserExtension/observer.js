@@ -120,6 +120,41 @@
       return Promise.resolve(result).then(value => { try { success(value); } catch {} return value; }, error => { failure(); throw error; });
     }});
   };
+  const watchStream = (body, token) => {
+    token.streams ??= new WeakSet();
+    if (token.streams.has(body)) return body;
+    token.streams.add(body);
+    const failed = () => endRequest(token, true);
+    const reader = body.getReader;
+    if (typeof reader === 'function') Object.defineProperty(body, 'getReader', {configurable:true, writable:true, value:function(...args) {
+      const result = Reflect.apply(reader, this, args);
+      watchMethod(result, 'read', value => { if (value.done) endRequest(token); }, failed);
+      watchMethod(result, 'cancel', failed, failed);
+      return result;
+    }});
+    for (const key of ['values', Symbol.asyncIterator]) {
+      const original = body[key];
+      if (typeof original === 'function') Object.defineProperty(body, key, {configurable:true, writable:true, value:function(...args) {
+        const result = Reflect.apply(original, this, args);
+        watchMethod(result, 'next', value => { if (value.done) endRequest(token); }, failed);
+        watchMethod(result, 'return', failed, failed);
+        return result;
+      }});
+    }
+    const pipe = body.pipeThrough;
+    if (typeof pipe === 'function') Object.defineProperty(body, 'pipeThrough', {configurable:true, writable:true, value:function(...args) {
+      return watchStream(Reflect.apply(pipe, this, args), token);
+    }});
+    const tee = body.tee;
+    if (typeof tee === 'function') Object.defineProperty(body, 'tee', {configurable:true, writable:true, value:function(...args) {
+      const branches = Reflect.apply(tee, this, args);
+      for (const branch of branches) watchStream(branch, token);
+      return branches;
+    }});
+    watchMethod(body, 'pipeTo', () => endRequest(token), failed);
+    watchMethod(body, 'cancel', failed, failed);
+    return body;
+  };
   const watchResponse = (response, route, token) => {
     const success = value => { if (route.kind === 'task') taskMetadata(value, route); else endRequest(token); };
     const failed = () => { if (token) endRequest(token, true); };
@@ -131,20 +166,7 @@
       }
       if (route.kind === 'stream') {
         if (!response.body) { endRequest(token); return response; }
-        const body = response.body, original = body.getReader;
-        if (typeof original === 'function') Object.defineProperty(body, 'getReader', {configurable: true, value: function(...args) {
-          const reader = Reflect.apply(original, this, args);
-          watchMethod(reader, 'read', value => { if (value.done) endRequest(token); }, failed);
-          watchMethod(reader, 'cancel', () => endRequest(token, true), failed);
-          return reader;
-        }});
-        const iterator = body[Symbol.asyncIterator];
-        if (typeof iterator === 'function') Object.defineProperty(body, Symbol.asyncIterator, {configurable: true, value: function(...args) {
-          const result = Reflect.apply(iterator, this, args);
-          watchMethod(result, 'next', value => { if (value.done) endRequest(token); }, failed);
-          watchMethod(result, 'return', () => endRequest(token, true), failed);
-          return result;
-        }});
+        watchStream(response.body, token);
       }
       const clone = response.clone;
       if (typeof clone === 'function') Object.defineProperty(response, 'clone', {configurable: true, value: function(...args) {

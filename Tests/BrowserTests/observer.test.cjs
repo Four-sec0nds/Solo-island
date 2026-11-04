@@ -111,3 +111,19 @@ test('suspended windows stop heartbeats and resume new requests when reopened',a
  f.window.__soloAgentObserver.resume();response=new Response(new ReadableStream({start(c){c.close()}}));
  await f.window.fetch('https://chatgpt.com/backend-api/f/conversation',{method:'POST'});assert.equal(f.messages.at(-1).state,'start');
 });
+test('decoder pipelines preserve decoded content and finish after pipeThrough readers',async()=>{
+ const response=new Response(new ReadableStream({start(c){c.enqueue(new TextEncoder().encode('unchanged stream'));c.close()}}));
+ const f=fixture('chatgpt.com',{fetch:async()=>response});const received=await f.window.fetch('https://chatgpt.com/backend-api/f/conversation',{method:'POST'});
+ const reader=received.body.pipeThrough(new TextDecoderStream()).getReader();assert.equal((await reader.read()).value,'unchanged stream');assert.equal((await reader.read()).done,true);
+ f.advance(1000);f.check();assert.equal(f.messages.at(-1).state,'finished');
+});
+test('pipeTo preserves sink bytes and reports completion',async()=>{
+ const chunk=new Uint8Array([5,6]);const response=new Response(new ReadableStream({start(c){c.enqueue(chunk);c.close()}}));
+ const f=fixture('chatgpt.com',{fetch:async()=>response});const received=await f.window.fetch('https://chatgpt.com/backend-api/f/conversation',{method:'POST'});const chunks=[];
+ assert.equal(await received.body.pipeTo(new WritableStream({write(value){chunks.push(value)}})),undefined);assert.equal(chunks[0],chunk);
+ f.advance(1000);f.check();assert.equal(f.messages.at(-1).state,'finished');
+});
+test('cancelling the response body interrupts the session',async()=>{
+ const response=new Response(new ReadableStream());const f=fixture('chatgpt.com',{fetch:async()=>response});
+ const received=await f.window.fetch('https://chatgpt.com/backend-api/f/conversation',{method:'POST'});assert.equal(await received.body.cancel(),undefined);assert.equal(f.messages.at(-1).state,'interrupted');
+});
