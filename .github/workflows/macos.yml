@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    # Validate the universal bundle natively on Apple Silicon.
-    runs-on: macos-15
+    # Check the same universal bundle on the older Intel macOS runtime.
+    runs-on: macos-14
     env:
       SOLO_ARCH: universal
     timeout-minutes: 40
