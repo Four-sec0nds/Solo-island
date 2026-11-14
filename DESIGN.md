@@ -156,3 +156,10 @@ session. A completed historical turn does not fabricate a new run or alert.
 A new completion displays the provider pet and «Готово» for six seconds, then
 returns to the normal music/focus activity. User-approved system notifications
 also announce completion; the panel does not automatically expand or pin.
+
+## Agent clock (0.8.3)
+
+Agent sessions show MM:SS below one hour, then HH:MM from 3600 seconds onward.
+The same formatter feeds the session list and compact camera wing. The row
+unit label changes with the format; completed sessions retain their frozen
+elapsed time. Focus timers retain their existing HH:MM format.
