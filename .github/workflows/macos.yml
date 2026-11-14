@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    # Test the shipped universal bundle while hosted Apple Silicon capacity is limited.
-    runs-on: macos-15-intel
+    # Validate the universal bundle natively on Apple Silicon.
+    runs-on: macos-15
     env:
       SOLO_ARCH: universal
     timeout-minutes: 40
