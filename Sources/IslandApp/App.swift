@@ -154,9 +154,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await verifyOverlay("unpinned again")
             other.close()
             fputs("Window overlay: reveal, competing window, pin and unpin passed\n", stderr)
+            // Closing the competing window can deliver a Space notification.
+            // Settle it and perform a fresh, real enter/exit before asserting collapse.
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            island.checkPointer(at: NSPoint(x: screen.frame.midX, y: screen.frame.maxY - 4))
             island.checkPointer(at: NSPoint(x: screen.frame.minX + 5, y: screen.frame.minY + 5))
-            for _ in 0..<15 { try? await Task.sleep(nanoseconds: 70_000_000); record(0.07) }
-            guard !store.expanded, !window.isVisible else { fputs("Pointer exit did not hide the window\n", stderr); exit(1) }
+            for _ in 0..<40 {
+                try? await Task.sleep(nanoseconds: 70_000_000); record(0.07)
+                if !store.expanded && !window.isVisible { break }
+            }
+            guard !store.expanded, !window.isVisible else {
+                fputs("Pointer exit did not hide the window: expanded=\(store.expanded) visible=\(window.isVisible) pinned=\(store.pinned) editing=\(store.editingForm) modal=\(NSApp.modalWindow != nil)\n", stderr); exit(1)
+            }
             if !frames.isEmpty { frames[frames.count - 1].delay = 0.9 }
             do {
                 let directory = output.deletingLastPathComponent()
