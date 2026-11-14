@@ -113,7 +113,8 @@ struct AgentsView: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
                 Text(session.clock(at: now)).font(.system(size: 18, weight: .medium, design: .rounded)).monospacedDigit()
-                Text("ч : мин").font(.system(size: 9)).foregroundStyle(IslandPalette.secondary)
+                Text(session.elapsed(at: now) < 3600 ? "мин : с" : "ч : мин")
+                    .font(.system(size: 9)).foregroundStyle(IslandPalette.secondary)
             }
         }.padding(.vertical, 5)
     }

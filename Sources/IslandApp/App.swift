@@ -609,7 +609,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         cloud.loadPreviewFixture(cloudConversation: true); cloud.present()
         defer { cloud.window.close() }
         guard await until({ demo.agents.activity.current?.provider == .codex }), let running = demo.agents.activity.current,
-              running.elapsed(at: Date()) >= 720, running.clock(at: Date()) == "00:12" else {
+              running.elapsed(at: Date()) >= 720,
+              running.clock(at: running.startedAt.addingTimeInterval(720)) == "12:00" else {
             throw failure("The embedded cloud conversation did not restore its running time")
         }
         try await cloud.webView.evaluateJavaScript("document.getElementById('agent-frame').contentDocument.getElementById('cloud-status').textContent='Выполнено за 1 ч 6 мин 27 с'; true;")

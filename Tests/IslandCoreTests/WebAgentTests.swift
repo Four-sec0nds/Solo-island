@@ -54,7 +54,7 @@ extension WebAgentTests {
         object["elapsedSeconds"] = 720
         let web = try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object))
         var activity = AgentActivity(); activity.ingest(try web.bridgeEvent(instance: instance, pid: 1, at: now))
-        XCTAssertEqual(activity.current?.clock(at: now), "00:12")
+        XCTAssertEqual(activity.current?.clock(at: now), "12:00")
         object["state"] = "working"; object["elapsedSeconds"] = 720
         activity.ingest(try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object)).bridgeEvent(instance: instance, pid: 1, at: now.addingTimeInterval(20)))
         XCTAssertEqual(activity.current?.elapsed(at: now.addingTimeInterval(20)), 740)

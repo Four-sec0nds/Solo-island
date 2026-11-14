@@ -86,8 +86,11 @@ public struct AgentSession: Identifiable, Equatable, Sendable {
     public var displayName: String { isWeb ? (provider == .claude ? "Claude · веб" : "ChatGPT / Codex · веб") : provider.title }
     public func elapsed(at date: Date) -> TimeInterval { max(0, (endedAt ?? date).timeIntervalSince(startedAt)) }
     public func clock(at date: Date) -> String {
-        let minutes = Int(elapsed(at: date) / 60)
-        return String(format: "%02d:%02d", minutes / 60, minutes % 60)
+        let seconds = Int(elapsed(at: date))
+        if seconds < 3600 {
+            return String(format: "%02d:%02d", seconds / 60, seconds % 60)
+        }
+        return String(format: "%02d:%02d", seconds / 3600, (seconds / 60) % 60)
     }
 }
 

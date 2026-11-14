@@ -24,13 +24,28 @@ final class AgentBridgeTests: XCTestCase {
         activity.ingest(try event(.preTool, at: date.addingTimeInterval(100)))
         activity.ingest(try event(.stop, at: date.addingTimeInterval(150)))
         XCTAssertEqual(activity.sessions[0].elapsed(at: date.addingTimeInterval(999)), 150)
-        XCTAssertEqual(activity.sessions[0].clock(at: date.addingTimeInterval(999)), "00:02")
+        XCTAssertEqual(activity.sessions[0].clock(at: date.addingTimeInterval(999)), "02:30")
         activity.ingest(try event(.prompt, at: date.addingTimeInterval(200)))
         XCTAssertEqual(activity.current?.elapsed(at: date.addingTimeInterval(210)), 10)
         activity.ingest(try event(.prompt, provider: .claude, at: date.addingTimeInterval(201)))
         XCTAssertEqual(activity.sessions.count, 2)
         activity.ingest(try event(.stop, at: date)) // Delayed older event cannot end a newer turn.
         XCTAssertEqual(activity.sessions.first { $0.provider == .codex }?.status, .working)
+    }
+    func testAgentClockUsesMinutesAndSecondsUntilTheFirstHour() throws {
+        let start = Date(timeIntervalSince1970: 1000)
+        var activity = AgentActivity()
+        activity.ingest(try event(.prompt, at: start))
+        let session = try XCTUnwrap(activity.current)
+        let cases: [(TimeInterval, String)] = [
+            (-10, "00:00"), (0, "00:00"), (1, "00:01"), (59.9, "00:59"),
+            (60, "01:00"), (150, "02:30"), (3599.9, "59:59"),
+            (3600, "01:00"), (3660, "01:01"), (3987, "01:06"), (90061, "25:01")
+        ]
+        for (elapsed, expected) in cases {
+            XCTAssertEqual(session.clock(at: start.addingTimeInterval(elapsed)), expected,
+                           "Agent clock at \(elapsed) seconds")
+        }
     }
     func testParallelApprovalsResolveIndividuallyAndExpire() throws {
         var activity = AgentActivity()
