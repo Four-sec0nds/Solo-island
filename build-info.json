@@ -1,6 +1,10 @@
 {
-  "source_commit": "4db293e49d72cfa3c315af215109819e58316c69",
+  "source_commit": "4134f7925d066632e72d406ff784de02f67b9710",
   "result": "success",
-  "run_url": "https://github.com/Four-sec0nds/Solo-island/actions/runs/41082879213",
-  "installer": "SoloIsland.dmg"
+  "run_url": "https://github.com/Four-sec0nds/Solo-island/actions/runs/41204514917",
+  "installer": "SoloIsland.dmg",
+  "channel": "release",
+  "version": "0.6.1",
+  "build": "11",
+  "promoted_from": "a4fc595ddc763d9474e2e0ebd40b06c02d460966"
 }
