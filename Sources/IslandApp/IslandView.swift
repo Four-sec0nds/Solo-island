@@ -115,27 +115,34 @@ struct IslandRootView: View {
             }.frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
+    private func navigationLabel(_ tab: IslandTab, selected: Bool) -> some View {
+        VStack(spacing: 4) {
+            Image(systemName: tab.icon).font(.system(size: 15, weight: .medium)).frame(height: 17)
+            Text(tab.rawValue).font(.system(size: 9, weight: selected ? .semibold : .medium))
+                .lineLimit(1).minimumScaleFactor(0.85)
+        }.frame(maxWidth: .infinity).frame(height: 42)
+            .background(selected ? accent.opacity(0.12) : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
+    }
+    private func navigationButton(_ tab: IslandTab) -> some View {
+        let selected = store.tab == tab
+        let number = String((IslandTab.allCases.firstIndex(of: tab) ?? 0) + 1)
+        let shortcut = KeyEquivalent(Character(number))
+        let traits: AccessibilityTraits = selected ? .isSelected : []
+        return Button { store.tab = tab } label: { navigationLabel(tab, selected: selected) }
+            .buttonStyle(IslandButtonStyle(.bare))
+            .foregroundStyle(selected ? accent : IslandPalette.secondary)
+            .accessibilityLabel(tab.rawValue).accessibilityAddTraits(traits)
+            .help(tab.rawValue + " (⌘" + number + ")")
+            .keyboardShortcut(shortcut, modifiers: .command)
+            .recordingTarget("Вкладка:" + tab.rawValue)
+    }
     private var bottomBar: some View {
         HStack(spacing: 6) {
             HStack(spacing: 2) {
-                ForEach(Array(IslandTab.allCases.prefix(5).enumerated()), id: \.element.id) { index, tab in
-                    Button { store.tab = tab } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: tab.icon).font(.system(size: 15, weight: .medium))
-                                .frame(height: 17)
-                            Text(tab.rawValue).font(.system(size: 9, weight: store.tab == tab ? .semibold : .medium))
-                                .lineLimit(1).minimumScaleFactor(0.85)
-                        }.frame(maxWidth: .infinity).frame(height: 42)
-                            .background(store.tab == tab ? accent.opacity(0.12) : .clear,
-                                        in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .contentShape(RoundedRectangle(cornerRadius: 12))
-                    }.buttonStyle(IslandButtonStyle(.bare))
-                        .foregroundStyle(store.tab == tab ? accent : IslandPalette.secondary)
-                        .accessibilityLabel(tab.rawValue)
-                        .accessibilityAddTraits(store.tab == tab ? .isSelected : [])
-                        .help(tab.rawValue + " (⌘" + String(index + 1) + ")")
-                        .keyboardShortcut(KeyEquivalent(Character(String(index + 1))), modifiers: .command)
-                        .recordingTarget("Вкладка:" + tab.rawValue)
+                ForEach(Array(IslandTab.allCases.prefix(5))) { tab in
+                    navigationButton(tab)
                 }
                 AgentTabButton(agents: store.agents, selected: store.tab == .agents) { store.tab = .agents }
             }.frame(maxWidth: .infinity)

@@ -249,7 +249,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                             throw NSError(domain: "SoloIsland.Fit", code: 1, userInfo: [NSLocalizedDescriptionKey: "Control outside compact workspace: " + name + ": " + key + " " + String(describing: rect)])
                         }
                     }
-                    func overflowingScroll(_ root: NSView) -> Bool {
+                    @MainActor func overflowingScroll(_ root: NSView) -> Bool {
                         if let scroll = root as? NSScrollView, !(scroll.documentView is NSTextView),
                            let document = scroll.documentView, document.bounds.height > scroll.contentView.bounds.height + 2 { return true }
                         return root.subviews.contains(where: overflowingScroll)
@@ -673,7 +673,7 @@ final class IslandWindowController: NSWindowController {
         if store.pinned && store.expanded { window?.orderFrontRegardless() }
     }
     func checkPointer(at location: NSPoint? = nil) {
-        guard let window, let screen = NSScreen.screens.first else { return }
+        guard let window, !NSScreen.screens.isEmpty else { return }
         let point = location ?? NSEvent.mouseLocation
         let display = NSScreen.screens.first(where: { $0.frame.contains(point) })?
             .deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
