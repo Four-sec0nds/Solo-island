@@ -1,6 +1,9 @@
 (() => {
-  if (window.__soloAgentObserver || window.top !== window) return;
-  const host = location.hostname;
+  if (window.__soloAgentObserver) return;
+  let host = location.hostname, origin = location.origin, baseURL = document.baseURI || location.href;
+  if (!host && ['about:', 'blob:'].includes(location.protocol)) {
+    try { host = window.parent.location.hostname; origin = window.parent.location.origin; baseURL = window.parent.location.href; } catch {}
+  }
   const provider = ['claude.ai', 'www.claude.ai'].includes(host) ? 'claude'
     : ['chatgpt.com', 'www.chatgpt.com'].includes(host) ? 'codex' : null;
   if (!provider) return;
@@ -12,13 +15,15 @@
   };
   let session = '', busy = false, seenBusy = false, pendingUntil = 0, quietSince = null, lastHeartbeat = 0, suspended = false;
   const requests = new Set(), tasks = new Map();
-  const send = (state, id = session) => {
+  let pageConfirmed=false, lastPageSeen=0, pageElapsed, completionAtStart=null, reportedCompletion=null, snapshotEligible=true;
+  const send = (state, id = session, elapsedSeconds) => {
     const payload = {provider, host, session: id, state};
+    if (Number.isFinite(elapsedSeconds) && elapsedSeconds>=0 && elapsedSeconds<=2678400)payload.elapsedSeconds=elapsedSeconds;
     try {
       if (window.webkit?.messageHandlers?.soloAgent) window.webkit.messageHandlers.soloAgent.postMessage(payload);
       else if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
         chrome.runtime.sendMessage(payload, () => { void chrome.runtime.lastError; });
-      } else window.postMessage({source: 'solo-island-agent', event: payload}, location.origin);
+      } else window.postMessage({source: 'solo-island-agent', event: payload}, origin);
     } catch { /* A disconnected bridge must never break the site's request. */ }
   };
   const visible = element => !!element && !element.hidden && element.getAttribute('aria-hidden') !== 'true'
@@ -26,32 +31,49 @@
   const busySelectors = [
     '[data-testid="stop-button"]', '[data-testid="stop-generation-button"]', '[data-testid="stop-response-button"]',
     'button[aria-label="Stop streaming" i]', 'button[aria-label="Stop generating" i]',
-    'button[aria-label="Stop response" i]', 'button[aria-label="Stop" i]',
+    'button[aria-label="Stop response" i]', 'button[aria-label="Stop task" i]', 'button[aria-label="Stop coding" i]', 'button[aria-label="Stop" i]',
     'button[aria-label="Остановить генерацию"]', 'button[aria-label="Остановить ответ"]',
     '[data-is-streaming="true"]', '[data-task-status="running"]', '[data-task-status="in_progress"]'
   ];
   const isBusy = () => busySelectors.some(selector => Array.from(document.querySelectorAll(selector)).some(visible));
-  const start = () => {
+  const start = (elapsedSeconds) => {
     if (busy || suspended) return;
+    snapshotEligible=false;
+    completionAtStart=window.__soloAgentStatus?.read().finished?.key ?? null;
+    pageConfirmed=false;pageElapsed=undefined;lastPageSeen=0;
     session = uuid(); busy = true; seenBusy = false; quietSince = null;
-    pendingUntil = Date.now() + 15000; lastHeartbeat = Date.now(); send('start');
+    pendingUntil = Date.now() + 15000; lastHeartbeat = Date.now(); send('start',session,elapsedSeconds);
   };
-  const finish = state => {
+  const finish = (state,elapsedSeconds) => {
     if (!busy) return;
-    send(state); busy = false; seenBusy = false; quietSince = null; requests.clear();
+    send(state,session,elapsedSeconds); busy = false; seenBusy = false; quietSince = null; requests.clear();pageConfirmed=false;
   };
   const check = () => {
     if (suspended) return;
-    const streaming = isBusy();
+    const page=window.__soloAgentStatus?.read() ?? {};
+    const streaming = isBusy() || !!page.working;
+    if(page.working){
+      if(!busy)start(page.working.elapsedSeconds);
+      pageConfirmed=pageConfirmed || page.cloud;
+      lastPageSeen=Date.now();pageElapsed=page.working.elapsedSeconds;
+    }
+    if(!page.working && page.interrupted && busy && pageConfirmed){finish('interrupted',page.interrupted.elapsedSeconds);}
+    if(!page.working && page.finished && !isBusy() && !requests.size){
+      if(busy && page.finished.key!==completionAtStart){
+        reportedCompletion=page.finished.key;finish('finished',page.finished.elapsedSeconds);
+      } else if(!busy && snapshotEligible && page.finished.key!==reportedCompletion){
+        snapshotEligible=false;reportedCompletion=page.finished.key;send('finished',uuid(),page.finished.elapsedSeconds);
+      }
+    }
     if (streaming && !busy) start();
     if (streaming || requests.size) { seenBusy = true; quietSince = null; }
-    if (busy && !streaming && !requests.size) {
+    if (busy && !streaming && !requests.size && !pageConfirmed) {
       if (seenBusy) {
         if (quietSince === null) quietSince = Date.now();
         if (Date.now() - quietSince >= 900) finish('finished');
       } else if (Date.now() > pendingUntil) finish('interrupted');
     }
-    if (busy && Date.now() - lastHeartbeat >= 15000) { lastHeartbeat = Date.now(); send('working'); }
+    if (busy && Date.now() - lastHeartbeat >= 15000 && (!pageConfirmed || Date.now()-lastPageSeen<90000)) { lastHeartbeat = Date.now(); send('working',session,pageElapsed); }
     for (const task of tasks.values()) {
       if (task.active && Date.now() - task.observedAt < 90000 && Date.now() - task.heartbeat >= 15000) {
         send('working', task.session); task.heartbeat = Date.now();
@@ -62,7 +84,7 @@
   // cookies, headers, response chunks, prompts or generated text.
   const classify = (input, init) => {
     try {
-      const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url, location.href);
+      const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url, baseURL);
       if (url.hostname !== host) return null;
       const method = String(init?.method ?? input?.method ?? 'GET').toUpperCase();
       const path = url.pathname;
@@ -209,8 +231,8 @@
     if (form?.querySelector?.('textarea, [contenteditable="true"]') && !form.querySelector('input[type="password"]')) start();
   }, true);
   document.addEventListener('click', event => {
-    const button = event.target?.closest?.('button');
-    if (button?.matches('[data-testid="send-button"], button[aria-label="Send message" i], button[aria-label="Send prompt" i], button[aria-label="Отправить сообщение"]') && !button.disabled) start();
+    const button = event.target?.closest?.('button, [role="button"]');
+    if (button?.matches('[data-testid="send-button"], [data-testid="composer-send-button"], [data-testid="composer-submit-button"], button[aria-label="Send" i], button[aria-label="Send message" i], button[aria-label="Send prompt" i], button[aria-label="Отправить"], button[aria-label="Отправить запрос"], button[aria-label="Отправить сообщение"]') && !button.disabled) start();
   }, true);
   const suspend = () => {
     finish('interrupted');
@@ -223,7 +245,7 @@
   const schedule = () => { if (!scheduled) { scheduled = true; setTimeout(() => { scheduled = false; check(); }, 180); } };
   const observe = () => {
     if (document.documentElement) new MutationObserver(schedule).observe(document.documentElement,
-      {subtree:true, childList:true, attributes:true, attributeFilter:['aria-label','aria-hidden','data-is-streaming','data-task-status','disabled']});
+      {subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:['aria-label','aria-hidden','data-is-streaming','data-task-status','disabled']});
   };
   if (document.documentElement) observe(); else document.addEventListener('DOMContentLoaded', observe, {once:true});
   setInterval(check, 1000);

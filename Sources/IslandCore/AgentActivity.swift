@@ -29,6 +29,7 @@ public struct AgentEvent: Codable, Equatable, Sendable, Identifiable {
     public var helperPID: Int32
     public var clientPID: Int32
     public var expiresAt: Date
+    public var elapsedSeconds: TimeInterval? = nil
 
     public init(data: Data, provider: AgentProvider, instance: UUID, helperPID: Int32,
                 now: Date = Date(), lifetime: TimeInterval = 120, clientPID: Int32? = nil) throws {
@@ -106,6 +107,10 @@ public struct AgentActivity: Sendable {
         if event.hook == .prompt || ((session.status == .finished || session.status == .interrupted || session.status == .unknown)
                                     && (event.hook == .preTool || event.hook == .permission)) {
             session.startedAt = event.date; session.endedAt = nil
+        }
+        if event.isWeb, let elapsed = event.elapsedSeconds, elapsed.isFinite, elapsed >= 0, elapsed <= 2_678_400 {
+            let observedStart = event.date.addingTimeInterval(-elapsed)
+            session.startedAt = event.hook == .stop ? observedStart : min(session.startedAt, observedStart)
         }
         session.updatedAt = event.date
         session.clientPID = event.clientPID

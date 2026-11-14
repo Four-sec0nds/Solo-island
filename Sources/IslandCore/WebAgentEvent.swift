@@ -8,10 +8,15 @@ public struct WebAgentEvent: Decodable, Sendable {
     public var host: String
     public var session: UUID
     public var state: State
+    public var elapsedSeconds: Double?
     public static func decode(_ data: Data) throws -> Self {
         guard data.count <= 4096, let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              Set(object.keys) == Set(["provider", "host", "session", "state"]) else { throw AgentBridgeError.invalidEvent }
+              Set(["provider", "host", "session", "state"]).isSubset(of: Set(object.keys)),
+              Set(object.keys).isSubset(of: Set(["provider", "host", "session", "state", "elapsedSeconds"])) else { throw AgentBridgeError.invalidEvent }
         let event = try JSONDecoder().decode(Self.self, from: data)
+        if object.keys.contains("elapsedSeconds") {
+            guard let elapsed = event.elapsedSeconds, elapsed.isFinite, elapsed >= 0, elapsed <= 2_678_400 else { throw AgentBridgeError.invalidEvent }
+        }
         let hosts = event.provider == .claude ? ["claude.ai", "www.claude.ai"] : ["chatgpt.com", "www.chatgpt.com"]
         guard hosts.contains(event.host) else { throw AgentBridgeError.invalidEvent }
         return event
@@ -26,6 +31,8 @@ public struct WebAgentEvent: Decodable, Sendable {
         }
         let payload = try JSONSerialization.data(withJSONObject: ["session_id": "web:" + session.uuidString,
             "hook_event_name": hook.rawValue, "cwd": host, "tool_name": "Веб"])
-        return try AgentEvent(data: payload, provider: provider, instance: instance, helperPID: pid, now: date, clientPID: pid)
+        var event = try AgentEvent(data: payload, provider: provider, instance: instance, helperPID: pid, now: date, clientPID: pid)
+        event.elapsedSeconds = elapsedSeconds
+        return event
     }
 }

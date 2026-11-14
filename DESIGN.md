@@ -146,3 +146,13 @@ events. Opening a provider returns to activity instead of keeping the connection
 page selected. The production observer starts before page scripts and tracks
 existing request/stream lifecycles and Codex task status fields. Native checks
 exercise that actual script and the site consumer, rather than injecting events.
+
+## Cloud conversation status (0.8.2)
+
+Connection choices are «Окно агента», «Терминал», «Браузер». The first opens a
+separate native window. Provider frames and semantic status controls supplement
+request lifecycle tracking. Reported elapsed time restores an already running
+session. A completed historical turn does not fabricate a new run or alert.
+A new completion displays the provider pet and «Готово» for six seconds, then
+returns to the normal music/focus activity. User-approved system notifications
+also announce completion; the panel does not automatically expand or pin.

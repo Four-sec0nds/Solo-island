@@ -46,3 +46,36 @@ final class WebAgentTests: XCTestCase {
         }
     }
 }
+
+extension WebAgentTests {
+    func testObservedElapsedTimeRestoresTheRunningClock() throws {
+        let now = Date(timeIntervalSince1970: 10_000), instance = UUID()
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: payload("start")) as? [String: Any])
+        object["elapsedSeconds"] = 720
+        let web = try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object))
+        var activity = AgentActivity(); activity.ingest(try web.bridgeEvent(instance: instance, pid: 1, at: now))
+        XCTAssertEqual(activity.current?.clock(at: now), "00:12")
+        object["state"] = "working"; object["elapsedSeconds"] = 720
+        activity.ingest(try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object)).bridgeEvent(instance: instance, pid: 1, at: now.addingTimeInterval(20)))
+        XCTAssertEqual(activity.current?.elapsed(at: now.addingTimeInterval(20)), 740)
+    }
+    func testCompletedPageSnapshotPreservesReportedDurationWithoutStartingWork() throws {
+        let now = Date(timeIntervalSince1970: 10_000)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: payload("finished")) as? [String: Any])
+        object["elapsedSeconds"] = 3987
+        var activity = AgentActivity()
+        activity.ingest(try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object)).bridgeEvent(instance: UUID(), pid: 1, at: now))
+        XCTAssertNil(activity.current)
+        XCTAssertEqual(activity.sessions[0].status, .finished)
+        XCTAssertEqual(activity.sessions[0].clock(at: now.addingTimeInterval(500)), "01:06")
+        XCTAssertEqual(activity.sessions[0].elapsed(at: now.addingTimeInterval(500)), 3987)
+    }
+    func testInvalidElapsedMetadataIsRejected() throws {
+        let invalid: [Any] = [-1, 2_678_401, "60", true, NSNull()]
+        for value in invalid {
+            var object = try XCTUnwrap(JSONSerialization.jsonObject(with: payload("start")) as? [String: Any])
+            object["elapsedSeconds"] = value
+            XCTAssertThrowsError(try WebAgentEvent.decode(JSONSerialization.data(withJSONObject: object)))
+        }
+    }
+}

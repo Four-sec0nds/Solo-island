@@ -9,6 +9,10 @@ final class AgentService: ObservableObject {
     @Published private(set) var installed: Set<AgentProvider> = []
     @Published private(set) var observed: Set<AgentProvider> = []
     @Published private(set) var webConnections: [AgentProvider: String] = [:]
+    @Published private(set) var recentCompletion: AgentSession?
+    var onFinished: ((AgentSession) -> Void)?
+    private var completionExpiry: Task<Void, Never>?
+    private var activeSessionIDs = Set<String>()
     @Published var message: String?
     private let mailbox: AgentMailbox
     private let instance = UUID()
@@ -87,6 +91,7 @@ final class AgentService: ObservableObject {
         } catch { message = "Не удалось запустить подключение агентов: \(error.localizedDescription)" }
     }
     func stop() {
+        completionExpiry?.cancel(); completionExpiry = nil
         timer?.invalidate(); timer = nil
         // Waiting hooks see the missing heartbeat and return to native prompts.
         if (try? mailbox.read(AgentHeartbeat.self, from: mailbox.heartbeatURL))?.instance == instance {
@@ -108,14 +113,31 @@ final class AgentService: ObservableObject {
             }.sorted { $0.date < $1.date }
             var next = activity
             var changed = false
+            var completed: [AgentSession] = []
             for event in events where !seen.contains(event.id) {
                 if event.hook == .permission && !mailbox.isLive(event, instance: instance) { continue }
                 next.ingest(event); seen.insert(event.id); if !event.isWeb { observed.insert(event.provider) }; changed = true
+                if [.prompt, .preTool, .postTool, .permission].contains(event.hook) { activeSessionIDs.insert(event.sessionKey) }
+                if event.hook == .stop || event.hook == .sessionEnd {
+                    if activeSessionIDs.remove(event.sessionKey) != nil,
+                       let session = next.sessions.first(where: { $0.id == event.sessionKey }) { completed.append(session) }
+                } else if event.hook == .interrupt { activeSessionIDs.remove(event.sessionKey) }
                 if event.hook != .permission { try? FileManager.default.removeItem(at: mailbox.eventURL(event.id)) }
             }
             let previous = next.sessions
             next.expire(at: Date(), clientAlive: { $0 > 1 && kill($0, 0) == 0 }) { mailbox.isLive($0, instance: instance) }
             if changed || next.sessions != previous { activity = next }
+            activeSessionIDs.formIntersection(Set(next.sessions.map(\.id)))
+            for session in completed {
+                recentCompletion = session
+                onFinished?(session)
+                completionExpiry?.cancel()
+                completionExpiry = Task { @MainActor [weak self] in
+                    try? await Task.sleep(nanoseconds: 6_000_000_000)
+                    guard !Task.isCancelled else { return }
+                    self?.recentCompletion = nil
+                }
+            }
             // IDs are only needed while their on-disk request exists.
             seen = Set(events.filter { $0.hook == .permission }.map(\.id))
         } catch { message = "Подключение агентов приостановлено: \(error.localizedDescription)" }

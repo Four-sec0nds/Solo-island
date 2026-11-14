@@ -6,6 +6,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     let center = UNUserNotificationCenter.current()
     var onAction: ((String, UUID) -> Void)?
     var onError: ((String) -> Void)?
+    var onAgentAction: ((AgentProvider) -> Void)?
     private let queue = DispatchQueue(label: "app.solo.island.notifications")
     private var revisions: [String: Int] = [:]
     override init() {
@@ -68,6 +69,18 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
             }
         }
     }
+    func agentFinished(provider: AgentProvider) {
+        guard !CommandLine.arguments.contains("--render-preview") else { return }
+        center.getNotificationSettings { [weak self] settings in
+            guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
+            let content = UNMutableNotificationContent()
+            content.title = provider.title + " завершил работу"
+            content.body = "Ответ готов. Откройте вкладку «Агенты» в Solo Island."
+            content.sound = .default
+            content.userInfo = ["agentProvider": provider.rawValue]
+            self?.center.add(.init(identifier: "agent." + UUID().uuidString, content: content, trigger: nil), withCompletionHandler: nil)
+        }
+    }
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound])
@@ -76,6 +89,9 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         if let raw = response.notification.request.content.userInfo["taskID"] as? String, let id = UUID(uuidString: raw) {
             onAction?(response.actionIdentifier, id)
+        }
+        if let raw = response.notification.request.content.userInfo["agentProvider"] as? String, let provider = AgentProvider(rawValue: raw) {
+            onAgentAction?(provider)
         }
         completionHandler()
     }

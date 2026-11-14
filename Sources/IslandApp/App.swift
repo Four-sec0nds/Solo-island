@@ -596,6 +596,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 throw failure("Closing the observed page left a running timer")
             }
         }
+        let cloud = WebAgentBrowser(provider: .codex, agents: demo.agents)
+        cloud.loadPreviewFixture(cloudConversation: true); cloud.present()
+        defer { cloud.window.close() }
+        guard await until({ demo.agents.activity.current?.provider == .codex }), let running = demo.agents.activity.current,
+              running.elapsed(at: Date()) >= 720, running.clock(at: Date()) == "00:12" else {
+            throw failure("The embedded cloud conversation did not restore its running time")
+        }
+        try await cloud.webView.evaluateJavaScript("document.getElementById('agent-frame').contentDocument.getElementById('cloud-status').textContent='Выполнено за 1 ч 6 мин 27 с'; true;")
+        guard await until({ demo.agents.activity.sessions.first(where: { $0.id == running.id })?.status == .finished }),
+              let finished = demo.agents.activity.sessions.first(where: { $0.id == running.id }),
+              finished.clock(at: Date()) == "01:06", abs(finished.elapsed(at: Date()) - 3987) < 0.1,
+              demo.agents.recentCompletion?.id == running.id, demo.toast?.message == "Агент завершил работу" else {
+            throw failure("The reported completion duration, toast or completion indicator was lost")
+        }
+        demo.pinned = false; demo.dismiss()
+        try await Task.sleep(nanoseconds: 250_000_000)
+        guard let completionWindow = controller.activityWindow, completionWindow.isVisible else {
+            throw failure("Finished agent did not display the compact Done indicator")
+        }
+        try PreviewRecorder.png(completionWindow, to: directory.appendingPathComponent("SoloIsland-agent-complete.png"))
+        cloud.window.close()
+        let history = IslandStore(dataFolder: folder.appendingPathComponent("completed-history"))
+        history.agents.start(); defer { history.agents.stop() }
+        var historyAlerts = 0; history.agents.onFinished = { _ in historyAlerts += 1 }
+        let completedBrowser = WebAgentBrowser(provider: .codex, agents: history.agents)
+        completedBrowser.loadPreviewFixture(cloudConversation: true, completedConversation: true); completedBrowser.present()
+        defer { completedBrowser.window.close() }
+        guard await until({ history.agents.activity.sessions.first?.status == .finished }),
+              history.agents.activity.sessions.first?.clock(at: Date()) == "01:06",
+              history.agents.activity.current == nil, historyAlerts == 0 else {
+            throw failure("Opening a completed conversation fabricated new work or lost its duration")
+        }
+        fputs("Cloud conversation: real iframe observer, resumed elapsed time, Russian completion summary, Done indicator and historical completion passed\n", stderr)
         fputs("Web agents: native WKWebView, local lifecycle bridge, elapsed session and completion passed\n", stderr)
         fputs("Web observer: bundled script, both providers, real fetch/ReadableStream, Codex task metadata, native timer and window close passed\n", stderr)
     }

@@ -76,6 +76,7 @@ jobs:
             dist/SoloIsland-settings.png
             dist/SoloIsland-web-demo.png
             dist/SoloIsland-web-agents.png
+            dist/SoloIsland-agent-complete.png
             dist/SoloIsland-icon.png
             dist/SoloIsland-music-compact.png
             dist/SoloIsland-tasks-compact.png

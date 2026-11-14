@@ -46,3 +46,12 @@ final class NotchActivityTests: XCTestCase {
                        PlaybackIndicator.levels(position: 10, identity: "Second", moving: false))
     }
 }
+
+extension NotchActivityTests {
+    func testFinishedAgentHasAVisibleCompletionIndicatorBeforeReturningToOtherActivity() {
+        let focus = FocusSession(taskID: UUID(), minutes: 25)
+        XCTAssertEqual(NotchActivity(track: NowPlaying(), focus: focus, completed: .codex), .agentFinished(.codex))
+        XCTAssertTrue(NotchActivity(track: NowPlaying(), focus: nil, completed: .claude).isVisible)
+        XCTAssertEqual(NotchActivity(track: NowPlaying(), focus: focus), .focus(paused: false, music: nil))
+    }
+}

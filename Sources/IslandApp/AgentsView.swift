@@ -7,7 +7,7 @@ struct AgentsView: View {
     var now: Date
     var visible = true
     @State private var connections = false
-    @State private var connectionKind = "Веб"
+    @State private var connectionKind = "Окно агента"
     @State private var messageDetails = false
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -41,7 +41,7 @@ struct AgentsView: View {
     }
     private var connectionView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            IslandSegments(options: ["Веб", "Терминал", "Браузер"], selection: $connectionKind, title: { $0 })
+            IslandSegments(options: ["Окно агента", "Терминал", "Браузер"], selection: $connectionKind, title: { $0 })
             if connectionKind == "Браузер" {
                 Text("Веб-агенты в Chrome, Edge и Brave").font(.system(size: 14, weight: .semibold))
                 Text("Расширение передаёт только начало, завершение и состояние работы на поддерживаемых страницах Claude и ChatGPT/Codex.")
@@ -54,13 +54,13 @@ struct AgentsView: View {
                     HStack(spacing: 12) {
                         AgentPetView(provider: provider, size: 40)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(connectionKind == "Веб" ? (provider == .claude ? "Claude" : "ChatGPT / Codex") : provider.title)
+                            Text(connectionKind == "Окно агента" ? (provider == .claude ? "Claude" : "ChatGPT / Codex") : provider.title)
                                 .font(.system(size: 13, weight: .semibold))
-                            Text(connectionKind == "Веб" ? agents.webConnections[provider] ?? "Отдельное веб-окно" : agents.observed.contains(provider) ? "События получены" : agents.installed.contains(provider) ? "Ожидаем задачу" : "Не подключён")
+                            Text(connectionKind == "Окно агента" ? agents.webConnections[provider] ?? "Отдельное веб-окно" : agents.observed.contains(provider) ? "События получены" : agents.installed.contains(provider) ? "Ожидаем задачу" : "Не подключён")
                                 .font(.system(size: 10)).foregroundStyle(IslandPalette.secondary)
                         }
                         Spacer()
-                        if connectionKind == "Веб" {
+                        if connectionKind == "Окно агента" {
                             Button("Открыть") { agents.openWeb(provider); connections = false }.buttonStyle(IslandButtonStyle(.soft))
                         } else {
                             Button(agents.installed.contains(provider) ? "Отключить" : "Подключить") {
@@ -69,7 +69,7 @@ struct AgentsView: View {
                         }
                     }.frame(height: 52)
                 }
-                Text(connectionKind == "Веб" ? "Статус и время ответа появятся здесь. Вход выполняется на сайте сервиса; если встроенный вход ограничен, подключите расширение браузера." : "Для клиентов с поддержкой hooks. После подключения перезапустите клиент. Разрешения операций доступны через реальные запросы клиента.")
+                Text(connectionKind == "Окно агента" ? "Статус и время ответа появятся здесь. Вход выполняется на сайте сервиса; если встроенный вход ограничен, подключите расширение браузера." : "Для клиентов с поддержкой hooks. После подключения перезапустите клиент. Разрешения операций доступны через реальные запросы клиента.")
                     .font(.system(size: 11)).foregroundStyle(IslandPalette.secondary)
             }
             Spacer(minLength: 0)

@@ -71,6 +71,11 @@ final class IslandStore: ObservableObject {
         }
         audio = AudioService.snapshot()
         webMusic.onPlayerClosed = { [weak self] in self?.musicWebsiteVisible = false }
+        agents.onFinished = { [weak self] session in
+            self?.notify("Агент завершил работу", symbol: "checkmark.circle.fill")
+            self?.notifications.agentFinished(provider: session.provider)
+        }
+        notifications.onAgentAction = { [weak self] _ in Task { @MainActor in self?.reveal(.agents) } }
         media.attach(webMusic)
         media.onOpenWeb = { [weak self] in self?.musicWebsiteVisible = true; self?.reveal(.music) }
     }

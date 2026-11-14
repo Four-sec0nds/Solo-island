@@ -17,10 +17,14 @@ final class WebAgentBrowser: NSObject, WKScriptMessageHandler, WKNavigationDeleg
         self.provider = provider; self.agents = agents
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = CommandLine.arguments.contains("--render-preview") ? .nonPersistent() : .default()
-        observerSource = Bundle.main.url(forResource: "observer", withExtension: "js", subdirectory: "BrowserExtension")
-            .flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+        let scriptNames = ["agent-status", "observer"]
+        let scripts = scriptNames.compactMap { name in
+            Bundle.main.url(forResource: name, withExtension: "js", subdirectory: "BrowserExtension")
+                .flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+        }
+        observerSource = scripts.count == scriptNames.count ? scripts.joined(separator: "\n") : nil
         if let script = observerSource {
-            configuration.userContentController.addUserScript(.init(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            configuration.userContentController.addUserScript(.init(source: script, injectionTime: .atDocumentStart, forMainFrameOnly: false))
         }
         webView = WKWebView(frame: .zero, configuration: configuration)
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 980, height: 720),
@@ -49,10 +53,12 @@ final class WebAgentBrowser: NSObject, WKScriptMessageHandler, WKNavigationDeleg
         webView.evaluateJavaScript("window.__soloAgentObserver?.resume(); true;", completionHandler: nil)
     }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard acceptingEvents, message.frameInfo.isMainFrame, let object = message.body as? [String: Any],
+        guard acceptingEvents, let object = message.body as? [String: Any],
               let bytes = try? JSONSerialization.data(withJSONObject: object),
               let event = try? WebAgentEvent.decode(bytes), event.provider == provider,
-              (message.frameInfo.securityOrigin.host == event.host || (preview && CommandLine.arguments.contains("--render-preview"))) else { return }
+              (message.frameInfo.securityOrigin.host == event.host
+               || (message.frameInfo.securityOrigin.host.isEmpty && message.frameInfo.request.url?.scheme == "https" && message.frameInfo.request.url?.host == event.host)
+               || (preview && CommandLine.arguments.contains("--render-preview"))) else { return }
         if event.state == .start || event.state == .working { activeSessions[event.session] = event.host }
         else { activeSessions.removeValue(forKey: event.session) }
         agents?.receiveWeb(bytes)
@@ -94,7 +100,7 @@ final class WebAgentBrowser: NSObject, WKScriptMessageHandler, WKNavigationDeleg
         if let url = navigationAction.request.url, url.scheme == "https" { webView.load(URLRequest(url: url)) }
         return nil
     }
-    func loadPreviewFixture() {
+    func loadPreviewFixture(cloudConversation: Bool = false, completedConversation: Bool = false) {
         guard CommandLine.arguments.contains("--render-preview") else { return }
         preview = true
         let host = provider == .claude ? "claude.ai" : "chatgpt.com"
@@ -104,7 +110,15 @@ final class WebAgentBrowser: NSObject, WKScriptMessageHandler, WKNavigationDeleg
         // host; no accounts, remote requests or ready-made events are used.
         webView.configuration.userContentController.removeAllUserScripts()
         let script = "(() => { const location = {hostname: '\(host)', origin: 'https://\(host)', href: 'https://\(host)/'};\n" + (observerSource ?? "") + "\n})();"
-        webView.configuration.userContentController.addUserScript(.init(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
+        webView.configuration.userContentController.addUserScript(.init(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        if cloudConversation {
+            let label = completedConversation ? "Выполнено за 1 ч 6 мин 27 с" : "Работаю 12 мин"
+            webView.loadHTMLString("""
+            <html><body style="background:#100b18"><iframe id="agent-frame" style="width:90vw;height:80vh;border:0"
+            srcdoc="<html><body><textarea placeholder='Запросите внесение дополнительных изменений'></textarea><button id='cloud-status' data-testid='agent-turn-status'>\(label)</button></body></html>"></iframe></body></html>
+            """, baseURL: nil)
+            return
+        }
         webView.loadHTMLString("""
         <html><body style="background:#100b18;color:#efe9f7;font:18px system-ui;padding:40px">
         <h1>Локальная проверка веб-агента</h1><button id="begin" onclick="begin()">Начать</button><button id="end" onclick="end()">Завершить</button>

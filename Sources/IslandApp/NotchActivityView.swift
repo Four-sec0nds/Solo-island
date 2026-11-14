@@ -54,6 +54,12 @@ final class NotchActivityController: NSWindowController {
             guard let self else { return }
             self.update(track: self.store.media.track, focus: self.store.state.focus, agent: activity.current)
         }.store(in: &subscriptions)
+        store.agents.$recentCompletion.sink { [weak self] completion in
+            guard let self else { return }
+            self.presentation.activity = NotchActivity(track: self.store.media.track, focus: self.store.state.focus,
+                agent: self.store.agents.activity.current, completed: completion?.provider)
+            self.updateVisibility()
+        }.store(in: &subscriptions)
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.screensDidSleepNotification)
             .sink { [weak self] _ in
                 Task { @MainActor in self?.sleeping = true; self?.updateVisibility() }
@@ -85,7 +91,7 @@ final class NotchActivityController: NSWindowController {
         updateVisibility()
     }
     private func update(track: NowPlaying, focus: FocusSession?, agent: AgentSession?) {
-        let next = NotchActivity(track: track, focus: focus, agent: agent)
+        let next = NotchActivity(track: track, focus: focus, agent: agent, completed: store.agents.recentCompletion?.provider)
         guard presentation.activity != next else { return }
         presentation.activity = next; updateVisibility()
     }
@@ -138,11 +144,15 @@ private struct NotchActivityView: View {
             }.frame(width: 22, height: 22).foregroundStyle(paused ? IslandPalette.lavender : IslandPalette.mint)
         case .agent(let provider, let waiting):
             AgentPetView(provider: provider, size: 25, working: !waiting, waiting: waiting, visible: presentation.visible)
+        case .agentFinished(let provider):
+            AgentPetView(provider: provider, size: 25, visible: presentation.visible)
         }
     }
     @ViewBuilder private var trailing: some View {
         switch presentation.activity {
         case .hidden: EmptyView()
+        case .agentFinished:
+            Label("Готово", systemImage: "checkmark").font(.system(size: 10, weight: .semibold))
         case .agent(_, let waiting):
             if waiting { Text("Решение").font(.system(size: 10, weight: .medium)) }
             else {
@@ -171,6 +181,7 @@ private struct NotchActivityView: View {
         switch presentation.activity {
         case .hidden: return ""
         case .agent(let provider, let waiting): return provider.title + (waiting ? ": нужно разрешение" : ": работает")
+        case .agentFinished(let provider): return provider.title + ": работа завершена"
         case .music(let playback):
             return (playback == .playing ? "Играет: " : "Музыка на паузе: ") + (media.track.title ?? "")
         case .focus(let paused, let music):
