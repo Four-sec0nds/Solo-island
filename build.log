@@ -3,229 +3,229 @@ TAP version 13
 # Subtest: the reported Russian completion duration is exact metadata
 ok 1 - the reported Russian completion duration is exact metadata
   ---
-  duration_ms: 6.720125
+  duration_ms: 4.769834
   type: 'test'
   ...
 # Subtest: an already running cloud conversation starts without a matched network endpoint
 ok 2 - an already running cloud conversation starts without a matched network endpoint
   ---
-  duration_ms: 4.328333
+  duration_ms: 2.0965
   type: 'test'
   ...
 # Subtest: old completed turns cannot finish a new cloud run during a UI refresh
 ok 3 - old completed turns cannot finish a new cloud run during a UI refresh
   ---
-  duration_ms: 1.74825
+  duration_ms: 0.794208
   type: 'test'
   ...
 # Subtest: late-loaded completed history is reported once without a fabricated start
 ok 4 - late-loaded completed history is reported once without a fabricated start
   ---
-  duration_ms: 0.745208
+  duration_ms: 0.473583
   type: 'test'
   ...
 # Subtest: the observer runs in an approved provider subframe
 ok 5 - the observer runs in an approved provider subframe
   ---
-  duration_ms: 0.688792
+  duration_ms: 0.5555
   type: 'test'
   ...
 # Subtest: prose and generic Done controls never become task metadata
 ok 6 - prose and generic Done controls never become task metadata
   ---
-  duration_ms: 0.688125
+  duration_ms: 1.317208
   type: 'test'
   ...
 # Subtest: about:srcdoc inherits only a readable approved parent origin
 ok 7 - about:srcdoc inherits only a readable approved parent origin
   ---
-  duration_ms: 0.90325
+  duration_ms: 1.591917
   type: 'test'
   ...
 # Subtest: only supported page origins can send a local lifecycle event
 ok 8 - only supported page origins can send a local lifecycle event
   ---
-  duration_ms: 2.834667
+  duration_ms: 2.720834
   type: 'test'
   ...
 # Subtest: closing an observed tab interrupts its outstanding activity
 ok 9 - closing an observed tab interrupts its outstanding activity
   ---
-  duration_ms: 0.553333
+  duration_ms: 0.4535
   type: 'test'
   ...
 # Subtest: real streaming controls start and finish a web turn without reading content
 ok 10 - real streaming controls start and finish a web turn without reading content
   ---
-  duration_ms: 8.850125
+  duration_ms: 3.092375
   type: 'test'
   ...
 # Subtest: unsupported sites and login forms do not become tasks
 ok 11 - unsupported sites and login forms do not become tasks
   ---
-  duration_ms: 2.599834
+  duration_ms: 0.772
   type: 'test'
   ...
 # Subtest: a submitted prompt that never starts times out instead of running forever
 ok 12 - a submitted prompt that never starts times out instead of running forever
   ---
-  duration_ms: 1.819459
+  duration_ms: 0.456583
   type: 'test'
   ...
 # Subtest: closing the page interrupts a running turn
 ok 13 - closing the page interrupts a running turn
   ---
-  duration_ms: 2.05975
+  duration_ms: 0.427583
   type: 'test'
   ...
 # Subtest: Stop streaming and Claude controls are detected without submit events
 ok 14 - Stop streaming and Claude controls are detected without submit events
   ---
-  duration_ms: 2.930916
+  duration_ms: 0.848583
   type: 'test'
   ...
 # Subtest: brief DOM replacements do not restart the elapsed session
 ok 15 - brief DOM replacements do not restart the elapsed session
   ---
-  duration_ms: 1.355834
+  duration_ms: 0.391958
   type: 'test'
   ...
 # Subtest: the real fetch reader tracks both providers and preserves response and chunks without reading prompts
 ok 16 - the real fetch reader tracks both providers and preserves response and chunks without reading prompts
   ---
-  duration_ms: 103.046667
+  duration_ms: 46.167916
   type: 'test'
   ...
 # Subtest: native fetch errors interrupt the timer and retain the original error
 ok 17 - native fetch errors interrupt the timer and retain the original error
   ---
-  duration_ms: 7.928875
+  duration_ms: 0.841709
   type: 'test'
   ...
 # Subtest: normal requests and other hosts never become work sessions
 ok 18 - normal requests and other hosts never become work sessions
   ---
-  duration_ms: 4.558459
+  duration_ms: 1.027833
   type: 'test'
   ...
 # Subtest: cloud tasks use actual task status metadata without reading messages or prompting fields
 ok 19 - cloud tasks use actual task status metadata without reading messages or prompting fields
   ---
-  duration_ms: 6.458375
+  duration_ms: 1.151583
   type: 'test'
   ...
 # Subtest: stream cancellation keeps the native consumer result and stops activity
 ok 20 - stream cancellation keeps the native consumer result and stops activity
   ---
-  duration_ms: 4.0865
+  duration_ms: 0.887875
   type: 'test'
   ...
 # Subtest: async iteration preserves chunks and reports stream completion
 ok 21 - async iteration preserves chunks and reports stream completion
   ---
-  duration_ms: 6.576042
+  duration_ms: 2.799375
   type: 'test'
   ...
 # Subtest: XHR lifecycle finishes after response and retains all original call arguments
 ok 22 - XHR lifecycle finishes after response and retains all original call arguments
   ---
-  duration_ms: 0.858125
+  duration_ms: 0.646541
   type: 'test'
   ...
 # Subtest: stale cloud metadata does not fabricate heartbeats forever
 ok 23 - stale cloud metadata does not fabricate heartbeats forever
   ---
-  duration_ms: 0.672
+  duration_ms: 0.438208
   type: 'test'
   ...
 # Subtest: suspended windows stop heartbeats and resume new requests when reopened
 ok 24 - suspended windows stop heartbeats and resume new requests when reopened
   ---
-  duration_ms: 0.891083
+  duration_ms: 0.582125
   type: 'test'
   ...
 # Subtest: decoder pipelines preserve decoded content and finish after pipeThrough readers
 ok 25 - decoder pipelines preserve decoded content and finish after pipeThrough readers
   ---
-  duration_ms: 8.2165
+  duration_ms: 4.216166
   type: 'test'
   ...
 # Subtest: pipeTo preserves sink bytes and reports completion
 ok 26 - pipeTo preserves sink bytes and reports completion
   ---
-  duration_ms: 4.807917
+  duration_ms: 2.316209
   type: 'test'
   ...
 # Subtest: cancelling the response body interrupts the session
 ok 27 - cancelling the response body interrupts the session
   ---
-  duration_ms: 1.986792
+  duration_ms: 0.697459
   type: 'test'
   ...
 # Subtest: page world lifecycle crosses the isolated relay with exactly the allowed fields
 ok 28 - page world lifecycle crosses the isolated relay with exactly the allowed fields
   ---
-  duration_ms: 5.326292
+  duration_ms: 1.781584
   type: 'test'
   ...
 # Subtest: relay rejects foreign frames, origins, extra content and wrong providers
 ok 29 - relay rejects foreign frames, origins, extra content and wrong providers
   ---
-  duration_ms: 1.828875
+  duration_ms: 0.499792
   type: 'test'
   ...
 # Subtest: elapsed duration is allowed but arbitrary fields and invalid durations are rejected
 ok 30 - elapsed duration is allowed but arbitrary fields and invalid durations are rejected
   ---
-  duration_ms: 2.315
+  duration_ms: 0.469041
   type: 'test'
   ...
 # Subtest: empty and login pages do not become tracks or expose form data
 ok 31 - empty and login pages do not become tracks or expose form data
   ---
-  duration_ms: 3.346334
+  duration_ms: 2.406291
   type: 'test'
   ...
 # Subtest: active HTML5 media wins and non-finite stream duration is omitted
 ok 32 - active HTML5 media wins and non-finite stream duration is omitted
   ---
-  duration_ms: 0.655834
+  duration_ms: 0.613875
   type: 'test'
   ...
 # Subtest: media session next and seek handlers receive structured action details
 ok 33 - media session next and seek handlers receive structured action details
   ---
-  duration_ms: 0.537292
+  duration_ms: 0.473416
   type: 'test'
   ...
 # Subtest: native HTML5 seek clamps to duration and unsupported controls fail explicitly
 ok 34 - native HTML5 seek clamps to duration and unsupported controls fail explicitly
   ---
-  duration_ms: 0.449042
+  duration_ms: 0.43475
   type: 'test'
   ...
 # Subtest: site-specific next button is used only when enabled
 ok 35 - site-specific next button is used only when enabled
   ---
-  duration_ms: 0.427959
+  duration_ms: 0.435333
   type: 'test'
   ...
 # Subtest: DOM-free media session supplies a usable timeline and seek handler
 ok 36 - DOM-free media session supplies a usable timeline and seek handler
   ---
-  duration_ms: 0.518333
+  duration_ms: 0.497209
   type: 'test'
   ...
 # Subtest: a new media-session track does not inherit the preceding timeline
 ok 37 - a new media-session track does not inherit the preceding timeline
   ---
-  duration_ms: 0.354125
+  duration_ms: 0.351375
   type: 'test'
   ...
 # Subtest: media-session position wins over an audio element without a loaded timeline
 ok 38 - media-session position wins over an audio element without a loaded timeline
   ---
-  duration_ms: 0.411584
+  duration_ms: 0.404666
   type: 'test'
   ...
 1..38
@@ -236,7 +236,7 @@ ok 38 - media-session position wins over an audio element without a loaded timel
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 629.64525
+# duration_ms 336.640708
 test_failed_build_replaces_previous_output_without_stale_dmg (test_publish_build.PublishBuildTests.test_failed_build_replaces_previous_output_without_stale_dmg) ... ok
 test_local_execution_is_rejected (test_publish_build.PublishBuildTests.test_local_execution_is_rejected) ... ok
 test_stale_source_cannot_publish (test_publish_build.PublishBuildTests.test_stale_source_cannot_publish) ... ok
@@ -247,28 +247,27 @@ test_local_or_public_branch_publication_is_rejected (test_publish_preview.Publis
 test_success_preserves_sources_and_public_refs_and_excludes_recordings (test_publish_preview.PublishPreviewTests.test_success_preserves_sources_and_public_refs_and_excludes_recordings) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 5.427s
+Ran 8 tests in 3.635s
 
 OK
 Building for debugging...
 [0/19] /Users/runner/work/Solo-island/Solo-island/.build/arm64-apple-macosx/debug/SoloIslandPackageTests.derived/runner.swift
 [1/19] Write sources
-[3/19] Write SoloIsland-entitlement.plist
-[3/19] Write sources
-[6/19] Write SoloBridge-entitlement.plist
-[6/19] Write sources
+[2/19] Write SoloIsland-entitlement.plist
+[2/19] Write SoloBridge-entitlement.plist
+[2/19] Write sources
 [10/19] Write swift-version--79AA4F9932D1E87A.txt
-[12/30] Compiling IslandCore ContentPages.swift
-[13/30] Compiling IslandCore IslandLayout.swift
-[14/30] Compiling IslandCore Models.swift
-[15/30] Compiling IslandCore MusicProvider.swift
-[16/30] Compiling IslandCore NotchActivity.swift
-[17/35] Compiling IslandCore AgentActivity.swift
-[18/35] Compiling IslandCore AgentHookConfiguration.swift
-[19/35] Compiling IslandCore AgentHookRunner.swift
-[20/35] Compiling IslandCore AgentMailbox.swift
-[21/35] Compiling IslandCore BrowserBridgeIdentity.swift
-[22/35] Emitting module IslandCore
+[12/30] Emitting module IslandCore
+[13/30] Compiling IslandCore ContentPages.swift
+[14/30] Compiling IslandCore IslandLayout.swift
+[15/30] Compiling IslandCore Models.swift
+[16/30] Compiling IslandCore MusicProvider.swift
+[17/30] Compiling IslandCore NotchActivity.swift
+[18/30] Compiling IslandCore AgentActivity.swift
+[19/30] Compiling IslandCore AgentHookConfiguration.swift
+[20/30] Compiling IslandCore AgentHookRunner.swift
+[21/30] Compiling IslandCore AgentMailbox.swift
+[22/30] Compiling IslandCore BrowserBridgeIdentity.swift
 [23/35] Compiling IslandCore NotchHoverTracker.swift
 [24/35] Compiling IslandCore NowPlaying.swift
 [25/35] Compiling IslandCore ProcessRunner.swift
@@ -281,19 +280,19 @@ Building for debugging...
 [31/45] Applying SoloBridge
 [33/45] Emitting module IslandPlatform
 [34/45] Compiling IslandPlatform ClipboardService.swift
-[35/66] Emitting module IslandCoreTests
-[36/68] Compiling IslandApp AgentsView.swift
-[37/68] Compiling IslandApp App.swift
-[38/68] Compiling IslandPlatformTests ClipboardServiceTests.swift
-[39/68] Emitting module IslandPlatformTests
-[40/68] Compiling IslandCoreTests PlanningTests.swift
-[41/68] Compiling IslandCoreTests WebAgentTests.swift
-[42/68] Emitting module IslandApp
-[43/76] Compiling IslandApp ActionsView.swift
-[44/76] Compiling IslandApp AgentPetView.swift
-[45/76] Compiling IslandApp AgentService.swift
-[46/78] Compiling SoloIslandPackageTests runner.swift
-[47/78] Emitting module SoloIslandPackageTests
+[35/66] Compiling IslandApp AgentsView.swift
+[36/66] Compiling IslandApp App.swift
+[37/68] Compiling IslandPlatformTests ClipboardServiceTests.swift
+[38/68] Emitting module IslandPlatformTests
+[39/68] Emitting module IslandCoreTests
+[40/68] Compiling IslandApp ActionsView.swift
+[41/68] Compiling IslandApp AgentPetView.swift
+[42/68] Compiling IslandApp AgentService.swift
+[43/68] Compiling IslandCoreTests PlanningTests.swift
+[44/68] Compiling IslandCoreTests WebAgentTests.swift
+[45/68] Emitting module IslandApp
+[46/78] Emitting module SoloIslandPackageTests
+[47/78] Compiling SoloIslandPackageTests runner.swift
 [47/78] Write Objects.LinkFileList
 [48/78] Linking SoloIslandPackageTests
 [50/78] Compiling IslandApp NotchActivityView.swift
@@ -304,32 +303,34 @@ Building for debugging...
 [55/78] Compiling IslandApp WebAgentBrowser.swift
 [56/78] Compiling IslandApp WebMusicService.swift
 [57/78] Compiling IslandApp WebPlayerScript.swift
-[58/78] Compiling IslandApp FilesView.swift
-[59/78] Compiling IslandApp FocusView.swift
-[60/78] Compiling IslandApp InteractionRecorder.swift
-[61/78] Compiling IslandApp IslandStore.swift
-[62/78] Compiling IslandApp IslandTheme.swift
-[63/78] Compiling IslandApp IslandView.swift
-[64/78] Compiling IslandApp MediaService.swift
-[65/78] Compiling IslandApp MusicBrowserWindow.swift
-[66/78] Compiling IslandApp MusicView.swift
-[74/78] Compiling IslandApp CompactPages.swift
-[75/78] Compiling IslandApp Controls.swift
+[65/78] Compiling IslandApp CompactPages.swift
+[66/78] Compiling IslandApp Controls.swift
+[67/78] Compiling IslandApp FilesView.swift
+[68/78] Compiling IslandApp FocusView.swift
+[69/78] Compiling IslandApp InteractionRecorder.swift
+[70/78] Compiling IslandApp IslandStore.swift
+[71/78] Compiling IslandApp IslandTheme.swift
+[72/78] Compiling IslandApp IslandView.swift
+[73/78] Compiling IslandApp MediaService.swift
+[74/78] Compiling IslandApp MusicBrowserWindow.swift
+[75/78] Compiling IslandApp MusicView.swift
 [75/78] Write Objects.LinkFileList
 [76/78] Linking SoloIsland
 [77/78] Applying SoloIsland
-Build complete! (53.83s)
-Test Suite 'All tests' started at 2026-11-14 07:28:55.699.
-Test Suite 'SoloIslandPackageTests.xctest' started at 2026-11-14 07:28:55.701.
-Test Suite 'AgentBridgeTests' started at 2026-11-14 07:28:55.701.
+Build complete! (42.19s)
+Test Suite 'All tests' started at 2026-11-14 08:27:33.399.
+Test Suite 'SoloIslandPackageTests.xctest' started at 2026-11-14 08:27:33.400.
+Test Suite 'AgentBridgeTests' started at 2026-11-14 08:27:33.400.
+Test Case '-[IslandCoreTests.AgentBridgeTests testAgentClockUsesMinutesAndSecondsUntilTheFirstHour]' started.
+Test Case '-[IslandCoreTests.AgentBridgeTests testAgentClockUsesMinutesAndSecondsUntilTheFirstHour]' passed (0.010 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' passed (0.031 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testAllowDenyAndNativePromptRoundTripWithoutReplays]' passed (0.015 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testClientExitStopsTheClockEvenWithoutAStopHook]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' passed (0.003 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testConfigMergeIsIdempotentAndPreservesOtherHooksAndSettings]' passed (0.002 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' passed (0.233 seconds).
+Test Case '-[IslandCoreTests.AgentBridgeTests testExitTimeoutAndMismatchedRepliesNeverGrantPermission]' passed (0.117 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testInputMinimisationAndInvalidPayloads]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testParallelApprovalsResolveIndividuallyAndExpire]' started.
@@ -339,74 +340,74 @@ Test Case '-[IslandCoreTests.AgentBridgeTests testPermissionIndicatorTakesPriori
 Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' started.
 Test Case '-[IslandCoreTests.AgentBridgeTests testPrivatePermissionsAndSymlinkRejection]' passed (0.005 seconds).
 Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' started.
-Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' passed (0.001 seconds).
-Test Suite 'AgentBridgeTests' passed at 2026-11-14 07:28:55.976.
-	 Executed 9 tests, with 0 failures (0 unexpected) in 0.275 (0.275) seconds
-Test Suite 'ClipboardServiceTests' started at 2026-11-14 07:28:55.976.
+Test Case '-[IslandCoreTests.AgentBridgeTests testTurnClockStopsRestartsAndSeparatesProviders]' passed (0.000 seconds).
+Test Suite 'AgentBridgeTests' passed at 2026-11-14 08:27:33.554.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.153 (0.153) seconds
+Test Suite 'ClipboardServiceTests' started at 2026-11-14 08:27:33.554.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testFinderFileURLAndInitialClipboardAreCaptured]' passed (0.029 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' started.
-2026-11-14 07:28:56.067 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.067 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.067 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.067 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.067 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.067 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.067 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.067 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.067 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.067 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.067 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.067 xctest[5339:19632] Unknown number of components for colorspace model -1
-Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.083 seconds).
+2026-11-14 08:27:33.636 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.636 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.636 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.636 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.636 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.636 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.636 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.636 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.636 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.636 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.636 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.636 xctest[2221:10155] Unknown number of components for colorspace model -1
+Test Case '-[IslandPlatformTests.ClipboardServiceTests testImageFileIsCopiedBeforeTemporaryOriginalIsDeleted]' passed (0.068 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testLegacyFinderFilenamesRepresentation]' passed (0.002 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' started.
-2026-11-14 07:28:56.091 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.091 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.091 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.091 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.091 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.091 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.091 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.091 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.091 xctest[5339:19632] Unknown number of components for colorspace model -1
-2026-11-14 07:28:56.091 xctest[5339:19632] Bad colorspace name NSNamedColorSpace
-2026-11-14 07:28:56.091 xctest[5339:19632] Unrecognized colorspace number -2
-2026-11-14 07:28:56.091 xctest[5339:19632] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.654 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.654 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.654 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.654 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.654 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.654 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.654 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.654 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.654 xctest[2221:10155] Unknown number of components for colorspace model -1
+2026-11-14 08:27:33.654 xctest[2221:10155] Bad colorspace name NSNamedColorSpace
+2026-11-14 08:27:33.654 xctest[2221:10155] Unrecognized colorspace number -2
+2026-11-14 08:27:33.654 xctest[2221:10155] Unknown number of components for colorspace model -1
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testScreenshotStoredAsPinnedCopyAndSurvivesClipboardChange]' passed (0.012 seconds).
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' started.
 Test Case '-[IslandPlatformTests.ClipboardServiceTests testTextCapturedAndPrivatePasswordClipboardIgnored]' passed (0.004 seconds).
-Test Suite 'ClipboardServiceTests' passed at 2026-11-14 07:28:56.107.
-	 Executed 5 tests, with 0 failures (0 unexpected) in 0.130 (0.131) seconds
-Test Suite 'CompactPlaybackTests' started at 2026-11-14 07:28:56.107.
+Test Suite 'ClipboardServiceTests' passed at 2026-11-14 08:27:33.670.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.116 (0.116) seconds
+Test Suite 'CompactPlaybackTests' started at 2026-11-14 08:27:33.670.
 Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' started.
-Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.CompactPlaybackTests testMissingPositionDoesNotRemoveAbsoluteSeeking]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' started.
-Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' passed (0.001 seconds).
-Test Suite 'CompactPlaybackTests' passed at 2026-11-14 07:28:56.109.
-	 Executed 2 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
-Test Suite 'IslandCoreTests' started at 2026-11-14 07:28:56.109.
+Test Case '-[IslandCoreTests.CompactPlaybackTests testOldSavedPanelShrinksOnceAndThenKeepsTheUsersNewWidth]' passed (0.000 seconds).
+Test Suite 'CompactPlaybackTests' passed at 2026-11-14 08:27:33.671.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'IslandCoreTests' started at 2026-11-14 08:27:33.671.
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.050 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerDrainsBothPipesAndPreservesFailureStatus]' passed (0.034 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.115 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCommandRunnerTerminatesExpiredProcess]' passed (0.135 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.003 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testCorruptStateDoesNotSilentlyBecomeEmpty]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testEmptyMediaPayloadAndPausedPosition]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testFocusDeadlineSurvivesRelaunchAndCannotGoNegative]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testFocusPauseResumeDoesNotCountPausedTime]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testInitialEmptyMediaIsNotDelayedAndPauseKeepsTrack]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testLegacyShelfEntryMigratesWithoutLosingIdentityOrPath]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaStreamDecodesOptionalMetadataAndCalculatesPosition]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' passed (0.004 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testMediaTimestampUsesSourceClockNotDeliveryClock]' passed (0.002 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testMixedHistoryKeepsPinnedScreenshotsAndSeparateTextHistory]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreenBetweenMetadataUpdates]' started.
@@ -414,16 +415,16 @@ Test Case '-[IslandCoreTests.IslandCoreTests testNextTrackDoesNotShowEmptyScreen
 Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testRealMediaStopClearsAfterGraceAndRepeatedEmptyDoesNotExtendIt]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' started.
-Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' passed (0.002 seconds).
+Test Case '-[IslandCoreTests.IslandCoreTests testShelfCapsAtFiveDeduplicatesAndReorders]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testStateRoundTripContainsTasksShelfActionsSettingsAndFocus]' passed (0.003 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testTaskListsIncludeOverdueAndUndatedButExcludeCompleted]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' started.
 Test Case '-[IslandCoreTests.IslandCoreTests testTextAndImagesRoundTripWithPinsAndUnicode]' passed (0.001 seconds).
-Test Suite 'IslandCoreTests' passed at 2026-11-14 07:28:56.293.
-	 Executed 17 tests, with 0 failures (0 unexpected) in 0.183 (0.184) seconds
-Test Suite 'NotchActivityTests' started at 2026-11-14 07:28:56.293.
+Test Suite 'IslandCoreTests' passed at 2026-11-14 08:27:33.850.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.179 (0.180) seconds
+Test Suite 'NotchActivityTests' started at 2026-11-14 08:27:33.850.
 Test Case '-[IslandCoreTests.NotchActivityTests testFinishedAgentHasAVisibleCompletionIndicatorBeforeReturningToOtherActivity]' started.
 Test Case '-[IslandCoreTests.NotchActivityTests testFinishedAgentHasAVisibleCompletionIndicatorBeforeReturningToOtherActivity]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchActivityTests testFocusOwnsTimeWhileRetainingMusicStateAndResumesMusicOnCompletion]' started.
@@ -434,9 +435,9 @@ Test Case '-[IslandCoreTests.NotchActivityTests testPauseAndStopHideBothMusicWin
 Test Case '-[IslandCoreTests.NotchActivityTests testPauseAndStopHideBothMusicWingsAndResumeRestoresThem]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' started.
 Test Case '-[IslandCoreTests.NotchActivityTests testPlaybackMotionIsBoundedAndFreezesForPauseOrReducedMotion]' passed (0.000 seconds).
-Test Suite 'NotchActivityTests' passed at 2026-11-14 07:28:56.294.
+Test Suite 'NotchActivityTests' passed at 2026-11-14 08:27:33.851.
 	 Executed 5 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
-Test Suite 'NotchHoverTrackerTests' started at 2026-11-14 07:28:56.294.
+Test Suite 'NotchHoverTrackerTests' started at 2026-11-14 08:27:33.851.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' started.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testNormalHoverKeepsItsDelayAndIgnoresRepeatedSamples]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testOutsideSamplesAfterSwitchPreserveImmediateFirstEntry]' started.
@@ -445,11 +446,11 @@ Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDo
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testRepeatedDisplayChangesDoNotLoseTheNextEntry]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' started.
 Test Case '-[IslandCoreTests.NotchHoverTrackerTests testSpaceSwitchReevaluatesAStationaryCursorAlreadyInside]' passed (0.000 seconds).
-Test Suite 'NotchHoverTrackerTests' passed at 2026-11-14 07:28:56.294.
+Test Suite 'NotchHoverTrackerTests' passed at 2026-11-14 08:27:33.852.
 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
-Test Suite 'PlanningTests' started at 2026-11-14 07:28:56.294.
+Test Suite 'PlanningTests' started at 2026-11-14 08:27:33.852.
 Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' started.
-Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.001 seconds).
+Test Case '-[IslandCoreTests.PlanningTests testCustomFocusSupportsSecondsAndHoursAcrossRelaunch]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' started.
 Test Case '-[IslandCoreTests.PlanningTests testDayBeforeRespectsCalendarAcrossDSTAndQueueRemainsBounded]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testDeadlineAlertsAreSeparateAndSkipPastTimesAndCompletedTasks]' started.
@@ -460,13 +461,13 @@ Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWitho
 Test Case '-[IslandCoreTests.PlanningTests testLegacyTaskAndSettingsMigrateWithoutLosingData]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' started.
 Test Case '-[IslandCoreTests.PlanningTests testMusicProvidersAcceptOnlyPlaybackOrigins]' passed (0.000 seconds).
-Test Suite 'PlanningTests' passed at 2026-11-14 07:28:56.297.
-	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
-Test Suite 'WebAgentTests' started at 2026-11-14 07:28:56.297.
+Test Suite 'PlanningTests' passed at 2026-11-14 08:27:33.854.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'WebAgentTests' started at 2026-11-14 08:27:33.854.
 Test Case '-[IslandCoreTests.WebAgentTests testCompletedPageSnapshotPreservesReportedDurationWithoutStartingWork]' started.
 Test Case '-[IslandCoreTests.WebAgentTests testCompletedPageSnapshotPreservesReportedDurationWithoutStartingWork]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.WebAgentTests testInvalidElapsedMetadataIsRejected]' started.
-Test Case '-[IslandCoreTests.WebAgentTests testInvalidElapsedMetadataIsRejected]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.WebAgentTests testInvalidElapsedMetadataIsRejected]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.WebAgentTests testInvalidHostsUnexpectedDataAndWebApprovalsAreRejected]' started.
 Test Case '-[IslandCoreTests.WebAgentTests testInvalidHostsUnexpectedDataAndWebApprovalsAreRejected]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.WebAgentTests testMissingBrowserHeartbeatsDoNotLeaveAForeverRunningTimer]' started.
@@ -474,15 +475,15 @@ Test Case '-[IslandCoreTests.WebAgentTests testMissingBrowserHeartbeatsDoNotLeav
 Test Case '-[IslandCoreTests.WebAgentTests testObservedElapsedTimeRestoresTheRunningClock]' started.
 Test Case '-[IslandCoreTests.WebAgentTests testObservedElapsedTimeRestoresTheRunningClock]' passed (0.000 seconds).
 Test Case '-[IslandCoreTests.WebAgentTests testPaginationPreservesEveryItemAtAllCapacities]' started.
-Test Case '-[IslandCoreTests.WebAgentTests testPaginationPreservesEveryItemAtAllCapacities]' passed (0.000 seconds).
+Test Case '-[IslandCoreTests.WebAgentTests testPaginationPreservesEveryItemAtAllCapacities]' passed (0.001 seconds).
 Test Case '-[IslandCoreTests.WebAgentTests testWebLifecycleKeepsTheStartTimeAndStopsWithoutAClientPID]' started.
-Test Case '-[IslandCoreTests.WebAgentTests testWebLifecycleKeepsTheStartTimeAndStopsWithoutAClientPID]' passed (0.000 seconds).
-Test Suite 'WebAgentTests' passed at 2026-11-14 07:28:56.299.
-	 Executed 7 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
-Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-11-14 07:28:56.299.
-	 Executed 55 tests, with 0 failures (0 unexpected) in 0.595 (0.598) seconds
-Test Suite 'All tests' passed at 2026-11-14 07:28:56.299.
-	 Executed 55 tests, with 0 failures (0 unexpected) in 0.595 (0.600) seconds
+Test Case '-[IslandCoreTests.WebAgentTests testWebLifecycleKeepsTheStartTimeAndStopsWithoutAClientPID]' passed (0.001 seconds).
+Test Suite 'WebAgentTests' passed at 2026-11-14 08:27:33.859.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'SoloIslandPackageTests.xctest' passed at 2026-11-14 08:27:33.859.
+	 Executed 56 tests, with 0 failures (0 unexpected) in 0.456 (0.459) seconds
+Test Suite 'All tests' passed at 2026-11-14 08:27:33.859.
+	 Executed 56 tests, with 0 failures (0 unexpected) in 0.456 (0.460) seconds
 ◇ Test run started.
 ↳ Testing Library Version: 124.4
 ↳ Target Platform: arm64e-apple-macos14.0
@@ -495,7 +496,7 @@ Building for production...
 [7/9] Compiling IslandApp ActionsView.swift
 [7/9] Write Objects.LinkFileList
 [8/9] Linking SoloIsland
-Build of product 'SoloIsland' complete! (70.88s)
+Build of product 'SoloIsland' complete! (49.06s)
 [0/1] Planning build
 Building for production...
 [0/4] Write sources
@@ -503,7 +504,7 @@ Building for production...
 [3/5] Compiling SoloBridge main.swift
 [3/5] Write Objects.LinkFileList
 [4/5] Linking SoloBridge
-Build of product 'SoloBridge' complete! (3.40s)
+Build of product 'SoloBridge' complete! (1.26s)
 Building for production...
 [0/6] Write sources
 [3/6] Write swift-version--79AA4F9932D1E87A.txt
@@ -512,7 +513,7 @@ Building for production...
 [7/9] Compiling IslandApp ActionsView.swift
 [7/9] Write Objects.LinkFileList
 [8/9] Linking SoloIsland
-Build of product 'SoloIsland' complete! (69.30s)
+Build of product 'SoloIsland' complete! (41.97s)
 [0/1] Planning build
 Building for production...
 [0/4] Write sources
@@ -520,13 +521,13 @@ Building for production...
 [3/5] Compiling SoloBridge main.swift
 [3/5] Write Objects.LinkFileList
 [4/5] Linking SoloBridge
-Build of product 'SoloBridge' complete! (2.64s)
+Build of product 'SoloBridge' complete! (1.66s)
 /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/MacOS/SoloBridge: replacing existing signature
 From https://github.com/ungive/media-control
  * branch            3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea -> FETCH_HEAD
 HEAD is now at 3cfd5dc Bump version to 0.7.7
 Submodule 'mediaremote-adapter' (https://github.com/ungive/mediaremote-adapter) registered for path 'mediaremote-adapter'
-Cloning into '/private/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.Fumo3F/source/mediaremote-adapter'...
+Cloning into '/private/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.JY6kYw/source/mediaremote-adapter'...
 From https://github.com/ungive/mediaremote-adapter
  * branch            e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6 -> FETCH_HEAD
 Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9ba2e962d1cf6'
@@ -534,17 +535,17 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 -- Detecting OBJC compiler ABI info
 -- Detecting OBJC compiler ABI info - done
 -- Check for working OBJC compiler: /usr/bin/clang - skipped
--- Configuring done (3.8s)
--- Generating done (1.0s)
--- Build files have been written to: /var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.Fumo3F/build
+-- Configuring done (2.8s)
+-- Generating done (0.5s)
+-- Build files have been written to: /var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.JY6kYw/build
 [  5%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/main.m.o
 [ 10%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/env.m.o
 [ 15%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/get.m.o
 [ 21%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapterTestClient.dir/src/test/NowPlayingTest.m.o
 [ 26%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/globals.m.o
 [ 31%] Linking OBJC executable ../MediaRemoteAdapterTestClient
-[ 31%] Built target MediaRemoteAdapterTestClient
 [ 36%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/keys.m.o
+[ 36%] Built target MediaRemoteAdapterTestClient
 [ 42%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/now_playing.m.o
 [ 47%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/repeat.m.o
 [ 52%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/adapter/seek.m.o
@@ -558,7 +559,7 @@ Submodule path 'mediaremote-adapter': checked out 'e3ff5021eb0875858bd05f48d2e9b
 [ 94%] Building OBJC object mediaremote-adapter/CMakeFiles/MediaRemoteAdapter.dir/src/utility/helpers.m.o
 [100%] Linking OBJC shared library MediaRemoteAdapter.framework/MediaRemoteAdapter
 Ad-hoc signing MediaRemoteAdapter.framework
-/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.Fumo3F/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
+/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-media.JY6kYw/build/mediaremote-adapter/MediaRemoteAdapter.framework: replacing existing signature
 [100%] Built target MediaRemoteAdapter
 -- Install configuration: "Release"
 -- Installing: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app/Contents/Resources/MediaControl/bin/media-control
@@ -610,7 +611,7 @@ layout expanded=true transition=false active=true frame=560.0
 motion system=true effective=false duration=0.32
 motion step=1 frame=560.0
 motion step=10 frame=560.0
-layout expanded=false transition=true active=true frame=560.0
+layout expanded=false transition=true active=false frame=560.0
 motion system=true effective=false duration=0.32
 layout expanded=false transition=false active=true frame=560.0
 motion system=true effective=false duration=0.32
@@ -620,7 +621,7 @@ layout expanded=true transition=false active=true frame=560.0
 motion system=true effective=false duration=0.32
 motion step=1 frame=560.0
 motion step=10 frame=560.0
-layout expanded=false transition=true active=true frame=560.0
+layout expanded=false transition=true active=false frame=560.0
 motion system=true effective=false duration=0.32
 motion step=1 frame=560.0
 motion step=10 frame=560.0
@@ -1041,8 +1042,8 @@ Native input: click Файлы
 Native input: click Текст
 Native input: click Скрины
 Native input: click Всё
-Native input: click Закрепить:FEE096D9-693A-4946-A2FF-519ECA6E223F
-Native input: click Копировать:5200D866-09F0-45BF-9C26-99EC2F959F5D
+Native input: click Закрепить:6B52F9C6-599D-44AF-AC06-5B82DCAFD0EB
+Native input: click Копировать:89E0B6C2-C4E6-45D4-AD11-AA133CDC8B1D
 Native validation phase: actions
 Native input: click Вкладка:Действия
 Native input: click Finder
@@ -1329,11 +1330,11 @@ layout expanded=true transition=false active=false frame=561.0
 motion system=true effective=false duration=0.32
 Native validation phase: agents
 Native input: click Вкладка:Агенты
-Native input: click Разрешить агенту:78777A3E-694B-4E4C-A06F-18A1439C89BD
+Native input: click Разрешить агенту:65E712BB-F87A-489B-97DA-41916451CD3A
 Native input: click Вкладка:Агенты
-Native input: click Отклонить агенту:DD9573DD-6A6F-4B8B-A8B9-05A229F80974
+Native input: click Отклонить агенту:951449BE-08D3-46C0-834F-210EEA2FE52D
 Native input: click Вкладка:Агенты
-Native input: click Вернуть в клиент:85FC5431-8DA7-4798-AE91-9FF9FB6E4378
+Native input: click Вернуть в клиент:2B2F4CC5-09E5-46DF-BF0F-889610E71C4C
 Agent bridge: real mailbox, native allow/deny/client clicks and exact one-shot protocol replies passed
 Native input: click Закреплено
 Interactive native validation: 11 flows; music, all five sliders, calendars, lists, focus and buttons passed
@@ -1352,19 +1353,19 @@ motion system=true effective=true duration=0.0
 Quit button: native click terminated Solo Island through its application lifecycle
 Built: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app
 Archive: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland-macOS.zip
-created: /var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T//solo-dmg.kGAB68/writable.dmg
+created: /var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T//solo-dmg.usf0Xq/writable.dmg
 Preparing imaging engine…
 Reading Driver Descriptor Map (DDM : 0)…
    (CRC32 $828C71BB: Driver Descriptor Map (DDM : 0))
 Reading Apple (Apple_partition_map : 1)…
    (CRC32 $1AB51B67: Apple (Apple_partition_map : 1))
 Reading disk image (Apple_HFS : 2)…
-   (CRC32 $797673E1: disk image (Apple_HFS : 2))
+   (CRC32 $68FAFAA1: disk image (Apple_HFS : 2))
 Adding resources…
-Elapsed Time:  70.737ms
-File size: 5868241 bytes, Checksum: CRC32 $11093760
+Elapsed Time:  64.647ms
+File size: 5869140 bytes, Checksum: CRC32 $8D1E87EC
 Sectors processed: 131072, 32577 compressed
-Speed: 224.9MB/s
+Speed: 246.1MB/s
 Savings: 91.3%
 created: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
 Checksumming Driver Descriptor Map (DDM : 0)…
@@ -1372,18 +1373,18 @@ Checksumming Driver Descriptor Map (DDM : 0)…
 Checksumming Apple (Apple_partition_map : 1)…
      Apple (Apple_partition_map : 1): verified   CRC32 $1AB51B67
 Checksumming disk image (Apple_HFS : 2)…
-          disk image (Apple_HFS : 2): verified   CRC32 $797673E1
-verified   CRC32 $11093760
+          disk image (Apple_HFS : 2): verified   CRC32 $68FAFAA1
+verified   CRC32 $8D1E87EC
 hdiutil: verify: checksum of "/Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg" is VALID
-expected   CRC32 $11093760
-/dev/disk7          	Apple_partition_scheme         	
-/dev/disk7s1        	Apple_partition_map            	
-/dev/disk7s2        	Apple_HFS                      	/private/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-dmg.kGAB68/mount
+expected   CRC32 $8D1E87EC
+/dev/disk5          	Apple_partition_scheme         	
+/dev/disk5s1        	Apple_partition_map            	
+/dev/disk5s2        	Apple_HFS                      	/private/var/folders/2s/vty41l455yv698g4xkgfv7z00000gn/T/solo-dmg.usf0Xq/mount
 media-control 0.7.7
 Copyright (c) 2025 Jonas van den Berg
 Licensed under the BSD 3-Clause License.
 null
-"disk7" ejected.
+"disk5" ejected.
 Installer: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.dmg
 Built: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland.app
 Archive: /Users/runner/work/Solo-island/Solo-island/dist/SoloIsland-macOS.zip
