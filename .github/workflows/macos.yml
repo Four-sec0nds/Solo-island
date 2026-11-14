@@ -12,16 +12,17 @@ concurrency:
 jobs:
   build:
     # Test the shipped universal bundle while hosted Apple Silicon capacity is limited.
-    runs-on: macos-26-intel
+    runs-on: macos-15-intel
     env:
       SOLO_ARCH: universal
-    timeout-minutes: 25
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Test, bundle media helper and create DMG
-        id: build
+      - name: Test JavaScript, packaging and native Swift targets
+        id: tests
+        timeout-minutes: 8
         shell: bash
         run: |
           set -o pipefail
@@ -29,8 +30,32 @@ jobs:
             command -v cmake || brew install cmake
             node --test Tests/WebPlayerTests/bridge.test.cjs Tests/BrowserTests/*.test.cjs
             python3 -m unittest discover -s Tests/PackagingTests -v
-            bash scripts/build.sh
+            swift test
           } 2>&1 | tee "$RUNNER_TEMP/solo-build.log"
+      - name: Compile and sign both architectures
+        id: bundle
+        timeout-minutes: 12
+        env:
+          SOLO_BUILD_PHASE: bundle
+        run: |
+          set -o pipefail
+          bash scripts/build.sh 2>&1 | tee -a "$RUNNER_TEMP/solo-build.log"
+      - name: Verify native windows and real control interactions
+        id: preview
+        timeout-minutes: 10
+        env:
+          SOLO_BUILD_PHASE: preview
+        run: |
+          set -o pipefail
+          bash scripts/build.sh 2>&1 | tee -a "$RUNNER_TEMP/solo-build.log"
+      - name: Package and mount-check the installer
+        id: package
+        timeout-minutes: 4
+        env:
+          SOLO_BUILD_PHASE: package
+        run: |
+          set -o pipefail
+          bash scripts/build.sh 2>&1 | tee -a "$RUNNER_TEMP/solo-build.log"
       - name: Upload installer
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -79,10 +104,10 @@ jobs:
       - name: Save installer and build result in the repository
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/solo-island'
         env:
-          BUILD_RESULT: ${{ steps.build.outcome }}
+          BUILD_RESULT: ${{ steps.tests.outcome == 'success' && steps.bundle.outcome == 'success' && steps.preview.outcome == 'success' && steps.package.outcome == 'success' && 'success' || 'failure' }}
         run: bash scripts/publish-build.sh
       - name: Save test installer only in its preview branch
         if: always() && github.event_name == 'push' && startsWith(github.ref, 'refs/heads/preview/')
         env:
-          BUILD_RESULT: ${{ steps.build.outcome }}
+          BUILD_RESULT: ${{ steps.tests.outcome == 'success' && steps.bundle.outcome == 'success' && steps.preview.outcome == 'success' && steps.package.outcome == 'success' && 'success' || 'failure' }}
         run: bash scripts/publish-preview.sh

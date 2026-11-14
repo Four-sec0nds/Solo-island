@@ -16,7 +16,11 @@ case "$app_arch" in
     arm64|x86_64) app_arches=("$app_arch") ;;
     *) echo "Unsupported build architecture: $app_arch" >&2; exit 1 ;;
 esac
-swift test
+build_phase="${SOLO_BUILD_PHASE:-all}"
+case "$build_phase" in all|bundle|preview|package) ;; *) echo "Unsupported build phase: $build_phase" >&2; exit 1 ;; esac
+app_dir="$PWD/dist/SoloIsland.app"
+if [[ "$build_phase" == all ]]; then swift test; fi
+if [[ "$build_phase" == all || "$build_phase" == bundle ]]; then
 app_binaries=()
 bridge_binaries=()
 for architecture in "${app_arches[@]}"; do
@@ -26,7 +30,6 @@ for architecture in "${app_arches[@]}"; do
     app_binaries+=("$binary_dir/SoloIsland")
     bridge_binaries+=("$binary_dir/SoloBridge")
 done
-app_dir="$PWD/dist/SoloIsland.app"
 # Only replace our generated bundle, never a user-selected path.
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 if [[ "$app_arch" == universal ]]; then
@@ -56,9 +59,16 @@ bash scripts/bundle-media.sh
 codesign --force --sign - "$app_dir"
 codesign --verify --deep --strict --verbose=2 "$app_dir"
 ditto -c -k --keepParent "$app_dir" "$PWD/dist/SoloIsland-macOS.zip"
+fi
+if [[ "$build_phase" == all || "$build_phase" == preview ]]; then
 rm -f "$PWD/dist/SoloIsland-quit-check.json"
-"$app_dir/Contents/MacOS/SoloIsland" --render-preview "$PWD/dist/SoloIsland-preview.png"
+if [[ "${SOLO_RECORD_FOOTAGE:-0}" == 1 ]]; then
+    "$app_dir/Contents/MacOS/SoloIsland" --render-preview "$PWD/dist/SoloIsland-preview.png"
+else
+    "$app_dir/Contents/MacOS/SoloIsland" --render-preview "$PWD/dist/SoloIsland-preview.png" --verify-only
+fi
 [[ -s "$PWD/dist/SoloIsland-quit-check.json" ]] || { echo 'Native quit button smoke test did not finish.' >&2; exit 1; }
-bash scripts/package-dmg.sh
+fi
+if [[ "$build_phase" == all || "$build_phase" == package ]]; then bash scripts/package-dmg.sh; fi
 echo "Built: $app_dir"
 echo "Archive: $PWD/dist/SoloIsland-macOS.zip"

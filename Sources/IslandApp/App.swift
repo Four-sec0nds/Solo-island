@@ -160,7 +160,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if !frames.isEmpty { frames[frames.count - 1].delay = 0.9 }
             do {
                 let directory = output.deletingLastPathComponent()
-                try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-opening.gif"))
+                if !CommandLine.arguments.contains("--verify-only") {
+                    try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-opening.gif"))
+                }
                 try await verifyScreenSwitchHover(on: screen)
                 // Each still gets a fresh, motion-free host. Reusing a host while changing
                 // tabs can cache a SwiftUI crossfade rather than its final content.
@@ -493,7 +495,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard Set(samples.map(\.remaining)).count >= 4, samples.contains(where: \.paused), resumed, frames.count == 128 else {
             fputs("Focus motion did not record countdown, pause and resume\n", stderr); exit(1)
         }
-        try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-focus-motion.gif"))
+        if !CommandLine.arguments.contains("--verify-only") {
+            try PreviewRecorder.gif(frames, to: directory.appendingPathComponent("SoloIsland-focus-motion.gif"))
+        }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(samples).write(to: directory.appendingPathComponent("SoloIsland-focus-motion.json"))
         fputs("Focus recording: countdown, progress, pause and resume passed\n", stderr)

@@ -76,6 +76,7 @@ final class InteractionRecorder {
     private var eventNumber = 0
     private var sliderValues: [String: [Double]] = [:]
     private var cachedFrames: [String: String] = [:]
+    private let recordFootage = !CommandLine.arguments.contains("--verify-only")
 
     static func record(in output: URL) async throws {
         guard CommandLine.arguments.contains("--render-preview") else { return }
@@ -141,6 +142,11 @@ final class InteractionRecorder {
         for _ in 0..<count {
             try await Task.sleep(nanoseconds: 35_000_000)
             guard let source = PreviewRecorder.snapshot(window)?.cgImage else { throw CocoaError(.fileWriteUnknown) }
+            if !recordFootage {
+                frames.append(Sample(file: "", x: pointer.x, y: pointer.y, pressed: pressed,
+                                     width: window.frame.width, height: window.frame.height))
+                continue
+            }
             let w = Int(window.frame.width.rounded()), h = Int(window.frame.height.rounded())
             guard let context = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
                                           space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw CocoaError(.fileWriteUnknown) }
@@ -476,6 +482,10 @@ final class InteractionRecorder {
         try encoder.encode(sliderValues).write(to: folder.appendingPathComponent("slider-values.json"))
         try FileManager.default.removeItem(at: folder.appendingPathComponent("fixture"))
         try? FileManager.default.removeItem(at: folder.deletingLastPathComponent().appendingPathComponent("SoloIsland-interaction-debug.png"))
+        if recordFootage {
         fputs("Interactive native footage: \(clips.count) clips, \(clips.reduce(0) { $0 + $1.frames.count }) frames; music, all five sliders, calendars, lists, focus and buttons recorded\n", stderr)
+        } else {
+            fputs("Interactive native validation: \(clips.count) flows; music, all five sliders, calendars, lists, focus and buttons passed\n", stderr)
+        }
     }
 }
