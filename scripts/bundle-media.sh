@@ -8,6 +8,11 @@ command -v cmake >/dev/null || { echo 'Build dependency missing: cmake' >&2; exi
 # v0.7.7. Both this revision and its adapter submodule are pinned, not a moving branch.
 media_revision=3cfd5dcf78e7a619f7a42a3e2f29b06eb41027ea
 app_arch="${SOLO_ARCH:-arm64}"
+case "$app_arch" in
+    universal) app_arches=(arm64 x86_64) ;;
+    arm64|x86_64) app_arches=("$app_arch") ;;
+    *) echo "Unsupported build architecture: $app_arch" >&2; exit 1 ;;
+esac
 helper_dir="$PWD/dist/SoloIsland.app/Contents/Resources/MediaControl"
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/solo-media.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
@@ -32,8 +37,8 @@ printf '%s\n' 'media-control v0.7.7 — BSD 3-Clause' \
 printf '%s\n' "$media_revision" > "$helper_dir/source-revision.txt"
 framework="$helper_dir/Frameworks/MediaRemoteAdapter.framework"
 client="$helper_dir/lib/media-control/MediaRemoteAdapterTestClient"
-lipo "$framework/MediaRemoteAdapter" -verify_arch "$app_arch"
-lipo "$client" -verify_arch "$app_arch"
+lipo "$framework/MediaRemoteAdapter" -verify_arch "${app_arches[@]}"
+lipo "$client" -verify_arch "${app_arches[@]}"
 # No dependency may accidentally point at the builder's Homebrew installation.
 linkage="$(otool -L "$framework/MediaRemoteAdapter" "$client")"
 if printf '%s\n' "$linkage" | grep -E '^[[:space:]]+/(opt/homebrew|usr/local|Users)/'; then

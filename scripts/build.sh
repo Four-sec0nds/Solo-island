@@ -11,18 +11,35 @@ if ! xcrun --find swift >/dev/null 2>&1; then
 fi
 configuration="${CONFIGURATION:-release}"
 app_arch="${SOLO_ARCH:-arm64}"
+case "$app_arch" in
+    universal) app_arches=(arm64 x86_64) ;;
+    arm64|x86_64) app_arches=("$app_arch") ;;
+    *) echo "Unsupported build architecture: $app_arch" >&2; exit 1 ;;
+esac
 swift test
-swift build -c "$configuration" --arch "$app_arch" --product SoloIsland
-swift build -c "$configuration" --arch "$app_arch" --product SoloBridge
-binary_dir="$(swift build -c "$configuration" --arch "$app_arch" --show-bin-path)"
+app_binaries=()
+bridge_binaries=()
+for architecture in "${app_arches[@]}"; do
+    swift build -c "$configuration" --arch "$architecture" --product SoloIsland
+    swift build -c "$configuration" --arch "$architecture" --product SoloBridge
+    binary_dir="$(swift build -c "$configuration" --arch "$architecture" --show-bin-path)"
+    app_binaries+=("$binary_dir/SoloIsland")
+    bridge_binaries+=("$binary_dir/SoloBridge")
+done
 app_dir="$PWD/dist/SoloIsland.app"
 # Only replace our generated bundle, never a user-selected path.
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
-cp "$binary_dir/SoloIsland" "$app_dir/Contents/MacOS/SoloIsland"
-cp "$binary_dir/SoloBridge" "$app_dir/Contents/MacOS/SoloBridge"
-lipo "$app_dir/Contents/MacOS/SoloBridge" -verify_arch "$app_arch"
+if [[ "$app_arch" == universal ]]; then
+    lipo -create "${app_binaries[@]}" -output "$app_dir/Contents/MacOS/SoloIsland"
+    lipo -create "${bridge_binaries[@]}" -output "$app_dir/Contents/MacOS/SoloBridge"
+else
+    cp "${app_binaries[0]}" "$app_dir/Contents/MacOS/SoloIsland"
+    cp "${bridge_binaries[0]}" "$app_dir/Contents/MacOS/SoloBridge"
+fi
+chmod 755 "$app_dir/Contents/MacOS/SoloIsland" "$app_dir/Contents/MacOS/SoloBridge"
+lipo "$app_dir/Contents/MacOS/SoloBridge" -verify_arch "${app_arches[@]}"
 codesign --force --sign - "$app_dir/Contents/MacOS/SoloBridge"
-lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "$app_arch"
+lipo "$app_dir/Contents/MacOS/SoloIsland" -verify_arch "${app_arches[@]}"
 cp Resources/Info.plist "$app_dir/Contents/Info.plist"
 rm -rf "$app_dir/Contents/Resources/AgentPets"
 cp -R Resources/AgentPets "$app_dir/Contents/Resources/AgentPets"
